@@ -1,0 +1,24 @@
+language: python
+
+sudo: false
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "pypy"
+
+before_install:
+  - travis_retry pip install codecov
+
+install:
+  - travis_retry pip install -U -r dev-requirements.txt
+  - travis_retry pip install -U .
+
+before_script:
+  - flake8 .
+
+script: py.test
+
+after_success:
+  codecov

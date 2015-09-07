@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+__version__ = '0.1.0'
+
 import copy
-import http
 import types
 import functools
 
 import six
+from six.moves import http_client as http
+
 import flask
 from webargs.flaskparser import parser
 
@@ -30,7 +33,7 @@ def activate(func):
         kwargs.update(parser.parse(__args__.get('args', {})))
         response = func(*args, **kwargs)
         unpacked = unpack(response)
-        status_code = unpacked[1] or http.client.OK
+        status_code = unpacked[1] or http.OK
         schema = __schemas__.get(status_code, __schemas__.get('default'))
         if schema:
             schema = resolve_instance(schema['schema'])
