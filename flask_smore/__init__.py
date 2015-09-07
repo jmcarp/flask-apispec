@@ -85,7 +85,7 @@ def merge_key(child, parent, attr):
         getattr(child, attr, {}),
         getattr(parent, attr, {}),
     )
-    setattr(child, attr, value)
+    child.__dict__.setdefault(attr, {}).update(value)
 
 def merge_recursive(child, parent):
     if isinstance(child, dict) or isinstance(parent, dict):

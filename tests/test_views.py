@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import flask
+import six
 import pytest
 import webtest
+
+import flask
+import flask.views
 
 from webargs import Arg
 import marshmallow as ma
 
-from flask_smore import use_kwargs, marshal_with
+from flask_smore import ResourceMeta, Ref, use_kwargs, marshal_with
 
 class Bunch(object):
 
@@ -42,6 +45,12 @@ def schemas(models):
 
     return Bunch(BandSchema=BandSchema)
 
+class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
+    pass
+
+class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
+    methods = None
+
 class TestFunctionViews:
 
     def test_use_kwargs(self, app, client):
@@ -68,3 +77,53 @@ class TestFunctionViews:
             return models.Band('queen', 'rock'), 201
         res = client.get('/')
         assert res.json == {'name': 'queen'}
+
+class TestClassViews:
+
+    def test_kwargs_inheritance(self, app, client):
+        class BaseResource(MethodResource):
+            @use_kwargs({'name': Arg(str)})
+            def get(self, **kwargs):
+                pass
+
+        class ConcreteResource(BaseResource):
+            @use_kwargs({'genre': Arg(str)})
+            def get(self, **kwargs):
+                return kwargs
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen', 'genre': 'rock'}
+
+    def test_schemas_inheritance(self, app, client, models, schemas):
+        class BaseResource(MethodResource):
+            @marshal_with(schemas.BandSchema)
+            def get(self):
+                pass
+
+        class ConcreteResource(BaseResource):
+            @marshal_with(schemas.BandSchema(only=('genre', )), code=201)
+            def get(self, **kwargs):
+                return models.Band('slowdive', 'shoegaze'), 201
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/')
+        assert res.json == {'genre': 'shoegaze'}
+
+    def test_schemas_inheritance_refs(self, app, client, models, schemas):
+        class BaseResource(MethodResource):
+            schema = None
+
+            @marshal_with(Ref('schema'))
+            def get(self):
+                pass
+
+        class ConcreteResource(BaseResource):
+            schema = schemas.BandSchema
+
+            def get(self, **kwargs):
+                return models.Band('slowdive', 'shoegaze')
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/')
+        assert res.json == {'name': 'slowdive', 'genre': 'shoegaze'}
