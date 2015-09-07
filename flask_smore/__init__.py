@@ -6,11 +6,17 @@ import types
 import functools
 
 import six
-from webargs import flaskparser
+import flask
+from webargs.flaskparser import parser
 
 def unpack(resp):
     resp = resp if isinstance(resp, tuple) else (resp, )
     return resp + (None, ) * (3 - len(resp))
+
+def resolve_instance(schema):
+    if isinstance(schema, type):
+        return schema()
+    return schema
 
 def activate(func):
     if getattr(func, '__wrapped__', False):
@@ -18,17 +24,18 @@ def activate(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        obj = args[0] if func.__ismethod__ else None
+        obj = args[0] if getattr(func, '__ismethod__', False) else None
         __args__ = resolve_refs(obj, getattr(func, '__args__', {}))
         __schemas__ = resolve_refs(obj, getattr(func, '__schemas__', {}))
-        kwargs.update(flaskparser.parse(__args__))
+        kwargs.update(parser.parse(__args__.get('args', {})))
         response = func(*args, **kwargs)
         unpacked = unpack(response)
         status_code = unpacked[1] or http.client.OK
         schema = __schemas__.get(status_code, __schemas__.get('default'))
         if schema:
-            return (schema['schema'].dump(unpacked[0]).data, ) + unpacked[1:]
-        return unpacked
+            schema = resolve_instance(schema['schema'])
+            return (flask.jsonify(schema.dump(unpacked[0]).data), ) + unpacked[1:]
+        return (flask.jsonify(unpacked[0]), ) + unpacked[1:]
 
     wrapped.__wrapped__ = True
     return wrapped
