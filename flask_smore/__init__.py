@@ -18,15 +18,19 @@ def activate(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        if getattr(func, '__args__', None):
-            kwargs.update(flaskparser.parse(func.__args__))
+        obj = args[0] if func.__ismethod__ else None
+        __args__ = resolve_refs(obj, getattr(func, '__args__', {}))
+        __schemas__ = resolve_refs(obj, getattr(func, '__schemas__', {}))
+        kwargs.update(flaskparser.parse(__args__))
         response = func(*args, **kwargs)
         unpacked = unpack(response)
         status_code = unpacked[1] or http.client.OK
-        schema = getattr(func, '__schemas__', {}).get(status_code)
+        schema = __schemas__.get(status_code, __schemas__.get('default'))
         if schema:
             return (schema['schema'].dump(unpacked[0]).data, ) + unpacked[1:]
         return unpacked
+
+    wrapped.__wrapped__ = True
     return wrapped
 
 def use_kwargs(args, default_in='query'):
@@ -38,7 +42,7 @@ def use_kwargs(args, default_in='query'):
         return activate(func)
     return wrapper
 
-def marshal_with(schema, code=http.client.OK, description=None):
+def marshal_with(schema, code='default', description=''):
     def wrapper(func):
         func.__dict__.setdefault('__schemas__', {}).update({
             code: {
@@ -65,12 +69,27 @@ def resolve_parent(mro, key):
     return None
 
 def merge_attrs(value, parent):
-    value.__schemas__ = getattr(value, '__schemas__', {})
-    value.__schemas__.update({
-        key: val for key, val in six.iteritems(getattr(parent, '__schemas__', {}))
-        if key not in value.__schemas__
-    })
+    merge_key(value, parent, '__args__')
+    merge_key(value, parent, '__schemas__')
     return activate(value)
+
+def merge_key(child, parent, attr):
+    value = merge_recursive(
+        getattr(child, attr, {}),
+        getattr(parent, attr, {}),
+    )
+    setattr(child, attr, value)
+
+def merge_recursive(child, parent):
+    if isinstance(child, dict) or isinstance(parent, dict):
+        child = child or {}
+        parent = parent or {}
+        keys = set(child.keys()).union(parent.keys())
+        return {
+            key: merge_recursive(child.get(key), parent.get(key))
+            for key in keys
+        }
+    return child or parent
 
 class ResourceMeta(type):
 
@@ -82,4 +101,24 @@ class ResourceMeta(type):
                 parent = resolve_parent(mro, key)
                 if parent is not None:
                     setattr(klass, key, merge_attrs(value, parent))
+                if not isinstance(value, staticmethod):
+                    value.__ismethod__ = True
         return klass
+
+class Ref(object):
+
+    def __init__(self, key):
+        self.key = key
+
+    def resolve(self, obj):
+        return getattr(obj, self.key, None)
+
+def resolve_refs(obj, attr):
+    if isinstance(attr, dict):
+        return {
+            key: resolve_refs(obj, value)
+            for key, value in six.iteritems(attr)
+        }
+    if isinstance(attr, Ref):
+        return attr.resolve(obj)
+    return attr
