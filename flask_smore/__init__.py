@@ -12,6 +12,8 @@ from six.moves import http_client as http
 import flask
 from webargs.flaskparser import parser
 
+from flask_smore.utils import resolve_refs, merge_recursive
+
 def unpack(resp):
     resp = resp if isinstance(resp, tuple) else (resp, )
     return resp + (None, ) * (3 - len(resp))
@@ -90,17 +92,6 @@ def merge_key(child, parent, attr):
     )
     child.__dict__.setdefault(attr, {}).update(value)
 
-def merge_recursive(child, parent):
-    if isinstance(child, dict) or isinstance(parent, dict):
-        child = child or {}
-        parent = parent or {}
-        keys = set(child.keys()).union(parent.keys())
-        return {
-            key: merge_recursive(child.get(key), parent.get(key))
-            for key in keys
-        }
-    return child or parent
-
 class ResourceMeta(type):
 
     def __new__(mcs, name, bases, attrs):
@@ -114,21 +105,3 @@ class ResourceMeta(type):
                 if not isinstance(value, staticmethod):
                     value.__ismethod__ = True
         return klass
-
-class Ref(object):
-
-    def __init__(self, key):
-        self.key = key
-
-    def resolve(self, obj):
-        return getattr(obj, self.key, None)
-
-def resolve_refs(obj, attr):
-    if isinstance(attr, dict):
-        return {
-            key: resolve_refs(obj, value)
-            for key, value in six.iteritems(attr)
-        }
-    if isinstance(attr, Ref):
-        return attr.resolve(obj)
-    return attr

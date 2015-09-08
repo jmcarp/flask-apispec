@@ -4,7 +4,8 @@ import six
 from webargs import Arg
 import marshmallow as ma
 
-from flask_smore import ResourceMeta, Ref, marshal_with, use_kwargs
+from flask_smore.utils import Ref
+from flask_smore import ResourceMeta, doc, marshal_with, use_kwargs
 
 class Pet:
     def __init__(self, name, type):
@@ -12,8 +13,8 @@ class Pet:
         self.type = type
 
 class PetSchema(ma.Schema):
-    class Meta:
-        fields = ('name', 'type')
+    name = ma.fields.Str()
+    type = ma.fields.Str()
 
 class PetResource(six.with_metaclass(ResourceMeta)):
     @use_kwargs({
@@ -55,3 +56,48 @@ class CrudResource(six.with_metaclass(ResourceMeta)):
 
 class PetResource(CrudResource):
     schema = PetSchema
+
+###
+
+import flask
+import flask.views
+from smore.apispec import APISpec
+
+from flask_smore.apidoc import Documentation
+
+app = flask.Flask(__name__)
+spec = APISpec(
+    title='title',
+    version='v1',
+    plugins=['smore.ext.marshmallow'],
+)
+docs = Documentation(app, spec)
+
+@app.route('/pets/<pet_id>')
+@doc(parameters=[{'name': 'pet_id', 'type': 'string', 'in': 'path'}])
+@marshal_with(PetSchema)
+@use_kwargs({'breed': Arg(str)})
+def get_pet(pet_id):
+    return Pet('calici', 'cat')
+
+docs.register(get_pet)
+
+class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
+    pass
+
+class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
+    methods = None
+
+@doc(parameters=[{'name': 'pet_id', 'type': 'string', 'in': 'path'}])
+class CatResource(MethodResource):
+
+    @marshal_with(PetSchema)
+    def get(self, pet_id):
+        return Pet('calici', 'cat')
+
+    @marshal_with(PetSchema)
+    def put(self, pet_id):
+        return Pet('calici', 'cat')
+
+app.add_url_rule('/cat/<pet_id>', view_func=CatResource.as_view('CatResource'))
+docs.register(CatResource)

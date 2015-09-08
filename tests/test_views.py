@@ -10,7 +10,8 @@ import flask.views
 from webargs import Arg
 import marshmallow as ma
 
-from flask_smore import ResourceMeta, Ref, use_kwargs, marshal_with
+from flask_smore.utils import Ref
+from flask_smore import ResourceMeta, use_kwargs, marshal_with
 
 class Bunch(object):
 
