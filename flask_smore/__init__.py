@@ -45,22 +45,24 @@ def activate(func):
     wrapped.__wrapped__ = True
     return wrapped
 
-def use_kwargs(args, default_in='query'):
+def use_kwargs(args, default_in='query', inherit=True):
     def wrapper(func):
         func.__dict__.setdefault('__args__', {}).update({
             'args': args,
             'default_in': default_in,
+            'inherit': inherit,
         })
         return activate(func)
     return wrapper
 
-def marshal_with(schema, code='default', description=''):
+def marshal_with(schema, code='default', description='', inherit=True):
     def wrapper(func):
         func.__dict__.setdefault('__schemas__', {}).update({
             code: {
                 'schema': schema,
                 'description': description,
-            }
+            },
+            'inherit': inherit,
         })
         return activate(func)
     return wrapper
@@ -86,11 +88,11 @@ def merge_attrs(value, parent):
     return activate(value)
 
 def merge_key(child, parent, attr):
-    value = merge_recursive(
-        getattr(child, attr, {}),
-        getattr(parent, attr, {}),
-    )
-    child.__dict__.setdefault(attr, {}).update(value)
+    child_value = getattr(child, attr, {})
+    if child_value.get('inherit', True):
+        parent_value = getattr(parent, attr, {})
+        value = merge_recursive(child_value, parent_value)
+        child.__dict__.setdefault(attr, {}).update(value)
 
 class ResourceMeta(type):
 

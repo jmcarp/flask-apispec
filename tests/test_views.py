@@ -128,3 +128,33 @@ class TestClassViews:
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
         res = client.get('/')
         assert res.json == {'name': 'slowdive', 'genre': 'shoegaze'}
+
+    def test_kwargs_inheritance_false(self, app, client, models, schemas):
+        class BaseResource(MethodResource):
+            @use_kwargs({'name': Arg(str), 'genre': Arg(str)})
+            def get(self):
+                pass
+
+        class ConcreteResource(BaseResource):
+            @use_kwargs({'name': Arg(str)}, inherit=False)
+            def get(self, **kwargs):
+                return kwargs
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen'}
+
+    def test_schemas_inheritance_false(self, app, client, models, schemas):
+        class BaseResource(MethodResource):
+            @marshal_with(schemas.BandSchema, code=201)
+            def get(self):
+                pass
+
+        class ConcreteResource(BaseResource):
+            @marshal_with(schemas.BandSchema(only=('genre', )), inherit=False)
+            def get(self, **kwargs):
+                return models.Band('slowdive', 'shoegaze'), 201
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/')
+        assert res.json == {'genre': 'shoegaze'}
