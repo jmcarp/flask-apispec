@@ -27,6 +27,9 @@ def activate(func):
     if getattr(func, '__wrapped__', False):
         return func
 
+    func.__args__ = getattr(func, '__args__', {})
+    func.__schemas__ = getattr(func, '__schemas__', {})
+
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         obj = args[0] if getattr(func, '__ismethod__', False) else None

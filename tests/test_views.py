@@ -35,6 +35,15 @@ class TestFunctionViews:
         res = client.get('/')
         assert res.json == {'name': 'queen'}
 
+    def test_integration(self, app, client, models, schemas):
+        @app.route('/')
+        @use_kwargs({'name': Arg(str), 'genre': Arg(str)})
+        @marshal_with(schemas.BandSchema)
+        def view(**kwargs):
+            return models.Band(**kwargs)
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen', 'genre': 'rock'}
+
 class TestClassViews:
 
     def test_kwargs_inheritance(self, app, client):
