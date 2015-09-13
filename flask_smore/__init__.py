@@ -50,7 +50,7 @@ def use_kwargs(args, default_in='query', inherit=True):
         func.__dict__.setdefault('__args__', {}).update({
             'args': args,
             'default_in': default_in,
-            'inherit': inherit,
+            '_inherit': inherit,
         })
         return activate(func)
     return wrapper
@@ -62,7 +62,7 @@ def marshal_with(schema, code='default', description='', inherit=True):
                 'schema': schema,
                 'description': description,
             },
-            'inherit': inherit,
+            '_inherit': inherit,
         })
         return activate(func)
     return wrapper
@@ -89,7 +89,7 @@ def merge_attrs(value, parent):
 
 def merge_key(child, parent, attr):
     child_value = getattr(child, attr, {})
-    if child_value.get('inherit', True):
+    if child_value.get('_inherit', True):
         parent_value = getattr(parent, attr, {})
         value = merge_recursive(child_value, parent_value)
         child.__dict__.setdefault(attr, {}).update(value)

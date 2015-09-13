@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
 import types
 
 import six
@@ -8,7 +7,8 @@ from smore import swagger
 from smore.apispec.core import VALID_METHODS
 
 from flask_smore import ResourceMeta
-from flask_smore.utils import resolve_refs, merge_recursive
+from flask_smore.paths import get_path, rule_to_parameters
+from flask_smore.utils import resolve_refs, merge_recursive, filter_recursive
 
 class Documentation(object):
 
@@ -45,22 +45,25 @@ class Converter(object):
             'view': target,
             'path': extract_path(rule.rule),
             'operations': {
-                method.lower(): self.get_operation(view, parent=parent)
+                method.lower(): self.get_operation(rule, view, parent=parent)
                 for method, view in six.iteritems(operations)
                 if method.lower() in (set(VALID_METHODS) - {'head'})
             },
         }
 
-    def get_operation(self, view, parent=None):
+    def get_operations(self, rule, target):
+        return {}
+
+    def get_operation(self, rule, view, parent=None):
         return {
-            'responses': resolve_refs(parent, getattr(view, '__schemas__', {})),
-            'parameters': self.get_parameters(view, parent),
+            'responses': self.get_responses(view, parent),
+            'parameters': self.get_parameters(rule, view, parent),
         }
 
     def get_parent(self, view):
         return None
 
-    def get_parameters(self, view, parent=None):
+    def get_parameters(self, rule, view, parent=None):
         __args__ = resolve_refs(parent, getattr(view, '__args__', {}))
         __apidoc__ = merge_recursive(
             getattr(view, '__apidoc__', {}),
@@ -69,7 +72,11 @@ class Converter(object):
         return swagger.args2parameters(
             __args__.get('args', {}),
             default_in=__args__.get('default_in'),
-        ) + __apidoc__.get('parameters', [])
+        ) + rule_to_parameters(rule, __apidoc__.get('params'))
+
+    def get_responses(self, view, parent=None):
+        ret = resolve_refs(parent, getattr(view, '__schemas__', {}))
+        return filter_recursive(ret, lambda key, value: not key.startswith('_'))
 
 class ViewConverter(Converter):
 
@@ -87,7 +94,3 @@ class ResourceConverter(Converter):
 
     def get_parent(self, resource):
         return resource
-
-RE_URL = re.compile(r'<(?:[^:<>]+:)?([^<>]+)>')
-def extract_path(path):
-    return RE_URL.sub(r'{\1}', path)

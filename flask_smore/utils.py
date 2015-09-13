@@ -30,3 +30,11 @@ def merge_recursive(child, parent):
             for key in keys
         }
     return child or parent
+
+def filter_recursive(data, predicate):
+    if isinstance(data, dict):
+        return {
+            key: filter_recursive(value, predicate) for key, value in six.iteritems(data)
+            if predicate(key, value)
+        }
+    return data
