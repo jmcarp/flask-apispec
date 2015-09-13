@@ -7,7 +7,7 @@ from smore import swagger
 from smore.apispec.core import VALID_METHODS
 
 from flask_smore import ResourceMeta
-from flask_smore.paths import get_path, rule_to_parameters
+from flask_smore.paths import rule_to_path, rule_to_params
 from flask_smore.utils import resolve_refs, merge_recursive, filter_recursive
 
 class Documentation(object):
@@ -43,7 +43,7 @@ class Converter(object):
         parent = self.get_parent(target)
         return {
             'view': target,
-            'path': extract_path(rule.rule),
+            'path': rule_to_path(rule),
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
                 for method, view in six.iteritems(operations)
@@ -72,7 +72,7 @@ class Converter(object):
         return swagger.args2parameters(
             __args__.get('args', {}),
             default_in=__args__.get('default_in'),
-        ) + rule_to_parameters(rule, __apidoc__.get('params'))
+        ) + rule_to_params(rule, __apidoc__.get('params'))
 
     def get_responses(self, view, parent=None):
         ret = resolve_refs(parent, getattr(view, '__schemas__', {}))
