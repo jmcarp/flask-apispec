@@ -1,50 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import six
-import pytest
-import webtest
 
 import flask
 import flask.views
 
 from webargs import Arg
-import marshmallow as ma
 
 from flask_smore.utils import Ref
 from flask_smore import ResourceMeta, use_kwargs, marshal_with
 
-class Bunch(object):
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(**kwargs)
-
-    def items(self):
-        return self.__dict__.items()
-
-@pytest.fixture
-def app():
-    return flask.Flask(__name__)
-
-@pytest.fixture
-def client(app):
-    return webtest.TestApp(app)
-
-@pytest.fixture
-def models():
-    class Band(object):
-        def __init__(self, name, genre):
-            self.name = name
-            self.genre = genre
-
-    return Bunch(Band=Band)
-
-@pytest.fixture
-def schemas(models):
-    class BandSchema(ma.Schema):
-        class Meta:
-            fields = ('name', 'genre')
-
-    return Bunch(BandSchema=BandSchema)
+from tests.fixtures import app, client, models, schemas  # noqa
 
 class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
     pass

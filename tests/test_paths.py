@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import flask
-import pytest
-
 from flask_smore.paths import rule_to_path, rule_to_params
 
-@pytest.fixture
-def app():
-    return flask.Flask(__name__)
+from tests.fixtures import app  # noqa
 
 def make_rule(app, path, **kwargs):
     @app.route(path, **kwargs)
