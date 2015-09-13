@@ -18,11 +18,11 @@ class Documentation(object):
         self.view_converter = ViewConverter(app, spec)
         self.resource_converter = ResourceConverter(app, spec)
 
-    def register(self, target, endpoint=None):
+    def register(self, target, endpoint=None, blueprint=None):
         if isinstance(target, types.FunctionType):
-            self.view_converter.convert(target, endpoint)
+            self.view_converter.convert(target, endpoint, blueprint)
         elif isinstance(target, ResourceMeta):
-            self.resource_converter.convert(target, endpoint)
+            self.resource_converter.convert(target, endpoint, blueprint)
         else:
             raise TypeError
 
@@ -32,8 +32,10 @@ class Converter(object):
         self.app = app
         self.spec = spec
 
-    def convert(self, target, endpoint=None):
-        endpoint = endpoint or target.__name__
+    def convert(self, target, endpoint=None, blueprint=None):
+        endpoint = endpoint or target.__name__.lower()
+        if blueprint:
+            endpoint = '{}.{}'.format(blueprint, endpoint)
         rules = self.app.url_map._rules_by_endpoint[endpoint]
         for rule in rules:
             self.spec.add_path(**self.get_path(rule, target))
