@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import six
-
 import flask
-import flask.views
 
 from webargs import Arg
 
 from flask_smore.utils import Ref
-from flask_smore import ResourceMeta, use_kwargs, marshal_with
+from flask_smore.views import MethodResource
+from flask_smore import use_kwargs, marshal_with
 
 from tests.fixtures import app, client, models, schemas  # noqa
-
-class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
-    pass
-
-class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
-    methods = None
 
 class TestFunctionViews:
 

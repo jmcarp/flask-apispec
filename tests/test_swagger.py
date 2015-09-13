@@ -5,9 +5,10 @@ from webargs import Arg
 from smore import swagger
 from smore.apispec import APISpec
 
+from flask_smore.paths import rule_to_params
+from flask_smore.views import MethodResource
 from flask_smore import doc, use_kwargs, marshal_with
 from flask_smore.apidoc import ViewConverter, ResourceConverter
-from flask_smore.paths import rule_to_params
 
 from tests.fixtures import app, models, schemas  # noqa
 
@@ -24,7 +25,7 @@ class TestFunctionView:
     @pytest.fixture
     def function_view(self, app, models, schemas):
         @app.route('/bands/<int:band_id>/')
-        @doc(tags=['pet'])
+        @doc(tags=['band'])
         @use_kwargs({'name': Arg(str)})
         @marshal_with(schemas.BandSchema, description='a band')
         def get_band(band_id):
@@ -52,4 +53,41 @@ class TestFunctionView:
         assert response['schema'] == swagger.schema2jsonschema(schemas.BandSchema)
 
     def test_tags(self, path):
-        assert path['get']['tags'] == ['pet']
+        assert path['get']['tags'] == ['band']
+
+class TestResourceView:
+
+    @pytest.fixture
+    def resource_view(self, app, models, schemas):
+        @doc(tags=['band'])
+        class BandResource(MethodResource):
+            @use_kwargs({'name': Arg(str)})
+            @marshal_with(schemas.BandSchema, description='a band')
+            def get(self, **kwargs):
+                return models.Band('slowdive', 'shoegaze')
+
+        app.add_url_rule('/bands/<band_id>/', view_func=BandResource.as_view('band'))
+        return BandResource
+
+    @pytest.fixture
+    def path(self, app, spec, resource_view):
+        converter = ResourceConverter(app, spec)
+        converter.convert(resource_view, endpoint='band')
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['band'][0]
+        expected = (
+            swagger.args2parameters({'name': Arg(str)}, default_in='query') +
+            rule_to_params(rule)
+        )
+        assert params == expected
+
+    def test_responses(self, schemas, path):
+        response = path['get']['responses']['default']
+        assert response['description'] == 'a band'
+        assert response['schema'] == swagger.schema2jsonschema(schemas.BandSchema)
+
+    def test_tags(self, path):
+        assert path['get']['tags'] == ['band']
