@@ -32,12 +32,13 @@ def activate(func):
         obj = args[0] if getattr(func, '__ismethod__', False) else None
         __args__ = resolve_refs(obj, getattr(func, '__args__', {}))
         __schemas__ = resolve_refs(obj, getattr(func, '__schemas__', {}))
-        kwargs.update(parser.parse(__args__.get('args', {})))
+        if __args__.get('_apply', True):
+            kwargs.update(parser.parse(__args__.get('args', {})))
         response = func(*args, **kwargs)
         unpacked = unpack(response)
         status_code = unpacked[1] or http.OK
         schema = __schemas__.get(status_code, __schemas__.get('default'))
-        if schema:
+        if schema and __schemas__.get('_apply', True):
             schema = resolve_instance(schema['schema'])
             return (flask.jsonify(schema.dump(unpacked[0]).data), ) + unpacked[1:]
         return (flask.jsonify(unpacked[0]), ) + unpacked[1:]
@@ -45,17 +46,18 @@ def activate(func):
     wrapped.__wrapped__ = True
     return wrapped
 
-def use_kwargs(args, default_in='query', inherit=True):
+def use_kwargs(args, default_in='query', inherit=True, apply=True):
     def wrapper(func):
         func.__dict__.setdefault('__args__', {}).update({
             'args': args,
             'default_in': default_in,
             '_inherit': inherit,
+            '_apply': apply,
         })
         return activate(func)
     return wrapper
 
-def marshal_with(schema, code='default', description='', inherit=True):
+def marshal_with(schema, code='default', description='', inherit=True, apply=True):
     def wrapper(func):
         func.__dict__.setdefault('__schemas__', {}).update({
             code: {
@@ -63,6 +65,7 @@ def marshal_with(schema, code='default', description='', inherit=True):
                 'description': description,
             },
             '_inherit': inherit,
+            '_apply': apply,
         })
         return activate(func)
     return wrapper

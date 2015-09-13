@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import flask
-
 from webargs import Arg
 
 from flask_smore.utils import Ref
@@ -53,6 +51,16 @@ class TestClassViews:
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
         res = client.get('/', {'name': 'queen', 'genre': 'rock'})
         assert res.json == {'name': 'queen', 'genre': 'rock'}
+
+    def test_kwargs_apply_false(self, app, client):
+        class ConcreteResource(MethodResource):
+            @use_kwargs({'genre': Arg(str)}, apply=False)
+            def get(self, **kwargs):
+                return kwargs
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {}
 
     def test_schemas_inheritance(self, app, client, models, schemas):
         class BaseResource(MethodResource):
@@ -116,3 +124,13 @@ class TestClassViews:
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
         res = client.get('/')
         assert res.json == {'genre': 'shoegaze'}
+
+    def test_schemas_apply_false(self, app, client, models, schemas):
+        class ConcreteResource(MethodResource):
+            @marshal_with(schemas.BandSchema, apply=False)
+            def get(self, **kwargs):
+                return {'genre': 'spacerock'}
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/')
+        assert res.json == {'genre': 'spacerock'}
