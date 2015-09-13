@@ -55,24 +55,26 @@ class Converter(object):
         return {}
 
     def get_operation(self, rule, view, parent=None):
-        return {
+        docs = merge_recursive(
+            getattr(view, '__apidoc__', {}),
+            getattr(parent, '__apidoc__', {}),
+        )
+        operation = {
             'responses': self.get_responses(view, parent),
-            'parameters': self.get_parameters(rule, view, parent),
+            'parameters': self.get_parameters(rule, view, docs, parent),
         }
+        docs.pop('params', None)
+        return merge_recursive(operation, docs)
 
     def get_parent(self, view):
         return None
 
-    def get_parameters(self, rule, view, parent=None):
+    def get_parameters(self, rule, view, docs, parent=None):
         __args__ = resolve_refs(parent, getattr(view, '__args__', {}))
-        __apidoc__ = merge_recursive(
-            getattr(view, '__apidoc__', {}),
-            getattr(parent, '__apidoc__', {}),
-        )
         return swagger.args2parameters(
             __args__.get('args', {}),
             default_in=__args__.get('default_in'),
-        ) + rule_to_params(rule, __apidoc__.get('params'))
+        ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
         ret = resolve_refs(parent, getattr(view, '__schemas__', {}))

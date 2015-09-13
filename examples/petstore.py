@@ -74,7 +74,7 @@ spec = APISpec(
 docs = Documentation(app, spec)
 
 @app.route('/pets/<pet_id>')
-@doc(parameters=[{'name': 'pet_id', 'type': 'string', 'in': 'path'}])
+@doc(params={'pet_id': {'description': 'pet id'}})
 @marshal_with(PetSchema)
 @use_kwargs({'breed': Arg(str)})
 def get_pet(pet_id):
@@ -88,7 +88,10 @@ class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
 class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
     methods = None
 
-@doc(parameters=[{'name': 'pet_id', 'type': 'string', 'in': 'path'}])
+@doc(
+    tags=['pets'],
+    params={'pet_id': {'description': 'the pet name'}},
+)
 class CatResource(MethodResource):
 
     @marshal_with(PetSchema)
