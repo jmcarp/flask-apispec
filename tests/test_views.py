@@ -14,9 +14,18 @@ class TestFunctionViews:
         @app.route('/')
         @use_kwargs({'name': Arg(str)})
         def view(**kwargs):
-            return {'name': kwargs['name']}
+            return kwargs
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
+
+    def test_use_kwargs_multiple(self, app, client):
+        @app.route('/')
+        @use_kwargs({'name': Arg(str)})
+        @use_kwargs({'instrument': Arg(str)})
+        def view(**kwargs):
+            return kwargs
+        res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
+        assert res.json == {'name': 'freddie', 'instrument': 'vocals'}
 
     def test_marshal_with_default(self, app, client, models, schemas):
         @app.route('/')

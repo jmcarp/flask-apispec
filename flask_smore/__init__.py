@@ -51,25 +51,29 @@ def activate(func):
 
 def use_kwargs(args, default_in='query', inherit=True, apply=True):
     def wrapper(func):
-        func.__dict__.setdefault('__args__', {}).update({
+        __args__ = {
             'args': args,
             'default_in': default_in,
             '_inherit': inherit,
             '_apply': apply,
-        })
+        }
+        func.__dict__.setdefault('__args__', {})
+        func.__args__.update(merge_recursive(__args__, func.__args__))
         return activate(func)
     return wrapper
 
 def marshal_with(schema, code='default', description='', inherit=True, apply=True):
     def wrapper(func):
-        func.__dict__.setdefault('__schemas__', {}).update({
+        __schemas__ = {
             code: {
                 'schema': schema,
                 'description': description,
             },
             '_inherit': inherit,
             '_apply': apply,
-        })
+        }
+        func.__dict__.setdefault('__schemas__', {})
+        func.__schemas__.update(merge_recursive(__schemas__, func.__schemas__))
         return activate(func)
     return wrapper
 
