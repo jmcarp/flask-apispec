@@ -49,7 +49,7 @@ def merge_recursive_pair(child, parent):
             key: merge_recursive_pair(child.get(key), parent.get(key))
             for key in keys
         }
-    return child or parent
+    return child if child is not None else parent
 
 def filter_recursive(data, predicate):
     if isinstance(data, dict):
