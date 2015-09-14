@@ -34,8 +34,10 @@ class TestFunctionView:
 
     @pytest.fixture
     def path(self, app, spec, function_view):
-        converter = ViewConverter(app, spec)
-        converter.convert(function_view)
+        converter = ViewConverter(app)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.add_path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path):
@@ -71,8 +73,10 @@ class TestResourceView:
 
     @pytest.fixture
     def path(self, app, spec, resource_view):
-        converter = ResourceConverter(app, spec)
-        converter.convert(resource_view, endpoint='band')
+        converter = ResourceConverter(app)
+        paths = converter.convert(resource_view, endpoint='band')
+        for path in paths:
+            spec.add_path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path):

@@ -18,30 +18,30 @@ class Documentation(object):
     def __init__(self, app, spec):
         self.app = app
         self.spec = spec
-        self.view_converter = ViewConverter(app, spec)
-        self.resource_converter = ResourceConverter(app, spec)
+        self.view_converter = ViewConverter(app)
+        self.resource_converter = ResourceConverter(app)
 
     def register(self, target, endpoint=None, blueprint=None):
         if isinstance(target, types.FunctionType):
-            self.view_converter.convert(target, endpoint, blueprint)
+            paths = self.view_converter.convert(target, endpoint, blueprint)
         elif isinstance(target, ResourceMeta):
-            self.resource_converter.convert(target, endpoint, blueprint)
+            paths = self.resource_converter.convert(target, endpoint, blueprint)
         else:
             raise TypeError
+        for path in paths:
+            self.spec.add_path(**path)
 
 class Converter(object):
 
-    def __init__(self, app, spec):
+    def __init__(self, app):
         self.app = app
-        self.spec = spec
 
     def convert(self, target, endpoint=None, blueprint=None):
         endpoint = endpoint or target.__name__.lower()
         if blueprint:
             endpoint = '{}.{}'.format(blueprint, endpoint)
         rules = self.app.url_map._rules_by_endpoint[endpoint]
-        for rule in rules:
-            self.spec.add_path(**self.get_path(rule, target))
+        return [self.get_path(rule, target) for rule in rules]
 
     def get_path(self, rule, target):
         operations = self.get_operations(rule, target)
