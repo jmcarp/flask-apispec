@@ -10,9 +10,12 @@ import six
 from six.moves import http_client as http
 
 import flask
-from webargs.flaskparser import parser
+from webargs import flaskparser
 
 from flask_smore.utils import resolve_instance, resolve_annotations
+
+def identity(value):
+    return value
 
 def unpack(resp):
     resp = resp if isinstance(resp, tuple) else (resp, )
@@ -28,6 +31,10 @@ def activate(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
+        config = flask.current_app.config
+        parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
+        format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
+
         obj = args[0] if func.__meta__.get('ismethod') else None
         __args__ = resolve_annotations(obj, getattr(func, '__args__'))
         __schemas__ = resolve_annotations(obj, getattr(func, '__schemas__'))
@@ -39,8 +46,8 @@ def activate(func):
         schema = __schemas__.get(status_code, __schemas__.get('default'))
         if schema and __schemas__.get('_apply', True):
             schema = resolve_instance(schema['schema'])
-            return (flask.jsonify(schema.dump(unpacked[0]).data), ) + unpacked[1:]
-        return (flask.jsonify(unpacked[0]), ) + unpacked[1:]
+            return (format_response(schema.dump(unpacked[0]).data), ) + unpacked[1:]
+        return (format_response(unpacked[0]), ) + unpacked[1:]
 
     wrapped.__meta__['wrapped'] = True
     return wrapped
