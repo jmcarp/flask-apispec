@@ -22,6 +22,15 @@ def resolve_refs(obj, attr):
         return attr.resolve(obj)
     return attr
 
+def resolve_instance(schema):
+    if isinstance(schema, type):
+        return schema()
+    return schema
+
+def resolve_annotations(obj, annotations):
+    annotations = annotations or []
+    return merge_recursive(*[resolve_refs(obj, each) for each in annotations])
+
 def merge_recursive(*values):
     return functools.reduce(merge_recursive_pair, while_inherit(values), {})
 

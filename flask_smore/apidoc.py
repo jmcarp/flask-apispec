@@ -8,7 +8,10 @@ from smore.apispec.core import VALID_METHODS
 
 from flask_smore import ResourceMeta
 from flask_smore.paths import rule_to_path, rule_to_params
-from flask_smore.utils import resolve_refs, merge_recursive, filter_recursive
+from flask_smore.utils import (
+    resolve_instance, resolve_annotations, merge_recursive,
+    filter_recursive,
+)
 
 class Documentation(object):
 
@@ -72,14 +75,14 @@ class Converter(object):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        __args__ = resolve_refs(parent, merge_recursive(*getattr(view, '__args__', [])))
+        __args__ = resolve_annotations(parent, getattr(view, '__args__'))
         return swagger.args2parameters(
             __args__.get('args', {}),
             default_in=__args__.get('default_in'),
         ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
-        ret = resolve_refs(parent, merge_recursive(*getattr(view, '__schemas__', [])))
+        ret = resolve_annotations(parent, getattr(view, '__schemas__'))
         predicate = lambda key, value: not(
             hasattr(key, 'startswith') and
             key.startswith('_')
@@ -101,4 +104,4 @@ class ResourceConverter(Converter):
         }
 
     def get_parent(self, resource):
-        return resource
+        return resolve_instance(resource)

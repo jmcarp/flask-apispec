@@ -12,20 +12,11 @@ from six.moves import http_client as http
 import flask
 from webargs.flaskparser import parser
 
-from flask_smore.utils import resolve_refs, merge_recursive
+from flask_smore.utils import resolve_instance, resolve_annotations
 
 def unpack(resp):
     resp = resp if isinstance(resp, tuple) else (resp, )
     return resp + (None, ) * (3 - len(resp))
-
-def resolve_instance(schema):
-    if isinstance(schema, type):
-        return schema()
-    return schema
-
-def resolve_annotations(obj, annotations):
-    annotations = annotations or []
-    return merge_recursive(*[resolve_refs(obj, each) for each in annotations])
 
 def activate(func):
     if getattr(func, '__meta__', {}).get('wrapped'):
@@ -113,5 +104,6 @@ class ResourceMeta(type):
                 if parent is not None:
                     setattr(klass, key, merge_attrs(value, parent))
                 if not isinstance(value, staticmethod):
+                    value.__dict__.setdefault('__meta__', {})
                     value.__meta__['ismethod'] = True
         return klass
