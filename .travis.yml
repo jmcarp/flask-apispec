@@ -16,7 +16,7 @@ install:
   - travis_retry pip install -U .
 
 before_script:
-  - flake8 .
+  - flake8 flask_smore
 
 script: py.test
 

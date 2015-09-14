@@ -80,7 +80,10 @@ class Converter(object):
 
     def get_responses(self, view, parent=None):
         ret = resolve_refs(parent, merge_recursive(*getattr(view, '__schemas__', [])))
-        predicate = lambda key, value: not(hasattr(key, 'startswith') and key.startswith('_'))
+        predicate = lambda key, value: not(
+            hasattr(key, 'startswith') and
+            key.startswith('_')
+        )
         return filter_recursive(ret, predicate)
 
 class ViewConverter(Converter):
