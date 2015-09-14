@@ -46,11 +46,18 @@ def activate(func):
         schema = __schemas__.get(status_code, __schemas__.get('default'))
         if schema and __schemas__.get('_apply', True):
             schema = resolve_instance(schema['schema'])
-            return (format_response(schema.dump(unpacked[0]).data), ) + unpacked[1:]
-        return (format_response(unpacked[0]), ) + unpacked[1:]
+            output = schema.dump(unpacked[0]).data
+        else:
+            output = unpacked[0]
+        return format_output(format_response, (format_response(output), ) + unpacked[1:])
 
     wrapped.__meta__['wrapped'] = True
     return wrapped
+
+def format_output(formatter, values):
+    while values[-1] is None:
+        values = values[:-1]
+    return values if len(values) > 1 else values[0]
 
 def use_kwargs(args, default_in='query', inherit=True, apply=True):
     def wrapper(func):
