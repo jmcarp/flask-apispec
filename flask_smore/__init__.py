@@ -23,18 +23,23 @@ def resolve_instance(schema):
         return schema()
     return schema
 
+def resolve_annotations(obj, annotations):
+    annotations = annotations or []
+    return merge_recursive(*[resolve_refs(obj, each) for each in annotations])
+
 def activate(func):
-    if getattr(func, '__wrapped__', False):
+    if getattr(func, '__meta__', {}).get('wrapped'):
         return func
 
-    func.__args__ = getattr(func, '__args__', {})
-    func.__schemas__ = getattr(func, '__schemas__', {})
+    func.__args__ = getattr(func, '__args__', [])
+    func.__schemas__ = getattr(func, '__schemas__', [])
+    func.__meta__ = getattr(func, '__meta__', {})
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        obj = args[0] if getattr(func, '__ismethod__', False) else None
-        __args__ = resolve_refs(obj, getattr(func, '__args__', {}))
-        __schemas__ = resolve_refs(obj, getattr(func, '__schemas__', {}))
+        obj = args[0] if func.__meta__.get('ismethod') else None
+        __args__ = resolve_annotations(obj, getattr(func, '__args__'))
+        __schemas__ = resolve_annotations(obj, getattr(func, '__schemas__'))
         if __args__.get('_apply', True):
             kwargs.update(parser.parse(__args__.get('args', {})))
         response = func(*args, **kwargs)
@@ -46,34 +51,30 @@ def activate(func):
             return (flask.jsonify(schema.dump(unpacked[0]).data), ) + unpacked[1:]
         return (flask.jsonify(unpacked[0]), ) + unpacked[1:]
 
-    wrapped.__wrapped__ = True
+    wrapped.__meta__['wrapped'] = True
     return wrapped
 
 def use_kwargs(args, default_in='query', inherit=True, apply=True):
     def wrapper(func):
-        __args__ = {
+        func.__dict__.setdefault('__args__', []).insert(0, {
             'args': args,
             'default_in': default_in,
             '_inherit': inherit,
             '_apply': apply,
-        }
-        func.__dict__.setdefault('__args__', {})
-        func.__args__.update(merge_recursive(__args__, func.__args__))
+        })
         return activate(func)
     return wrapper
 
 def marshal_with(schema, code='default', description='', inherit=True, apply=True):
     def wrapper(func):
-        __schemas__ = {
+        func.__dict__.setdefault('__schemas__', []).insert(0, {
             code: {
                 'schema': schema,
                 'description': description,
             },
             '_inherit': inherit,
             '_apply': apply,
-        }
-        func.__dict__.setdefault('__schemas__', {})
-        func.__schemas__.update(merge_recursive(__schemas__, func.__schemas__))
+        })
         return activate(func)
     return wrapper
 
@@ -98,11 +99,8 @@ def merge_attrs(value, parent):
     return activate(value)
 
 def merge_key(child, parent, attr):
-    child_value = getattr(child, attr, {})
-    if child_value.get('_inherit', True):
-        parent_value = getattr(parent, attr, {})
-        value = merge_recursive(child_value, parent_value)
-        child.__dict__.setdefault(attr, {}).update(value)
+    parent_value = copy.copy(getattr(parent, attr, []))
+    child.__dict__.setdefault(attr, []).extend(parent_value)
 
 class ResourceMeta(type):
 
@@ -115,5 +113,5 @@ class ResourceMeta(type):
                 if parent is not None:
                     setattr(klass, key, merge_attrs(value, parent))
                 if not isinstance(value, staticmethod):
-                    value.__ismethod__ = True
+                    value.__meta__['ismethod'] = True
         return klass

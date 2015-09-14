@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import functools
+
 import six
 
 class Ref(object):
@@ -20,13 +22,22 @@ def resolve_refs(obj, attr):
         return attr.resolve(obj)
     return attr
 
-def merge_recursive(child, parent):
+def merge_recursive(*values):
+    return functools.reduce(merge_recursive_pair, while_inherit(values), {})
+
+def while_inherit(values):
+    for value in values:
+        yield value
+        if not value.get('_inherit', True):
+            break
+
+def merge_recursive_pair(child, parent):
     if isinstance(child, dict) or isinstance(parent, dict):
         child = child or {}
         parent = parent or {}
         keys = set(child.keys()).union(parent.keys())
         return {
-            key: merge_recursive(child.get(key), parent.get(key))
+            key: merge_recursive_pair(child.get(key), parent.get(key))
             for key in keys
         }
     return child or parent

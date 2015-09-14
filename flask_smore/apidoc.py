@@ -72,14 +72,14 @@ class Converter(object):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        __args__ = resolve_refs(parent, getattr(view, '__args__', {}))
+        __args__ = resolve_refs(parent, merge_recursive(*getattr(view, '__args__', [])))
         return swagger.args2parameters(
             __args__.get('args', {}),
             default_in=__args__.get('default_in'),
         ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
-        ret = resolve_refs(parent, getattr(view, '__schemas__', {}))
+        ret = resolve_refs(parent, merge_recursive(*getattr(view, '__schemas__', [])))
         predicate = lambda key, value: not(hasattr(key, 'startswith') and key.startswith('_'))
         return filter_recursive(ret, predicate)
 

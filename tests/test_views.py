@@ -70,6 +70,23 @@ class TestClassViews:
         res = client.get('/', {'name': 'queen', 'genre': 'rock'})
         assert res.json == {'name': 'queen', 'genre': 'rock'}
 
+    def test_kwargs_inheritance_ref(self, app, client, schemas):
+        class BaseResource(MethodResource):
+            @use_kwargs({'name': Arg(str)})
+            def get(self, **kwargs):
+                pass
+
+        class ConcreteResource(BaseResource):
+            kwargs = {'genre': Arg(str)}
+            @use_kwargs(Ref('kwargs'))
+            @marshal_with(schemas.BandSchema)
+            def get(self, **kwargs):
+                return kwargs
+
+        app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen', 'genre': 'rock'}
+
     def test_kwargs_apply_false(self, app, client):
         class ConcreteResource(MethodResource):
             @use_kwargs({'genre': Arg(str)}, apply=False)
