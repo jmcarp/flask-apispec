@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from webargs import Arg
+from flask import make_response
 
 from flask_smore.utils import Ref
 from flask_smore.views import MethodResource
@@ -169,3 +170,13 @@ class TestClassViews:
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
         res = client.get('/')
         assert res.json == {'genre': 'spacerock'}
+
+    def test_schemas_none(self, app, client, models, schemas):
+        class ConcreteResource(MethodResource):
+            @marshal_with(None, code=204)
+            def delete(self, **kwargs):
+                return make_response('', 204)
+
+        app.add_url_rule('/<id>/', view_func=ConcreteResource.as_view('concrete'))
+        res = client.delete('/5/')
+        assert res.body == b''

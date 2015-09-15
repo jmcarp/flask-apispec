@@ -48,6 +48,7 @@ Quickstart
 
 .. code-block:: python
 
+    from flask import make_response
     from flask_smore.views import MethodResource
 
     class PetResource(MethodResource):
@@ -68,9 +69,11 @@ Quickstart
             pet.__dict__.update(**kwargs)
             return pet
 
+        @marshal_with(None, code=204)
         def delete(self, pet_id):
             pet = Pet.query.filter(Pet.id == pet_id).one()
             pet.delete()
+            return make_response('', 204)
 
 **flask-smore** generates Swagger markup for your view functions and classes:
 

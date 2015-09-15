@@ -10,6 +10,7 @@ import six
 from six.moves import http_client as http
 
 import flask
+import werkzeug
 from webargs import flaskparser
 
 from flask_smore.utils import resolve_instance, resolve_annotations
@@ -41,6 +42,8 @@ def activate(func):
         if __args__.get('_apply', True):
             kwargs.update(parser.parse(__args__.get('args', {})))
         response = func(*args, **kwargs)
+        if isinstance(response, werkzeug.Response):
+            return response
         unpacked = unpack(response)
         status_code = unpacked[1] or http.OK
         schema = __schemas__.get(status_code, __schemas__.get('default'))
@@ -49,12 +52,12 @@ def activate(func):
             output = schema.dump(unpacked[0]).data
         else:
             output = unpacked[0]
-        return format_output(format_response, (format_response(output), ) + unpacked[1:])
+        return format_output((format_response(output), ) + unpacked[1:])
 
     wrapped.__meta__['wrapped'] = True
     return wrapped
 
-def format_output(formatter, values):
+def format_output(values):
     while values[-1] is None:
         values = values[:-1]
     return values if len(values) > 1 else values[0]
@@ -74,7 +77,7 @@ def marshal_with(schema, code='default', description='', inherit=True, apply=Tru
     def wrapper(func):
         func.__dict__.setdefault('__schemas__', []).insert(0, {
             code: {
-                'schema': schema,
+                'schema': schema or {},
                 'description': description,
             },
             '_inherit': inherit,
