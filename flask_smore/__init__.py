@@ -63,6 +63,24 @@ def format_output(values):
     return values if len(values) > 1 else values[0]
 
 def use_kwargs(args, default_in='query', inherit=True, apply=True):
+    """Inject keyword arguments from the specified webargs arguments into the
+    decorated view function.
+
+    Usage:
+
+    .. code-block:: python
+
+        from webargs import Arg
+
+        @use_kwargs({'name': Arg(str), 'category': Arg(str)})
+        def get_pets(**kwargs):
+            return Pet.query.filter_by(**kwargs).all()
+
+    :param args: Mapping of argument names to `Arg` objects
+    :param default_in: Optional default parameter location
+    :param inherit: Inherit args from parent classes
+    :param apply: Parse request with specified args
+    """
     def wrapper(func):
         func.__dict__.setdefault('__args__', []).insert(0, {
             'args': args,
@@ -74,6 +92,27 @@ def use_kwargs(args, default_in='query', inherit=True, apply=True):
     return wrapper
 
 def marshal_with(schema, code='default', description='', inherit=True, apply=True):
+    """Marshal the return value of the decorated view function using the
+    specified schema.
+
+    Usage:
+
+    .. code-block:: python
+
+        class PetSchema(Schema):
+            class Meta:
+                fields = ('name', 'category')
+
+        @marshal_with(PetSchema)
+        def get_pet(pet_id):
+            return Pet.query.filter(Pet.id == pet_id).one()
+
+    :param schema: Marshmallow schema class or instance, or `None`
+    :param code: Optional HTTP response code
+    :param description: Optional response description
+    :param inherit: Inherit schemas from parent classes
+    :param apply: Marshal response with specified schema
+    """
     def wrapper(func):
         func.__dict__.setdefault('__schemas__', []).insert(0, {
             code: {
@@ -87,6 +126,17 @@ def marshal_with(schema, code='default', description='', inherit=True, apply=Tru
     return wrapper
 
 def doc(**kwargs):
+    """Annotate the decorated view function or class with the specified Swagger
+    attributes.
+
+    Usage:
+
+    .. code-block:: python
+
+        @doc(tags=['pet'], description='a pet store')
+        def get_pet(pet_id):
+            return Pet.query.filter(Pet.id == pet_id).one()
+    """
     def wrapper(func):
         func.__apidoc__ = copy.deepcopy(getattr(func, '__apidoc__', {}))
         func.__apidoc__.update(kwargs)

@@ -14,7 +14,25 @@ from flask_smore.utils import (
 )
 
 class Documentation(object):
+    """API documentation collector.
 
+    Usage:
+
+    .. code-block:: python
+
+        app = Flask(__name__)
+        spec = APISpec(title='pets', version='v1', plugins=['smore.ext.marshmallow'])
+        docs = Documentation(app, spec)
+
+        @app.route('/pet/<pet_id>')
+        def get_pet(pet_id):
+            return Pet.query.filter(Pet.id == pet_id).one()
+
+        docs.register(get_pet)
+
+    :param Flask app: App associated with API documentation
+    :param APISpec spec: Smore specification associated with API documentation
+    """
     def __init__(self, app, spec):
         self.app = app
         self.spec = spec
