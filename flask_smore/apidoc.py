@@ -9,8 +9,7 @@ from smore.apispec.core import VALID_METHODS
 from flask_smore import ResourceMeta
 from flask_smore.paths import rule_to_path, rule_to_params
 from flask_smore.utils import (
-    resolve_instance, resolve_annotations, merge_recursive,
-    filter_recursive,
+    resolve_instance, resolve_annotations, merge_recursive_pair,
 )
 
 class Documentation(object):
@@ -78,7 +77,7 @@ class Converter(object):
         return {}
 
     def get_operation(self, rule, view, parent=None):
-        docs = merge_recursive(
+        docs = merge_recursive_pair(
             getattr(view, '__apidoc__', {}),
             getattr(parent, '__apidoc__', {}),
         )
@@ -87,25 +86,20 @@ class Converter(object):
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
         docs.pop('params', None)
-        return merge_recursive(operation, docs)
+        return merge_recursive_pair(operation, docs)
 
     def get_parent(self, view):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        __args__ = resolve_annotations(parent, getattr(view, '__args__'))
+        __args__ = resolve_annotations(parent, getattr(view, '__smore__', {}).get('args'))
         return swagger.args2parameters(
-            __args__.get('args', {}),
-            default_in=__args__.get('default_in'),
+            __args__.options.get('args', {}),
+            default_in=__args__.options.get('default_in'),
         ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
-        ret = resolve_annotations(parent, getattr(view, '__schemas__'))
-        predicate = lambda key, value: not(
-            hasattr(key, 'startswith') and
-            key.startswith('_')
-        )
-        return filter_recursive(ret, predicate)
+        return resolve_annotations(parent, getattr(view, '__smore__', {}).get('schemas')).options
 
 class ViewConverter(Converter):
 

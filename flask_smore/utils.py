@@ -27,18 +27,36 @@ def resolve_instance(schema):
         return schema()
     return schema
 
+class Annotation(object):
+
+    def __init__(self, options=None, inherit=None, apply=None):
+        self.options = options or {}
+        self.inherit = inherit
+        self.apply = apply
+
+    def resolve(self, obj):
+        return self.__class__(
+            resolve_refs(obj, self.options),
+            inherit=self.inherit,
+            apply=self.apply,
+        )
+
+    def merge(self, other):
+        if self.inherit is False:
+            return self
+        return self.__class__(
+            merge_recursive_pair(self.options, other.options),
+            inherit=other.inherit,
+            apply=self.apply if self.apply is not None else other.apply,
+        )
+
 def resolve_annotations(obj, annotations):
     annotations = annotations or []
-    return merge_recursive(*[resolve_refs(obj, each) for each in annotations])
-
-def merge_recursive(*values):
-    return functools.reduce(merge_recursive_pair, while_inherit(values), {})
-
-def while_inherit(values):
-    for value in values:
-        yield value
-        if not value.get('_inherit', True):
-            break
+    return functools.reduce(
+        lambda first, second: first.merge(second),
+        [annotation.resolve(obj) for annotation in annotations],
+        Annotation(),
+    )
 
 def merge_recursive_pair(child, parent):
     if isinstance(child, dict) or isinstance(parent, dict):
@@ -50,11 +68,3 @@ def merge_recursive_pair(child, parent):
             for key in keys
         }
     return child if child is not None else parent
-
-def filter_recursive(data, predicate):
-    if isinstance(data, dict):
-        return {
-            key: filter_recursive(value, predicate) for key, value in six.iteritems(data)
-            if predicate(key, value)
-        }
-    return data

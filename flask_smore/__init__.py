@@ -13,7 +13,7 @@ import flask
 import werkzeug
 from webargs import flaskparser
 
-from flask_smore.utils import resolve_instance, resolve_annotations
+from flask_smore.utils import resolve_instance, resolve_annotations, Annotation
 
 def identity(value):
     return value
@@ -23,12 +23,8 @@ def unpack(resp):
     return resp + (None, ) * (3 - len(resp))
 
 def activate(func):
-    if getattr(func, '__meta__', {}).get('wrapped'):
+    if getattr(func, '__smore__', {}).get('wrapped'):
         return func
-
-    func.__args__ = getattr(func, '__args__', [])
-    func.__schemas__ = getattr(func, '__schemas__', [])
-    func.__meta__ = getattr(func, '__meta__', {})
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
@@ -36,25 +32,25 @@ def activate(func):
         parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
         format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
 
-        obj = args[0] if func.__meta__.get('ismethod') else None
-        __args__ = resolve_annotations(obj, getattr(func, '__args__'))
-        __schemas__ = resolve_annotations(obj, getattr(func, '__schemas__'))
-        if __args__.get('_apply', True):
-            kwargs.update(parser.parse(__args__.get('args', {})))
+        obj = args[0] if func.__smore__.get('ismethod') else None
+        __args__ = resolve_annotations(obj, func.__smore__.get('args'))
+        __schemas__ = resolve_annotations(obj, func.__smore__.get('schemas'))
+        if __args__.apply is not False:
+            kwargs.update(parser.parse(__args__.options.get('args', {})))
         response = func(*args, **kwargs)
         if isinstance(response, werkzeug.Response):
             return response
         unpacked = unpack(response)
         status_code = unpacked[1] or http.OK
-        schema = __schemas__.get(status_code, __schemas__.get('default'))
-        if schema and __schemas__.get('_apply', True):
+        schema = __schemas__.options.get(status_code, __schemas__.options.get('default'))
+        if schema and __schemas__.apply is not False:
             schema = resolve_instance(schema['schema'])
             output = schema.dump(unpacked[0]).data
         else:
             output = unpacked[0]
         return format_output((format_response(output), ) + unpacked[1:])
 
-    wrapped.__meta__['wrapped'] = True
+    wrapped.__smore__['wrapped'] = True
     return wrapped
 
 def format_output(values):
@@ -82,12 +78,11 @@ def use_kwargs(args, default_in='query', inherit=True, apply=True):
     :param apply: Parse request with specified args
     """
     def wrapper(func):
-        func.__dict__.setdefault('__args__', []).insert(0, {
+        options = {
             'args': args,
             'default_in': default_in,
-            '_inherit': inherit,
-            '_apply': apply,
-        })
+        }
+        annotate(func, 'args', options, inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
 
@@ -114,16 +109,19 @@ def marshal_with(schema, code='default', description='', inherit=True, apply=Tru
     :param apply: Marshal response with specified schema
     """
     def wrapper(func):
-        func.__dict__.setdefault('__schemas__', []).insert(0, {
+        options = {
             code: {
                 'schema': schema or {},
                 'description': description,
             },
-            '_inherit': inherit,
-            '_apply': apply,
-        })
+        }
+        annotate(func, 'schemas', options, inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
+
+def annotate(func, key, options, **kwargs):
+    annotation = Annotation(options, **kwargs)
+    func.__dict__.setdefault('__smore__', {}).setdefault(key, []).insert(0, annotation)
 
 def doc(**kwargs):
     """Annotate the decorated view function or class with the specified Swagger
@@ -152,13 +150,13 @@ def resolve_parent(mro, key):
     return None
 
 def merge_attrs(value, parent):
-    merge_key(value, parent, '__args__')
-    merge_key(value, parent, '__schemas__')
+    merge_key(value, parent, 'args')
+    merge_key(value, parent, 'schemas')
     return activate(value)
 
 def merge_key(child, parent, attr):
-    parent_value = copy.copy(getattr(parent, attr, []))
-    child.__dict__.setdefault(attr, []).extend(parent_value)
+    parent_value = getattr(parent, '__smore__', {}).get(attr, [])
+    child.__dict__.setdefault('__smore__', {}).setdefault(attr, []).extend(parent_value)
 
 class ResourceMeta(type):
 
@@ -171,6 +169,6 @@ class ResourceMeta(type):
                 if parent is not None:
                     setattr(klass, key, merge_attrs(value, parent))
                 if not isinstance(value, staticmethod):
-                    value.__dict__.setdefault('__meta__', {})
-                    value.__meta__['ismethod'] = True
+                    value.__dict__.setdefault('__smore__', {})
+                    value.__smore__['ismethod'] = True
         return klass
