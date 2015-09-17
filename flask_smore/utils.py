@@ -45,26 +45,26 @@ class Annotation(object):
         if self.inherit is False:
             return self
         return self.__class__(
-            merge_recursive_pair(self.options, other.options),
+            merge_recursive(self.options, other.options),
             inherit=other.inherit,
             apply=self.apply if self.apply is not None else other.apply,
         )
 
-def resolve_annotations(obj, annotations):
-    annotations = annotations or []
+def resolve_annotations(func, key, obj=None):
+    annotations = getattr(func, '__smore__', {}).get(key, [])
     return functools.reduce(
         lambda first, second: first.merge(second),
         [annotation.resolve(obj) for annotation in annotations],
         Annotation(),
     )
 
-def merge_recursive_pair(child, parent):
+def merge_recursive(child, parent):
     if isinstance(child, dict) or isinstance(parent, dict):
         child = child or {}
         parent = parent or {}
         keys = set(child.keys()).union(parent.keys())
         return {
-            key: merge_recursive_pair(child.get(key), parent.get(key))
+            key: merge_recursive(child.get(key), parent.get(key))
             for key in keys
         }
     return child if child is not None else parent

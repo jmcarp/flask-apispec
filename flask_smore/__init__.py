@@ -33,8 +33,8 @@ def activate(func):
         format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
 
         obj = args[0] if func.__smore__.get('ismethod') else None
-        __args__ = resolve_annotations(obj, func.__smore__.get('args'))
-        __schemas__ = resolve_annotations(obj, func.__smore__.get('schemas'))
+        __args__ = resolve_annotations(func, 'args', obj)
+        __schemas__ = resolve_annotations(func, 'schemas', obj)
         if __args__.apply is not False:
             kwargs.update(parser.parse(__args__.options.get('args', {})))
         response = func(*args, **kwargs)
