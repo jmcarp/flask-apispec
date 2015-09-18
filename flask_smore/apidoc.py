@@ -75,16 +75,13 @@ class Converter(object):
         return {}
 
     def get_operation(self, rule, view, parent=None):
-        docs = merge_recursive(
-            getattr(view, '__apidoc__', {}),
-            getattr(parent, '__apidoc__', {}),
-        )
+        docs = resolve_annotations(view, 'docs', parent)
         operation = {
             'responses': self.get_responses(view, parent),
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
-        docs.pop('params', None)
-        return merge_recursive(operation, docs)
+        docs.options.pop('params', None)
+        return merge_recursive(operation, docs.options)
 
     def get_parent(self, view):
         return None
@@ -94,7 +91,7 @@ class Converter(object):
         return swagger.args2parameters(
             __args__.options.get('args', {}),
             default_in=__args__.options.get('default_in'),
-        ) + rule_to_params(rule, docs.get('params'))
+        ) + rule_to_params(rule, docs.options.get('params'))
 
     def get_responses(self, view, parent=None):
         return resolve_annotations(view, 'schemas', parent).options

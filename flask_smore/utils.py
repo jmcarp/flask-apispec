@@ -4,6 +4,11 @@ import functools
 
 import six
 
+def resolve_instance(schema):
+    if isinstance(schema, type):
+        return schema()
+    return schema
+
 class Ref(object):
 
     def __init__(self, key):
@@ -22,17 +27,25 @@ def resolve_refs(obj, attr):
         return attr.resolve(obj)
     return attr
 
-def resolve_instance(schema):
-    if isinstance(schema, type):
-        return schema()
-    return schema
-
 class Annotation(object):
 
     def __init__(self, options=None, inherit=None, apply=None):
         self.options = options or {}
         self.inherit = inherit
         self.apply = apply
+
+    def __eq__(self, other):
+        if isinstance(other, Annotation):
+            return (
+                self.options == other.options and
+                self.inherit == other.inherit and
+                self.apply == other.apply
+            )
+        return NotImplemented
+
+    def __ne__(self, other):
+        ret = self.__eq__(other)
+        return ret if ret is NotImplemented else not ret
 
     def resolve(self, obj):
         return self.__class__(
@@ -50,11 +63,14 @@ class Annotation(object):
             apply=self.apply if self.apply is not None else other.apply,
         )
 
-def resolve_annotations(func, key, obj=None):
-    annotations = getattr(func, '__smore__', {}).get(key, [])
+def resolve_annotations(func, key, parent=None):
+    annotations = (
+        getattr(func, '__smore__', {}).get(key, []) +
+        getattr(parent, '__smore__', {}).get(key, [])
+    )
     return functools.reduce(
         lambda first, second: first.merge(second),
-        [annotation.resolve(obj) for annotation in annotations],
+        [annotation.resolve(parent) for annotation in annotations],
         Annotation(),
     )
 

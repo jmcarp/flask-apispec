@@ -2,7 +2,6 @@
 
 __version__ = '0.1.0'
 
-import copy
 import types
 import functools
 
@@ -23,7 +22,7 @@ def unpack(resp):
     return resp + (None, ) * (3 - len(resp))
 
 def activate(func):
-    if getattr(func, '__smore__', {}).get('wrapped'):
+    if isinstance(func, type) or getattr(func, '__smore__', {}).get('wrapped'):
         return func
 
     @functools.wraps(func)
@@ -32,9 +31,9 @@ def activate(func):
         parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
         format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
 
-        obj = args[0] if func.__smore__.get('ismethod') else None
-        __args__ = resolve_annotations(func, 'args', obj)
-        __schemas__ = resolve_annotations(func, 'schemas', obj)
+        instance = args[0] if func.__smore__.get('ismethod') else None
+        __args__ = resolve_annotations(func, 'args', instance)
+        __schemas__ = resolve_annotations(func, 'schemas', instance)
         if __args__.apply is not False:
             kwargs.update(parser.parse(__args__.options.get('args', {})))
         response = func(*args, **kwargs)
@@ -121,7 +120,8 @@ def marshal_with(schema, code='default', description='', inherit=True, apply=Tru
 
 def annotate(func, key, options, **kwargs):
     annotation = Annotation(options, **kwargs)
-    func.__dict__.setdefault('__smore__', {}).setdefault(key, []).insert(0, annotation)
+    func.__smore__ = getattr(func, '__smore__', {})
+    func.__smore__.setdefault(key, []).insert(0, annotation)
 
 def doc(**kwargs):
     """Annotate the decorated view function or class with the specified Swagger
@@ -136,38 +136,36 @@ def doc(**kwargs):
             return Pet.query.filter(Pet.id == pet_id).one()
     """
     def wrapper(func):
-        func.__apidoc__ = copy.deepcopy(getattr(func, '__apidoc__', {}))
-        func.__apidoc__.update(kwargs)
-        return func
+        inherit = kwargs.pop('inherit', None)
+        apply = kwargs.pop('apply', None)
+        annotate(func, 'docs', kwargs, inherit=inherit, apply=apply)
+        return activate(func)
     return wrapper
 
-def resolve_parent(mro, key):
-    for each in mro[1:]:
-        try:
-            return getattr(each, key)
-        except AttributeError:
-            pass
-    return None
-
-def merge_attrs(value, parent):
-    merge_key(value, parent, 'args')
-    merge_key(value, parent, 'schemas')
-    return activate(value)
-
-def merge_key(child, parent, attr):
-    parent_value = getattr(parent, '__smore__', {}).get(attr, [])
-    child.__dict__.setdefault('__smore__', {}).setdefault(attr, []).extend(parent_value)
+def inherit(child, parents):
+    child.__smore__ = getattr(child, '__smore__', {})
+    for key in ['args', 'schemas', 'docs']:
+        child.__smore__.setdefault(key, []).extend(
+            annotation
+            for parent in parents
+            for annotation in getattr(parent, '__smore__', {}).get(key, [])
+            if annotation not in child.__smore__[key]
+        )
 
 class ResourceMeta(type):
 
     def __new__(mcs, name, bases, attrs):
         klass = super(ResourceMeta, mcs).__new__(mcs, name, bases, attrs)
         mro = klass.mro()
+        inherit(klass, mro)
         for key, value in six.iteritems(attrs):
             if isinstance(value, types.FunctionType):
-                parent = resolve_parent(mro, key)
-                if parent is not None:
-                    setattr(klass, key, merge_attrs(value, parent))
+                parents = [
+                    getattr(parent, key) for parent in mro
+                    if hasattr(parent, key)
+                ]
+                inherit(value, parents)
+                setattr(klass, key, activate(value))
                 if not isinstance(value, staticmethod):
                     value.__dict__.setdefault('__smore__', {})
                     value.__smore__['ismethod'] = True
