@@ -21,26 +21,36 @@ def unpack(resp):
     resp = resp if isinstance(resp, tuple) else (resp, )
     return resp + (None, ) * (3 - len(resp))
 
-def activate(func):
-    if isinstance(func, type) or getattr(func, '__smore__', {}).get('wrapped'):
-        return func
+class Wrapper(object):
+    """Apply annotations to a view function.
 
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        config = flask.current_app.config
-        parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
-        format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
+    :param func: View function to wrap
+    :param instance: Optional instance or parent
+    """
+    def __init__(self, func, instance=None):
+        self.func = func
+        self.instance = instance
 
-        instance = args[0] if func.__smore__.get('ismethod') else None
-        __args__ = resolve_annotations(func, 'args', instance)
-        __schemas__ = resolve_annotations(func, 'schemas', instance)
-        if __args__.apply is not False:
-            kwargs.update(parser.parse(__args__.options.get('args', {})))
-        response = func(*args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        response = self.call_view(*args, **kwargs)
         if isinstance(response, werkzeug.Response):
             return response
         unpacked = unpack(response)
         status_code = unpacked[1] or http.OK
+        return self.marshal_result(unpacked, status_code)
+
+    def call_view(self, *args, **kwargs):
+        config = flask.current_app.config
+        parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
+        __args__ = resolve_annotations(self.func, 'args', self.instance)
+        if __args__.apply is not False:
+            kwargs.update(parser.parse(__args__.options.get('args', {})))
+        return self.func(*args, **kwargs)
+
+    def marshal_result(self, unpacked, status_code):
+        config = flask.current_app.config
+        format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
+        __schemas__ = resolve_annotations(self.func, 'schemas', self.instance)
         schema = __schemas__.options.get(status_code, __schemas__.options.get('default'))
         if schema and __schemas__.apply is not False:
             schema = resolve_instance(schema['schema'])
@@ -48,6 +58,17 @@ def activate(func):
         else:
             output = unpacked[0]
         return format_output((format_response(output), ) + unpacked[1:])
+
+def activate(func):
+    if isinstance(func, type) or getattr(func, '__smore__', {}).get('wrapped'):
+        return func
+
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        instance = args[0] if func.__smore__.get('ismethod') else None
+        wrapper_cls = resolve_annotations(func, 'wrapper', instance)
+        wrapper = wrapper_cls.options.get('wrapper', Wrapper)(func, instance)
+        return wrapper(*args, **kwargs)
 
     wrapped.__smore__['wrapped'] = True
     return wrapped
@@ -57,7 +78,7 @@ def format_output(values):
         values = values[:-1]
     return values if len(values) > 1 else values[0]
 
-def use_kwargs(args, default_in='query', inherit=True, apply=True):
+def use_kwargs(args, default_in='query', inherit=None, apply=None):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -85,7 +106,7 @@ def use_kwargs(args, default_in='query', inherit=True, apply=True):
         return activate(func)
     return wrapper
 
-def marshal_with(schema, code='default', description='', inherit=True, apply=True):
+def marshal_with(schema, code='default', description='', inherit=None, apply=None):
     """Marshal the return value of the decorated view function using the
     specified schema.
 
@@ -118,12 +139,7 @@ def marshal_with(schema, code='default', description='', inherit=True, apply=Tru
         return activate(func)
     return wrapper
 
-def annotate(func, key, options, **kwargs):
-    annotation = Annotation(options, **kwargs)
-    func.__smore__ = getattr(func, '__smore__', {})
-    func.__smore__.setdefault(key, []).insert(0, annotation)
-
-def doc(**kwargs):
+def doc(inherit=None, **kwargs):
     """Annotate the decorated view function or class with the specified Swagger
     attributes.
 
@@ -134,13 +150,28 @@ def doc(**kwargs):
         @doc(tags=['pet'], description='a pet store')
         def get_pet(pet_id):
             return Pet.query.filter(Pet.id == pet_id).one()
+
+    :param inherit: Inherit Swagger documentation from parent classes
     """
     def wrapper(func):
-        inherit = kwargs.pop('inherit', None)
-        apply = kwargs.pop('apply', None)
-        annotate(func, 'docs', kwargs, inherit=inherit, apply=apply)
+        annotate(func, 'docs', kwargs, inherit=inherit)
         return activate(func)
     return wrapper
+
+def wrap_with(wrapper_cls):
+    """Use a custom `Wrapper` to apply annotations to the decorated function.
+
+    :param wrapper_cls: Custom `Wrapper` subclass
+    """
+    def wrapper(func):
+        annotate(func, 'wrapper', {'wrapper': wrapper_cls})
+        return activate(func)
+    return wrapper
+
+def annotate(func, key, options, **kwargs):
+    annotation = Annotation(options, **kwargs)
+    func.__smore__ = getattr(func, '__smore__', {})
+    func.__smore__.setdefault(key, []).insert(0, annotation)
 
 def inherit(child, parents):
     child.__smore__ = getattr(child, '__smore__', {})
