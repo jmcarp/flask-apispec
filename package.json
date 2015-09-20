@@ -1,0 +1,16 @@
+{
+  "name": "flask-smore",
+  "version": "0.1.0",
+  "dependencies": {
+    "swagger-ui": "2.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmcarp/flask-smore.git"
+  },
+  "author": "Joshua Carp",
+  "bugs": {
+    "url": "https://github.com/jmcarp/flask-smore/issues"
+  },
+  "homepage": "https://github.com/jmcarp/flask-smore#readme"
+}

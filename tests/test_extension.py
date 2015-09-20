@@ -40,3 +40,11 @@ class TestExtension:
         docs = FlaskSmore(app)
         res = client.get('/swagger.json')
         assert res.json == docs.spec.to_dict()
+
+    def test_serve_swagger_ui(self, app, docs, client):
+        res = client.get('/swagger-ui/')
+
+    def test_serve_swagger_ui_custom_url(self, app, client):
+        app.config['SMORE_SWAGGER_UI_URL'] = '/swagger-ui.html'
+        docs = FlaskSmore(app)
+        res = client.get('/swagger-ui.html')

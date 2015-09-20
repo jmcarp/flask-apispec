@@ -8,13 +8,6 @@ from smore.apispec import APISpec
 from flask_smore import ResourceMeta
 from flask_smore.apidoc import ViewConverter, ResourceConverter
 
-def make_apispec():
-    return APISpec(
-        title='flask-smore',
-        version='v1',
-        plugins=['smore.ext.marshmallow'],
-    )
-
 class FlaskSmore(object):
     """Flask-smore extension.
 
@@ -50,12 +43,29 @@ class FlaskSmore(object):
         self.add_routes()
 
     def add_routes(self):
-        swagger_url = self.app.config.get('SMORE_SWAGGER_URL', '/swagger/')
-        if swagger_url:
-            self.app.add_url_rule(swagger_url, 'swagger_json', self.swagger_json)
+        blueprint = flask.Blueprint(
+            'flask-smore',
+            __name__,
+            template_folder='./templates',
+            static_folder='../node_modules/swagger-ui/dist',
+            static_url_path='/flask-smore/static',
+        )
+
+        json_url = self.app.config.get('SMORE_SWAGGER_URL', '/swagger/')
+        if json_url:
+            blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
+
+        ui_url = self.app.config.get('SMORE_SWAGGER_UI_URL', '/swagger-ui/')
+        if ui_url:
+            blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
+
+        self.app.register_blueprint(blueprint)
 
     def swagger_json(self):
         return flask.jsonify(self.spec.to_dict())
+
+    def swagger_ui(self):
+        return flask.render_template('swagger-ui.html')
 
     def register(self, target, endpoint=None, blueprint=None):
         if isinstance(target, types.FunctionType):
@@ -66,3 +76,10 @@ class FlaskSmore(object):
             raise TypeError()
         for path in paths:
             self.spec.add_path(**path)
+
+def make_apispec():
+    return APISpec(
+        title='flask-smore',
+        version='v1',
+        plugins=['smore.ext.marshmallow'],
+    )
