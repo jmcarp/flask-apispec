@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+
+import pytest
+
+from flask_smore import doc
+from flask_smore.extension import FlaskSmore
+from flask_smore.views import MethodResource
+
+from tests.fixtures import app, client  # noqa
+
+@pytest.fixture
+def docs(app):
+    return FlaskSmore(app)
+
+class TestExtension:
+
+    def test_register_function(self, app, docs):
+        @app.route('/bands/<int:band_id>/')
+        @doc(tags=['band'])
+        def get_band(band_id):
+            return 'queen'
+        docs.register(get_band)
+        assert '/bands/{band_id}/' in docs.spec._paths
+
+    def test_register_resource(self, app, docs):
+        @doc(tags=['band'])
+        class BandResource(MethodResource):
+            def get(self, **kwargs):
+                return 'slowdive'
+        app.add_url_rule('/bands/<band_id>/', view_func=BandResource.as_view('band'))
+        docs.register(BandResource, endpoint='band')
+        assert '/bands/{band_id}/' in docs.spec._paths
+
+    def test_serve_swagger(self, app, docs, client):
+        res = client.get('/swagger/')
+        assert res.json == docs.spec.to_dict()
+
+    def test_serve_swagger_custom_url(self, app, client):
+        app.config['SMORE_SWAGGER_URL'] = '/swagger.json'
+        docs = FlaskSmore(app)
+        res = client.get('/swagger.json')
+        assert res.json == docs.spec.to_dict()
