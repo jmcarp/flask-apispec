@@ -170,11 +170,11 @@ def wrap_with(wrapper_cls):
 
 def annotate(func, key, options, **kwargs):
     annotation = Annotation(options, **kwargs)
-    func.__smore__ = getattr(func, '__smore__', {})
+    func.__smore__ = func.__dict__.get('__smore__', {})
     func.__smore__.setdefault(key, []).insert(0, annotation)
 
 def inherit(child, parents):
-    child.__smore__ = getattr(child, '__smore__', {})
+    child.__smore__ = child.__dict__.get('__smore__', {})
     for key in ['args', 'schemas', 'docs']:
         child.__smore__.setdefault(key, []).extend(
             annotation
@@ -188,7 +188,7 @@ class ResourceMeta(type):
     def __new__(mcs, name, bases, attrs):
         klass = super(ResourceMeta, mcs).__new__(mcs, name, bases, attrs)
         mro = klass.mro()
-        inherit(klass, mro)
+        inherit(klass, mro[1:])
         for key, value in six.iteritems(attrs):
             if isinstance(value, types.FunctionType):
                 parents = [

@@ -5,7 +5,7 @@ from flask import make_response
 
 from flask_smore.utils import Ref
 from flask_smore.views import MethodResource
-from flask_smore import use_kwargs, marshal_with
+from flask_smore import doc, use_kwargs, marshal_with
 
 from tests.fixtures import app, client, models, schemas  # noqa
 
@@ -55,6 +55,27 @@ class TestFunctionViews:
         assert res.json == {'name': 'queen', 'genre': 'rock'}
 
 class TestClassViews:
+
+    def test_inheritance_unidirectional(self, app, client):
+        @doc(tags=['base'])
+        class BaseResource(MethodResource):
+            @doc(description='parent')
+            def get(self, **kwargs):
+                pass
+
+        @doc(tags=['child'])
+        class ChildResource(BaseResource):
+            @doc(description='child')
+            def get(self, **kwargs):
+                return kwargs
+
+        assert not any(MethodResource.__smore__.values())
+
+        assert BaseResource.__smore__['docs'][0].options['tags'] == ['base']
+        assert ChildResource.__smore__['docs'][0].options['tags'] == ['child']
+
+        assert BaseResource.get.__smore__['docs'][0].options['description'] == 'parent'
+        assert ChildResource.get.__smore__['docs'][0].options['description'] == 'child'
 
     def test_kwargs_inheritance(self, app, client):
         class BaseResource(MethodResource):
