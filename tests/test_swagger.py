@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from webargs import Arg
 from smore import swagger
 from smore.apispec import APISpec
 from flask import make_response
+from marshmallow import fields
 
 from flask_smore.paths import rule_to_params
 from flask_smore.views import MethodResource
@@ -27,7 +27,7 @@ class TestFunctionView:
     def function_view(self, app, models, schemas):
         @app.route('/bands/<int:band_id>/')
         @doc(tags=['band'])
-        @use_kwargs({'name': Arg(str)})
+        @use_kwargs({'name': fields.Str()})
         @marshal_with(schemas.BandSchema, description='a band')
         def get_band(band_id):
             return models.Band(name='slowdive', genre='spacerock')
@@ -45,7 +45,7 @@ class TestFunctionView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-            swagger.args2parameters({'name': Arg(str)}, default_in='query') +
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected
@@ -88,7 +88,7 @@ class TestResourceView:
     def resource_view(self, app, models, schemas):
         @doc(tags=['band'])
         class BandResource(MethodResource):
-            @use_kwargs({'name': Arg(str)})
+            @use_kwargs({'name': fields.Str()})
             @marshal_with(schemas.BandSchema, description='a band')
             def get(self, **kwargs):
                 return models.Band('slowdive', 'shoegaze')
@@ -108,7 +108,7 @@ class TestResourceView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['band'][0]
         expected = (
-            swagger.args2parameters({'name': Arg(str)}, default_in='query') +
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected

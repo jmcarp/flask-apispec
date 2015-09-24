@@ -23,6 +23,8 @@ def resolve_refs(obj, attr):
             key: resolve_refs(obj, value)
             for key, value in six.iteritems(attr)
         }
+    if isinstance(attr, list):
+        return [resolve_refs(obj, value) for value in attr]
     if isinstance(attr, Ref):
         return attr.resolve(obj)
     return attr
@@ -30,7 +32,7 @@ def resolve_refs(obj, attr):
 class Annotation(object):
 
     def __init__(self, options=None, inherit=None, apply=None):
-        self.options = options or {}
+        self.options = options or []
         self.inherit = inherit
         self.apply = apply
 
@@ -58,7 +60,7 @@ class Annotation(object):
         if self.inherit is False:
             return self
         return self.__class__(
-            merge_recursive(self.options, other.options),
+            self.options + other.options,
             inherit=other.inherit,
             apply=self.apply if self.apply is not None else other.apply,
         )
@@ -74,13 +76,16 @@ def resolve_annotations(func, key, parent=None):
         Annotation(),
     )
 
-def merge_recursive(child, parent):
+def merge_recursive(values):
+    return functools.reduce(_merge_recursive, values, {})
+
+def _merge_recursive(child, parent):
     if isinstance(child, dict) or isinstance(parent, dict):
         child = child or {}
         parent = parent or {}
         keys = set(child.keys()).union(parent.keys())
         return {
-            key: merge_recursive(child.get(key), parent.get(key))
+            key: _merge_recursive(child.get(key), parent.get(key))
             for key in keys
         }
     return child if child is not None else parent

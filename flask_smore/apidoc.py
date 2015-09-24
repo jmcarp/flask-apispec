@@ -75,26 +75,29 @@ class Converter(object):
         return {}
 
     def get_operation(self, rule, view, parent=None):
-        docs = resolve_annotations(view, 'docs', parent)
+        annotation = resolve_annotations(view, 'docs', parent)
+        docs = merge_recursive(annotation.options)
         operation = {
             'responses': self.get_responses(view, parent),
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
-        docs.options.pop('params', None)
-        return merge_recursive(operation, docs.options)
+        docs.pop('params', None)
+        return merge_recursive([operation, docs])
 
     def get_parent(self, view):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        __args__ = resolve_annotations(view, 'args', parent)
-        return swagger.args2parameters(
-            __args__.options.get('args', {}),
-            default_in=__args__.options.get('default_in'),
-        ) + rule_to_params(rule, docs.options.get('params'))
+        annotation = resolve_annotations(view, 'args', parent)
+        args = merge_recursive(annotation.options)
+        return swagger.fields2parameters(
+            args.get('args', {}),
+            **args.get('kwargs', {})
+        ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
-        return resolve_annotations(view, 'schemas', parent).options
+        annotation = resolve_annotations(view, 'schemas', parent)
+        return merge_recursive(annotation.options)
 
 class ViewConverter(Converter):
 

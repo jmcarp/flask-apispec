@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from webargs import Arg
+from marshmallow import fields
 from flask import make_response
 
 from flask_smore.utils import Ref
@@ -13,7 +13,7 @@ class TestFunctionViews:
 
     def test_use_kwargs(self, app, client):
         @app.route('/')
-        @use_kwargs({'name': Arg(str)})
+        @use_kwargs({'name': fields.Str()})
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie'})
@@ -21,8 +21,8 @@ class TestFunctionViews:
 
     def test_use_kwargs_multiple(self, app, client):
         @app.route('/')
-        @use_kwargs({'name': Arg(str)})
-        @use_kwargs({'instrument': Arg(str)})
+        @use_kwargs({'name': fields.Str()})
+        @use_kwargs({'instrument': fields.Str()})
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
@@ -47,7 +47,7 @@ class TestFunctionViews:
 
     def test_integration(self, app, client, models, schemas):
         @app.route('/')
-        @use_kwargs({'name': Arg(str), 'genre': Arg(str)})
+        @use_kwargs({'name': fields.Str(), 'genre': fields.Str()})
         @marshal_with(schemas.BandSchema)
         def view(**kwargs):
             return models.Band(**kwargs)
@@ -71,20 +71,20 @@ class TestClassViews:
 
         assert not any(MethodResource.__smore__.values())
 
-        assert BaseResource.__smore__['docs'][0].options['tags'] == ['base']
-        assert ChildResource.__smore__['docs'][0].options['tags'] == ['child']
+        assert BaseResource.__smore__['docs'][0].options[0]['tags'] == ['base']
+        assert ChildResource.__smore__['docs'][0].options[0]['tags'] == ['child']
 
-        assert BaseResource.get.__smore__['docs'][0].options['description'] == 'parent'
-        assert ChildResource.get.__smore__['docs'][0].options['description'] == 'child'
+        assert BaseResource.get.__smore__['docs'][0].options[0]['description'] == 'parent'
+        assert ChildResource.get.__smore__['docs'][0].options[0]['description'] == 'child'
 
     def test_kwargs_inheritance(self, app, client):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': Arg(str)})
+            @use_kwargs({'name': fields.Str()})
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'genre': Arg(str)})
+            @use_kwargs({'genre': fields.Str()})
             def get(self, **kwargs):
                 return kwargs
 
@@ -94,12 +94,12 @@ class TestClassViews:
 
     def test_kwargs_inheritance_ref(self, app, client, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': Arg(str)})
+            @use_kwargs({'name': fields.Str()})
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            kwargs = {'genre': Arg(str)}
+            kwargs = {'genre': fields.Str()}
             @use_kwargs(Ref('kwargs'))
             @marshal_with(schemas.BandSchema)
             def get(self, **kwargs):
@@ -111,12 +111,12 @@ class TestClassViews:
 
     def test_kwargs_inheritance_false(self, app, client, models, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': Arg(str), 'genre': Arg(str)})
+            @use_kwargs({'name': fields.Str(), 'genre': fields.Str()})
             def get(self):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'name': Arg(str)}, inherit=False)
+            @use_kwargs({'name': fields.Str()}, inherit=False)
             def get(self, **kwargs):
                 return kwargs
 
@@ -126,7 +126,7 @@ class TestClassViews:
 
     def test_kwargs_apply_false(self, app, client):
         class ConcreteResource(MethodResource):
-            @use_kwargs({'genre': Arg(str)}, apply=False)
+            @use_kwargs({'genre': fields.Str()}, apply=False)
             def get(self, **kwargs):
                 return kwargs
 
