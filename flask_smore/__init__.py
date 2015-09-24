@@ -71,7 +71,8 @@ def activate(func):
     def wrapped(*args, **kwargs):
         instance = args[0] if func.__smore__.get('ismethod') else None
         annotation = resolve_annotations(func, 'wrapper', instance)
-        wrapper = merge_recursive(annotation.options).get('wrapper', Wrapper)(func, instance)
+        wrapper_cls = merge_recursive(annotation.options).get('wrapper', Wrapper)
+        wrapper = wrapper_cls(func, instance)
         return wrapper(*args, **kwargs)
 
     wrapped.__smore__['wrapped'] = True
