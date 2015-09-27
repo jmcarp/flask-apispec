@@ -3,8 +3,8 @@
 import pytest
 from smore import swagger
 from smore.apispec import APISpec
+from marshmallow import fields, Schema
 from flask import make_response
-from marshmallow import fields
 
 from flask_smore.paths import rule_to_params
 from flask_smore.views import MethodResource
@@ -58,6 +58,36 @@ class TestFunctionView:
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
 
+class TestArgSchema:
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(ArgSchema)
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec, function_view):
+        converter = ViewConverter(app)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.add_path(**path)
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
+            rule_to_params(rule)
+        )
+        assert params == expected
+
 class TestDeleteView:
 
     @pytest.fixture
@@ -80,7 +110,6 @@ class TestDeleteView:
         response = path['delete']['responses'][204]
         assert response['description'] == 'a deleted band'
         assert response['schema'] == {}
-
 
 class TestResourceView:
 

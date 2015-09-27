@@ -6,6 +6,9 @@ import six
 from smore import swagger
 from smore.apispec.core import VALID_METHODS
 
+from marshmallow import Schema
+from marshmallow.utils import is_instance_or_subclass
+
 from flask_smore import ResourceMeta
 from flask_smore.paths import rule_to_path, rule_to_params
 from flask_smore.utils import resolve_instance, resolve_annotations, merge_recursive
@@ -90,7 +93,12 @@ class Converter(object):
     def get_parameters(self, rule, view, docs, parent=None):
         annotation = resolve_annotations(view, 'args', parent)
         args = merge_recursive(annotation.options)
-        return swagger.fields2parameters(
+        converter = (
+            swagger.schema2parameters
+            if is_instance_or_subclass(args.get('args', {}), Schema)
+            else swagger.fields2parameters
+        )
+        return converter(
             args.get('args', {}),
             **args.get('kwargs', {})
         ) + rule_to_params(rule, docs.get('params'))
