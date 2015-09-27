@@ -12,9 +12,7 @@ import flask
 import werkzeug
 from webargs import flaskparser
 
-from flask_smore.utils import (
-    resolve_instance, resolve_annotations, merge_recursive, Annotation
-)
+from flask_smore import utils
 
 def identity(value):
     return value
@@ -44,20 +42,21 @@ class Wrapper(object):
     def call_view(self, *args, **kwargs):
         config = flask.current_app.config
         parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
-        annotation = resolve_annotations(self.func, 'args', self.instance)
+        annotation = utils.resolve_annotations(self.func, 'args', self.instance)
         if annotation.apply is not False:
             for option in annotation.options:
-                kwargs.update(parser.parse(option['args']))
+                schema = utils.resolve_instance(option['args'])
+                kwargs.update(parser.parse(schema))
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
         config = flask.current_app.config
         format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
-        annotation = resolve_annotations(self.func, 'schemas', self.instance)
-        schemas = merge_recursive(annotation.options)
+        annotation = utils.resolve_annotations(self.func, 'schemas', self.instance)
+        schemas = utils.merge_recursive(annotation.options)
         schema = schemas.get(status_code, schemas.get('default'))
         if schema and annotation.apply is not False:
-            schema = resolve_instance(schema['schema'])
+            schema = utils.resolve_instance(schema['schema'])
             output = schema.dump(unpacked[0]).data
         else:
             output = unpacked[0]
@@ -70,8 +69,8 @@ def activate(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         instance = args[0] if func.__smore__.get('ismethod') else None
-        annotation = resolve_annotations(func, 'wrapper', instance)
-        wrapper_cls = merge_recursive(annotation.options).get('wrapper', Wrapper)
+        annotation = utils.resolve_annotations(func, 'wrapper', instance)
+        wrapper_cls = utils.merge_recursive(annotation.options).get('wrapper', Wrapper)
         wrapper = wrapper_cls(func, instance)
         return wrapper(*args, **kwargs)
 
@@ -174,7 +173,7 @@ def wrap_with(wrapper_cls):
     return wrapper
 
 def annotate(func, key, options, **kwargs):
-    annotation = Annotation(options, **kwargs)
+    annotation = utils.Annotation(options, **kwargs)
     func.__smore__ = func.__dict__.get('__smore__', {})
     func.__smore__.setdefault(key, []).insert(0, annotation)
 

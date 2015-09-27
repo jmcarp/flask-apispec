@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from marshmallow import fields
 from flask import make_response
+from marshmallow import fields, Schema
 
 from flask_smore.utils import Ref
 from flask_smore.views import MethodResource
@@ -14,6 +14,17 @@ class TestFunctionViews:
     def test_use_kwargs(self, app, client):
         @app.route('/')
         @use_kwargs({'name': fields.Str()})
+        def view(**kwargs):
+            return kwargs
+        res = client.get('/', {'name': 'freddie'})
+        assert res.json == {'name': 'freddie'}
+
+    def test_use_kwargs_schema(self, app, client):
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+        @app.route('/')
+        @use_kwargs(ArgSchema)
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie'})
