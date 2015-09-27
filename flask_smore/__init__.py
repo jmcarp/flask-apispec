@@ -2,13 +2,14 @@
 
 __version__ = '0.1.0'
 
-import types
 import functools
 
 import six
 from six.moves import http_client as http
 
 import flask
+from flask.views import http_method_funcs
+
 import werkzeug
 from webargs import flaskparser
 
@@ -189,8 +190,12 @@ class ResourceMeta(type):
         klass = super(ResourceMeta, mcs).__new__(mcs, name, bases, attrs)
         mro = klass.mro()
         inherit(klass, mro[1:])
+        methods = [
+            each.lower() for each in
+            getattr(klass, 'methods', None) or http_method_funcs
+        ]
         for key, value in six.iteritems(attrs):
-            if isinstance(value, types.FunctionType):
+            if key.lower() in methods:
                 parents = [
                     getattr(parent, key) for parent in mro
                     if hasattr(parent, key)

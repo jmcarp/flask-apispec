@@ -77,6 +77,16 @@ class TestClassViews:
         assert BaseResource.get.__smore__['docs'][0].options['description'] == 'parent'
         assert ChildResource.get.__smore__['docs'][0].options['description'] == 'child'
 
+    def test_inheritance_only_http_methods(self, app):
+        @use_kwargs({'genre': Arg(str)})
+        class ConcreteResource(MethodResource):
+            def _helper(self, **kwargs):
+                return kwargs
+
+        with app.test_request_context():
+            resource = ConcreteResource()
+            assert resource._helper() == {}
+
     def test_kwargs_inheritance(self, app, client):
         class BaseResource(MethodResource):
             @use_kwargs({'name': Arg(str)})
