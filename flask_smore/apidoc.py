@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import types
 
 import six
@@ -98,9 +99,13 @@ class Converter(object):
             if is_instance_or_subclass(args.get('args', {}), Schema)
             else swagger.fields2parameters
         )
+        options = copy.copy(args.get('kwargs', {}))
+        locations = options.pop('locations', None)
+        if locations:
+            options['default_in'] = locations[0]
         return converter(
             args.get('args', {}),
-            **args.get('kwargs', {})
+            **options
         ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):

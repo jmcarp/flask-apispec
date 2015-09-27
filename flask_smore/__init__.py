@@ -46,7 +46,8 @@ class Wrapper(object):
         if annotation.apply is not False:
             for option in annotation.options:
                 schema = utils.resolve_instance(option['args'])
-                kwargs.update(parser.parse(schema))
+                parsed = parser.parse(schema, locations=option['kwargs']['locations'])
+                kwargs.update(parsed)
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
@@ -82,7 +83,7 @@ def format_output(values):
         values = values[:-1]
     return values if len(values) > 1 else values[0]
 
-def use_kwargs(args, default_in='query', inherit=None, apply=None, **kwargs):
+def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -100,7 +101,7 @@ def use_kwargs(args, default_in='query', inherit=None, apply=None, **kwargs):
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
     """
-    kwargs.update({'default_in': default_in})
+    kwargs.update({'locations': locations})
     def wrapper(func):
         options = {
             'args': args,
