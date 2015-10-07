@@ -10,7 +10,7 @@ flask-smore
     :target: https://codecov.io/github/jmcarp/flask-smore
     :alt: Code coverage
 
-**flask-smore** is a lightweight tool for building REST APIs in Flask. **flask-smore** uses webargs_ for request parsing, marshmallow_ for response formatting, and smore_ to automatically generate Swagger markup. You can use **flask-smore** with vanilla Flask or a fuller-featured framework like Flask-RESTful_.
+**flask-smore** is a lightweight tool for building REST APIs in Flask. **flask-smore** uses webargs_ for request parsing, marshmallow_ for response formatting, and apispec_ to automatically generate Swagger markup. You can use **flask-smore** with vanilla Flask or a fuller-featured framework like Flask-RESTful_.
 
 Install
 -------
@@ -78,13 +78,13 @@ Quickstart
 
 .. code-block:: python
 
-    from smore.apispec import APISpec
+    from apispec import APISpec
     from flask_smore.apidoc import Documentation
 
     spec = APISpec(
         title='pets',
         version='v1',
-        plugins=['smore.ext.marshmallow'],
+        plugins=['apispec.ext.marshmallow'],
     )
     docs = Documentation(app, spec)
 
@@ -102,6 +102,6 @@ Notes
 
 .. _webargs: https://webargs.readthedocs.org/
 .. _marshmallow: https://marshmallow.readthedocs.org/
-.. _smore: https://smore.readthedocs.org/
+.. _apispec: https://apispec.readthedocs.org/
 .. _Flask-RESTful: https://flask-restful.readthedocs.org/
 .. _Flask-RESTplus: https://flask-restplus.readthedocs.org/

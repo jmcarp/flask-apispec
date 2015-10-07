@@ -4,8 +4,8 @@ import copy
 import types
 
 import six
-from smore import swagger
-from smore.apispec.core import VALID_METHODS
+from apispec.core import VALID_METHODS
+from apispec.ext.marshmallow import swagger
 
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
@@ -22,7 +22,7 @@ class Documentation(object):
     .. code-block:: python
 
         app = Flask(__name__)
-        spec = APISpec(title='pets', version='v1', plugins=['smore.ext.marshmallow'])
+        spec = APISpec(title='pets', version='v1', plugins=['apispec.ext.marshmallow'])
         docs = Documentation(app, spec)
 
         @app.route('/pet/<pet_id>')
@@ -32,7 +32,7 @@ class Documentation(object):
         docs.register(get_pet)
 
     :param Flask app: App associated with API documentation
-    :param APISpec spec: Smore specification associated with API documentation
+    :param APISpec spec: Specification associated with API documentation
     """
     def __init__(self, app, spec):
         self.app = app

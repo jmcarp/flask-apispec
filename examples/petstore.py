@@ -60,7 +60,7 @@ class PetResource(CrudResource):
 
 import flask
 import flask.views
-from smore.apispec import APISpec
+from apispec import APISpec
 
 from flask_smore.apidoc import Documentation
 

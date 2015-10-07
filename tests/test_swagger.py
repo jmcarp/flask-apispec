@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from smore import swagger
-from smore.apispec import APISpec
+from apispec import APISpec
+from apispec.ext.marshmallow import swagger
 from marshmallow import fields, Schema
 from flask import make_response
 
@@ -18,7 +18,7 @@ def spec():
     return APISpec(
         title='title',
         version='v1',
-        plugins=['smore.ext.marshmallow'],
+        plugins=['apispec.ext.marshmallow'],
     )
 
 class TestFunctionView:
