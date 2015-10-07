@@ -2,5 +2,3 @@ flake8
 pytest>=2.7.3
 pytest-cov
 webtest
-
-git+https://github.com/marshmallow-code/smore@dev

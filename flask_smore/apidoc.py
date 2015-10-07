@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import types
 
 import six
 from smore import swagger
 from smore.apispec.core import VALID_METHODS
+
+from marshmallow import Schema
+from marshmallow.utils import is_instance_or_subclass
 
 from flask_smore import ResourceMeta
 from flask_smore.paths import rule_to_path, rule_to_params
@@ -75,26 +79,38 @@ class Converter(object):
         return {}
 
     def get_operation(self, rule, view, parent=None):
-        docs = resolve_annotations(view, 'docs', parent)
+        annotation = resolve_annotations(view, 'docs', parent)
+        docs = merge_recursive(annotation.options)
         operation = {
             'responses': self.get_responses(view, parent),
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
-        docs.options.pop('params', None)
-        return merge_recursive(operation, docs.options)
+        docs.pop('params', None)
+        return merge_recursive([operation, docs])
 
     def get_parent(self, view):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        __args__ = resolve_annotations(view, 'args', parent)
-        return swagger.args2parameters(
-            __args__.options.get('args', {}),
-            default_in=__args__.options.get('default_in'),
-        ) + rule_to_params(rule, docs.options.get('params'))
+        annotation = resolve_annotations(view, 'args', parent)
+        args = merge_recursive(annotation.options)
+        converter = (
+            swagger.schema2parameters
+            if is_instance_or_subclass(args.get('args', {}), Schema)
+            else swagger.fields2parameters
+        )
+        options = copy.copy(args.get('kwargs', {}))
+        locations = options.pop('locations', None)
+        if locations:
+            options['default_in'] = locations[0]
+        return converter(
+            args.get('args', {}),
+            **options
+        ) + rule_to_params(rule, docs.get('params'))
 
     def get_responses(self, view, parent=None):
-        return resolve_annotations(view, 'schemas', parent).options
+        annotation = resolve_annotations(view, 'schemas', parent)
+        return merge_recursive(annotation.options)
 
 class ViewConverter(Converter):
 

@@ -7,9 +7,9 @@ from setuptools import find_packages
 REQUIRES = [
     'six>=1.9.0',
     'flask>=0.10.1',
-    'marshmallow>=1.2.6',
-    'webargs==0.15.0',
-    'smore>=0.1.0',
+    'marshmallow>=2.0',
+    'webargs>=0.18.0',
+    'smore>=0.2.0',
 ]
 
 def find_version(fname):

@@ -27,8 +27,7 @@ Quickstart
     from flask import Flask
     from flask_smore import use_kwargs, marshal_with
 
-    from webargs import Arg
-    from marshmallow import Schema
+    from marshmallow import fields, Schema
 
     from .models import Pet
 
@@ -39,7 +38,7 @@ Quickstart
             fields = ('name', 'category', 'size')
 
     @app.route('/pets')
-    @use_kwargs({'category': Arg(str), 'size': Arg(int)})
+    @use_kwargs({'category': fields.Str(), 'size': fields.Str()})
     @marshal_with(PetSchema(many=True))
     def get_pets(**kwargs):
         return Pet.query.filter_by(**kwargs)
@@ -57,12 +56,12 @@ Quickstart
         def get(self, pet_id):
             return Pet.query.filter(Pet.id == pet_id).one()
 
-        @use_kwargs({'name': Arg(str), 'category': Arg(str)}, default_in='body')
+        @use_kwargs(PetSchema)
         @marshal_with(PetSchema, code=201)
         def post(self, **kwargs):
             return Pet(**kwargs)
 
-        @use_kwargs({'name': Arg(str), 'category': Arg(str)}, default_in='body')
+        @use_kwargs(PetSchema)
         @marshal_with(PetSchema)
         def put(self, pet_id, **kwargs):
             pet = Pet.query.filter(Pet.id == pet_id).one()

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import six
-from webargs import Arg
 import marshmallow as ma
 
 from flask_smore.utils import Ref
@@ -18,15 +17,15 @@ class PetSchema(ma.Schema):
 
 class PetResource(six.with_metaclass(ResourceMeta)):
     @use_kwargs({
-        'category': Arg(str),
-        'name': Arg(str),
+        'category': ma.fields.Str(),
+        'name': ma.fields.Str(),
     })
     @marshal_with(PetSchema(), code=200)
     def get(self):
         return Pet('calici', 'cat')
 
 class CatResource(PetResource):
-    @use_kwargs({'category': Arg(int)})
+    @use_kwargs({'category': ma.fields.Int()})
     @marshal_with(PetSchema(), code=201)
     def get(self):
         return Pet('calici', 'cat'), 200
@@ -76,7 +75,7 @@ docs = Documentation(app, spec)
 @app.route('/pets/<pet_id>')
 @doc(params={'pet_id': {'description': 'pet id'}})
 @marshal_with(PetSchema)
-@use_kwargs({'breed': Arg(str)})
+@use_kwargs({'breed': ma.fields.Str()})
 def get_pet(pet_id):
     return Pet('calici', 'cat')
 

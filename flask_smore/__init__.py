@@ -13,7 +13,7 @@ from flask.views import http_method_funcs
 import werkzeug
 from webargs import flaskparser
 
-from flask_smore.utils import resolve_instance, resolve_annotations, Annotation
+from flask_smore import utils
 
 def identity(value):
     return value
@@ -43,18 +43,22 @@ class Wrapper(object):
     def call_view(self, *args, **kwargs):
         config = flask.current_app.config
         parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
-        __args__ = resolve_annotations(self.func, 'args', self.instance)
-        if __args__.apply is not False:
-            kwargs.update(parser.parse(__args__.options.get('args', {})))
+        annotation = utils.resolve_annotations(self.func, 'args', self.instance)
+        if annotation.apply is not False:
+            for option in annotation.options:
+                schema = utils.resolve_instance(option['args'])
+                parsed = parser.parse(schema, locations=option['kwargs']['locations'])
+                kwargs.update(parsed)
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
         config = flask.current_app.config
         format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
-        __schemas__ = resolve_annotations(self.func, 'schemas', self.instance)
-        schema = __schemas__.options.get(status_code, __schemas__.options.get('default'))
-        if schema and __schemas__.apply is not False:
-            schema = resolve_instance(schema['schema'])
+        annotation = utils.resolve_annotations(self.func, 'schemas', self.instance)
+        schemas = utils.merge_recursive(annotation.options)
+        schema = schemas.get(status_code, schemas.get('default'))
+        if schema and annotation.apply is not False:
+            schema = utils.resolve_instance(schema['schema'])
             output = schema.dump(unpacked[0]).data
         else:
             output = unpacked[0]
@@ -67,8 +71,9 @@ def activate(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         instance = args[0] if func.__smore__.get('ismethod') else None
-        wrapper_cls = resolve_annotations(func, 'wrapper', instance)
-        wrapper = wrapper_cls.options.get('wrapper', Wrapper)(func, instance)
+        annotation = utils.resolve_annotations(func, 'wrapper', instance)
+        wrapper_cls = utils.merge_recursive(annotation.options).get('wrapper', Wrapper)
+        wrapper = wrapper_cls(func, instance)
         return wrapper(*args, **kwargs)
 
     wrapped.__smore__['wrapped'] = True
@@ -79,7 +84,7 @@ def format_output(values):
         values = values[:-1]
     return values if len(values) > 1 else values[0]
 
-def use_kwargs(args, default_in='query', inherit=None, apply=None):
+def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -94,16 +99,16 @@ def use_kwargs(args, default_in='query', inherit=None, apply=None):
             return Pet.query.filter_by(**kwargs).all()
 
     :param args: Mapping of argument names to `Arg` objects
-    :param default_in: Optional default parameter location
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
     """
+    kwargs.update({'locations': locations})
     def wrapper(func):
         options = {
             'args': args,
-            'default_in': default_in,
+            'kwargs': kwargs,
         }
-        annotate(func, 'args', options, inherit=inherit, apply=apply)
+        annotate(func, 'args', [options], inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
 
@@ -136,7 +141,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
                 'description': description,
             },
         }
-        annotate(func, 'schemas', options, inherit=inherit, apply=apply)
+        annotate(func, 'schemas', [options], inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
 
@@ -155,7 +160,7 @@ def doc(inherit=None, **kwargs):
     :param inherit: Inherit Swagger documentation from parent classes
     """
     def wrapper(func):
-        annotate(func, 'docs', kwargs, inherit=inherit)
+        annotate(func, 'docs', [kwargs], inherit=inherit)
         return activate(func)
     return wrapper
 
@@ -165,12 +170,12 @@ def wrap_with(wrapper_cls):
     :param wrapper_cls: Custom `Wrapper` subclass
     """
     def wrapper(func):
-        annotate(func, 'wrapper', {'wrapper': wrapper_cls})
+        annotate(func, 'wrapper', [{'wrapper': wrapper_cls}])
         return activate(func)
     return wrapper
 
 def annotate(func, key, options, **kwargs):
-    annotation = Annotation(options, **kwargs)
+    annotation = utils.Annotation(options, **kwargs)
     func.__smore__ = func.__dict__.get('__smore__', {})
     func.__smore__.setdefault(key, []).insert(0, annotation)
 

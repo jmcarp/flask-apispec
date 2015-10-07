@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from webargs import Arg
 from smore import swagger
 from smore.apispec import APISpec
+from marshmallow import fields, Schema
 from flask import make_response
 
 from flask_smore.paths import rule_to_params
@@ -27,7 +27,7 @@ class TestFunctionView:
     def function_view(self, app, models, schemas):
         @app.route('/bands/<int:band_id>/')
         @doc(tags=['band'])
-        @use_kwargs({'name': Arg(str)})
+        @use_kwargs({'name': fields.Str()}, locations=('query', ))
         @marshal_with(schemas.BandSchema, description='a band')
         def get_band(band_id):
             return models.Band(name='slowdive', genre='spacerock')
@@ -45,7 +45,7 @@ class TestFunctionView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-            swagger.args2parameters({'name': Arg(str)}, default_in='query') +
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected
@@ -57,6 +57,36 @@ class TestFunctionView:
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
+
+class TestArgSchema:
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(ArgSchema, locations=('query', ))
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec, function_view):
+        converter = ViewConverter(app)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.add_path(**path)
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
+            rule_to_params(rule)
+        )
+        assert params == expected
 
 class TestDeleteView:
 
@@ -81,14 +111,13 @@ class TestDeleteView:
         assert response['description'] == 'a deleted band'
         assert response['schema'] == {}
 
-
 class TestResourceView:
 
     @pytest.fixture
     def resource_view(self, app, models, schemas):
         @doc(tags=['band'])
         class BandResource(MethodResource):
-            @use_kwargs({'name': Arg(str)})
+            @use_kwargs({'name': fields.Str()}, locations=('query', ))
             @marshal_with(schemas.BandSchema, description='a band')
             def get(self, **kwargs):
                 return models.Band('slowdive', 'shoegaze')
@@ -108,7 +137,7 @@ class TestResourceView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['band'][0]
         expected = (
-            swagger.args2parameters({'name': Arg(str)}, default_in='query') +
+            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected
