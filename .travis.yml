@@ -17,7 +17,7 @@ install:
   - travis_retry pip install -U -r dev-requirements.txt
 
 before_script:
-  - flake8 flask_smore
+  - flake8 flask_apispec
 
 script: py.test
 
