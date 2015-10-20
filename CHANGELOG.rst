@@ -1,7 +1,13 @@
 Changelog
 ---------
 
-0.1.2 (unreleased)
+0.1.3 (unreleased)
+++++++++++++++++++
+
+* Rename to flask-apispec.
+* Update to latest version of apispec.
+
+0.1.2
 ++++++++++++++++++
 
 * Update to latest version of webargs.
