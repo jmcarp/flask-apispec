@@ -7,8 +7,6 @@ from flask_smore.utils import Ref
 from flask_smore.views import MethodResource
 from flask_smore import doc, use_kwargs, marshal_with
 
-from tests.fixtures import app, client, models, schemas  # noqa
-
 class TestFunctionViews:
 
     def test_use_kwargs(self, app, client):

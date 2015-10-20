@@ -11,8 +11,6 @@ from flask_smore.views import MethodResource
 from flask_smore import doc, use_kwargs, marshal_with
 from flask_smore.apidoc import ViewConverter, ResourceConverter
 
-from tests.fixtures import app, models, schemas  # noqa
-
 @pytest.fixture
 def spec():
     return APISpec(

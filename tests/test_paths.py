@@ -2,8 +2,6 @@
 
 from flask_smore.paths import rule_to_path, rule_to_params
 
-from tests.fixtures import app  # noqa
-
 def make_rule(app, path, **kwargs):
     @app.route(path, **kwargs)
     def view():
