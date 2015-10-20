@@ -34,20 +34,20 @@ def read(fname):
     return content
 
 setup(
-    name='flask-smore',
-    version=find_version('flask_smore/__init__.py'),
-    description='Build and document REST APIs with Flask and Smore',
+    name='flask-apispec',
+    version=find_version('flask_apispec/__init__.py'),
+    description='Build and document REST APIs with Flask and apispec',
     long_description=read('README.rst'),
     author='Joshua Carp',
     author_email='jm.carp@gmail.com',
-    url='https://github.com/jmcarp/flask-smore',
+    url='https://github.com/jmcarp/flask-apispec',
     packages=find_packages(exclude=('test*', )),
-    package_dir={'flask_smore': 'flask_smore'},
+    package_dir={'flask_apispec': 'flask_apispec'},
     include_package_data=True,
     install_requires=REQUIRES,
     license=read('LICENSE'),
     zip_safe=False,
-    keywords='flask marshmallow webargs smore',
+    keywords='flask marshmallow webargs apispec',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

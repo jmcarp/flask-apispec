@@ -3,9 +3,9 @@
 from flask import make_response
 from marshmallow import fields, Schema
 
-from flask_smore.utils import Ref
-from flask_smore.views import MethodResource
-from flask_smore import doc, use_kwargs, marshal_with
+from flask_apispec.utils import Ref
+from flask_apispec.views import MethodResource
+from flask_apispec import doc, use_kwargs, marshal_with
 
 class TestFunctionViews:
 
@@ -78,13 +78,13 @@ class TestClassViews:
             def get(self, **kwargs):
                 return kwargs
 
-        assert not any(MethodResource.__smore__.values())
+        assert not any(MethodResource.__apispec__.values())
 
-        assert BaseResource.__smore__['docs'][0].options[0]['tags'] == ['base']
-        assert ChildResource.__smore__['docs'][0].options[0]['tags'] == ['child']
+        assert BaseResource.__apispec__['docs'][0].options[0]['tags'] == ['base']
+        assert ChildResource.__apispec__['docs'][0].options[0]['tags'] == ['child']
 
-        assert BaseResource.get.__smore__['docs'][0].options[0]['description'] == 'parent'
-        assert ChildResource.get.__smore__['docs'][0].options[0]['description'] == 'child'
+        assert BaseResource.get.__apispec__['docs'][0].options[0]['description'] == 'parent'
+        assert ChildResource.get.__apispec__['docs'][0].options[0]['description'] == 'child'
 
     def test_inheritance_only_http_methods(self, app):
         @use_kwargs({'genre': fields.Str()})

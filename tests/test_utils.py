@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask_smore import utils
+from flask_apispec import utils
 
 class TestAnnotations:
 

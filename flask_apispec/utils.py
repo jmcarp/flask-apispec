@@ -67,8 +67,8 @@ class Annotation(object):
 
 def resolve_annotations(func, key, parent=None):
     annotations = (
-        getattr(func, '__smore__', {}).get(key, []) +
-        getattr(parent, '__smore__', {}).get(key, [])
+        getattr(func, '__apispec__', {}).get(key, []) +
+        getattr(parent, '__apispec__', {}).get(key, [])
     )
     return functools.reduce(
         lambda first, second: first.merge(second),

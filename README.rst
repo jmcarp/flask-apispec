@@ -1,23 +1,23 @@
 ===========
-flask-smore
+flask-apispec
 ===========
 
-.. image:: https://img.shields.io/travis/jmcarp/flask-smore/master.svg
-    :target: https://travis-ci.org/jmcarp/flask-smore
+.. image:: https://img.shields.io/travis/jmcarp/flask-apispec/master.svg
+    :target: https://travis-ci.org/jmcarp/flask-apispec
     :alt: Travis-CI
 
-.. image:: https://img.shields.io/codecov/c/github/jmcarp/flask-smore/master.svg
-    :target: https://codecov.io/github/jmcarp/flask-smore
+.. image:: https://img.shields.io/codecov/c/github/jmcarp/flask-apispec/master.svg
+    :target: https://codecov.io/github/jmcarp/flask-apispec
     :alt: Code coverage
 
-**flask-smore** is a lightweight tool for building REST APIs in Flask. **flask-smore** uses webargs_ for request parsing, marshmallow_ for response formatting, and apispec_ to automatically generate Swagger markup. You can use **flask-smore** with vanilla Flask or a fuller-featured framework like Flask-RESTful_.
+**flask-apispec** is a lightweight tool for building REST APIs in Flask. **flask-apispec** uses webargs_ for request parsing, marshmallow_ for response formatting, and apispec_ to automatically generate Swagger markup. You can use **flask-apispec** with vanilla Flask or a fuller-featured framework like Flask-RESTful_.
 
 Install
 -------
 
 .. code-block::
 
-    pip install flask-smore 
+    pip install flask-apispec 
 
 Quickstart
 ----------
@@ -25,7 +25,7 @@ Quickstart
 .. code-block:: python
 
     from flask import Flask
-    from flask_smore import use_kwargs, marshal_with
+    from flask_apispec import use_kwargs, marshal_with
 
     from marshmallow import fields, Schema
 
@@ -43,12 +43,12 @@ Quickstart
     def get_pets(**kwargs):
         return Pet.query.filter_by(**kwargs)
 
-**flask-smore** works with function- and class-based views:
+**flask-apispec** works with function- and class-based views:
 
 .. code-block:: python
 
     from flask import make_response
-    from flask_smore.views import MethodResource
+    from flask_apispec.views import MethodResource
 
     class PetResource(MethodResource):
 
@@ -74,12 +74,12 @@ Quickstart
             pet.delete()
             return make_response('', 204)
 
-**flask-smore** generates Swagger markup for your view functions and classes:
+**flask-apispec** generates Swagger markup for your view functions and classes:
 
 .. code-block:: python
 
     from apispec import APISpec
-    from flask_smore.apidoc import Documentation
+    from flask_apispec.apidoc import Documentation
 
     spec = APISpec(
         title='pets',
@@ -96,9 +96,9 @@ Quickstart
 Notes
 -----
 
-**flask-smore** isn't stable yet, and the interface and internals may change. Bug reports and pull requests are much appreciated.
+**flask-apispec** isn't stable yet, and the interface and internals may change. Bug reports and pull requests are much appreciated.
 
-**flask-smore** is strongly inspired by Flask-RESTful_ and Flask-RESTplus_, but attempts to provide similar functionality with greater flexibility and less code.
+**flask-apispec** is strongly inspired by Flask-RESTful_ and Flask-RESTplus_, but attempts to provide similar functionality with greater flexibility and less code.
 
 .. _webargs: https://webargs.readthedocs.org/
 .. _marshmallow: https://marshmallow.readthedocs.org/

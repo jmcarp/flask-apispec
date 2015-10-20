@@ -10,9 +10,9 @@ from apispec.ext.marshmallow import swagger
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
 
-from flask_smore import ResourceMeta
-from flask_smore.paths import rule_to_path, rule_to_params
-from flask_smore.utils import resolve_instance, resolve_annotations, merge_recursive
+from flask_apispec import ResourceMeta
+from flask_apispec.paths import rule_to_path, rule_to_params
+from flask_apispec.utils import resolve_instance, resolve_annotations, merge_recursive
 
 class Documentation(object):
     """API documentation collector.

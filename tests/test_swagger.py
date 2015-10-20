@@ -6,10 +6,10 @@ from apispec.ext.marshmallow import swagger
 from marshmallow import fields, Schema
 from flask import make_response
 
-from flask_smore.paths import rule_to_params
-from flask_smore.views import MethodResource
-from flask_smore import doc, use_kwargs, marshal_with
-from flask_smore.apidoc import ViewConverter, ResourceConverter
+from flask_apispec.paths import rule_to_params
+from flask_apispec.views import MethodResource
+from flask_apispec import doc, use_kwargs, marshal_with
+from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
 @pytest.fixture
 def spec():

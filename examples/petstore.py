@@ -3,8 +3,8 @@
 import six
 import marshmallow as ma
 
-from flask_smore.utils import Ref
-from flask_smore import ResourceMeta, doc, marshal_with, use_kwargs
+from flask_apispec.utils import Ref
+from flask_apispec import ResourceMeta, doc, marshal_with, use_kwargs
 
 class Pet:
     def __init__(self, name, type):
@@ -62,13 +62,13 @@ import flask
 import flask.views
 from apispec import APISpec
 
-from flask_smore.apidoc import Documentation
+from flask_apispec.apidoc import Documentation
 
 app = flask.Flask(__name__)
 spec = APISpec(
     title='title',
     version='v1',
-    plugins=['smore.ext.marshmallow'],
+    plugins=['apispec.ext.marshmallow'],
 )
 docs = Documentation(app, spec)
 

@@ -13,7 +13,7 @@ from flask.views import http_method_funcs
 import werkzeug
 from webargs import flaskparser
 
-from flask_smore import utils
+from flask_apispec import utils
 
 def identity(value):
     return value
@@ -42,7 +42,7 @@ class Wrapper(object):
 
     def call_view(self, *args, **kwargs):
         config = flask.current_app.config
-        parser = config.get('SMORE_WEBARGS_PARSER', flaskparser.parser)
+        parser = config.get('APISPEC_WEBARGS_PARSER', flaskparser.parser)
         annotation = utils.resolve_annotations(self.func, 'args', self.instance)
         if annotation.apply is not False:
             for option in annotation.options:
@@ -53,7 +53,7 @@ class Wrapper(object):
 
     def marshal_result(self, unpacked, status_code):
         config = flask.current_app.config
-        format_response = config.get('SMORE_FORMAT_RESPONSE', flask.jsonify) or identity
+        format_response = config.get('APISPEC_FORMAT_RESPONSE', flask.jsonify) or identity
         annotation = utils.resolve_annotations(self.func, 'schemas', self.instance)
         schemas = utils.merge_recursive(annotation.options)
         schema = schemas.get(status_code, schemas.get('default'))
@@ -65,18 +65,18 @@ class Wrapper(object):
         return format_output((format_response(output), ) + unpacked[1:])
 
 def activate(func):
-    if isinstance(func, type) or getattr(func, '__smore__', {}).get('wrapped'):
+    if isinstance(func, type) or getattr(func, '__apispec__', {}).get('wrapped'):
         return func
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        instance = args[0] if func.__smore__.get('ismethod') else None
+        instance = args[0] if func.__apispec__.get('ismethod') else None
         annotation = utils.resolve_annotations(func, 'wrapper', instance)
         wrapper_cls = utils.merge_recursive(annotation.options).get('wrapper', Wrapper)
         wrapper = wrapper_cls(func, instance)
         return wrapper(*args, **kwargs)
 
-    wrapped.__smore__['wrapped'] = True
+    wrapped.__apispec__['wrapped'] = True
     return wrapped
 
 def format_output(values):
@@ -176,17 +176,17 @@ def wrap_with(wrapper_cls):
 
 def annotate(func, key, options, **kwargs):
     annotation = utils.Annotation(options, **kwargs)
-    func.__smore__ = func.__dict__.get('__smore__', {})
-    func.__smore__.setdefault(key, []).insert(0, annotation)
+    func.__apispec__ = func.__dict__.get('__apispec__', {})
+    func.__apispec__.setdefault(key, []).insert(0, annotation)
 
 def inherit(child, parents):
-    child.__smore__ = child.__dict__.get('__smore__', {})
+    child.__apispec__ = child.__dict__.get('__apispec__', {})
     for key in ['args', 'schemas', 'docs']:
-        child.__smore__.setdefault(key, []).extend(
+        child.__apispec__.setdefault(key, []).extend(
             annotation
             for parent in parents
-            for annotation in getattr(parent, '__smore__', {}).get(key, [])
-            if annotation not in child.__smore__[key]
+            for annotation in getattr(parent, '__apispec__', {}).get(key, [])
+            if annotation not in child.__apispec__[key]
         )
 
 class ResourceMeta(type):
@@ -208,6 +208,6 @@ class ResourceMeta(type):
                 inherit(value, parents)
                 setattr(klass, key, activate(value))
                 if not isinstance(value, staticmethod):
-                    value.__dict__.setdefault('__smore__', {})
-                    value.__smore__['ismethod'] = True
+                    value.__dict__.setdefault('__apispec__', {})
+                    value.__apispec__['ismethod'] = True
         return klass
