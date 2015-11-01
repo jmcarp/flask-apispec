@@ -2,6 +2,10 @@
 flask-apispec
 ===========
 
+.. image:: https://img.shields.io/pypi/v/flask-apispec.svg
+    :target: http://badge.fury.io/py/flask-apispec
+    :alt: Latest version
+
 .. image:: https://img.shields.io/travis/jmcarp/flask-apispec/master.svg
     :target: https://travis-ci.org/jmcarp/flask-apispec
     :alt: Travis-CI
