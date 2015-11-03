@@ -83,14 +83,14 @@ Quickstart
 .. code-block:: python
 
     from apispec import APISpec
-    from flask_smore.extension import FlaskSmore
+    from flask_apispec.extension import FlaskApiSpec
 
     spec = APISpec(
         title='pets',
         version='v1',
         plugins=['apispec.ext.marshmallow'],
     )
-    docs = FlaskSmore(app, spec)
+    docs = FlaskApiSpec(app, spec)
 
     docs.register(get_pets)
     docs.register(PetResource)

@@ -1,16 +1,16 @@
 {
-  "name": "flask-smore",
-  "version": "0.1.0",
+  "name": "flask-apispec",
+  "version": "0.2.0",
   "dependencies": {
     "swagger-ui": "2.1.3"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jmcarp/flask-smore.git"
+    "url": "git+https://github.com/jmcarp/flask-apispec.git"
   },
   "author": "Joshua Carp",
   "bugs": {
-    "url": "https://github.com/jmcarp/flask-smore/issues"
+    "url": "https://github.com/jmcarp/flask-apispec/issues"
   },
-  "homepage": "https://github.com/jmcarp/flask-smore#readme"
+  "homepage": "https://github.com/jmcarp/flask-apispec#readme"
 }

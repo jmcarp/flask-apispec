@@ -8,8 +8,8 @@ from apispec import APISpec
 from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
-class FlaskSmore(object):
-    """Flask-smore extension.
+class FlaskApiSpec(object):
+    """Flask-apispec extension.
 
     Usage:
 
@@ -17,14 +17,14 @@ class FlaskSmore(object):
 
         app = Flask(__name__)
         app.config.update({
-            'SMORE_APISPEC': APISpec(
+            'APISPEC_SPEC': APISpec(
                 title='pets',
                 version='v1',
                 plugins=['apispec.ext.marshmallow'],
             ),
-            'SMORE_SWAGGER_URL': '/swagger/',
+            'APISPEC_SWAGGER_URL': '/swagger/',
         })
-        docs = FlaskSmore(app)
+        docs = FlaskApiSpec(app)
 
         @app.route('/pet/<pet_id>')
         def get_pet(pet_id):
@@ -33,29 +33,29 @@ class FlaskSmore(object):
         docs.register(get_pet)
 
     :param Flask app: App associated with API documentation
-    :param APISpec spec: Smore specification associated with API documentation
+    :param APISpec spec: apispec specification associated with API documentation
     """
     def __init__(self, app):
         self.app = app
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
-        self.spec = self.app.config.get('SMORE_APISPEC') or make_apispec()
+        self.spec = self.app.config.get('APISPEC_SPEC') or make_apispec()
         self.add_routes()
 
     def add_routes(self):
         blueprint = flask.Blueprint(
-            'flask-smore',
+            'flask-apispec',
             __name__,
             template_folder='./templates',
             static_folder='../node_modules/swagger-ui/dist',
-            static_url_path='/flask-smore/static',
+            static_url_path='/flask-apispec/static',
         )
 
-        json_url = self.app.config.get('SMORE_SWAGGER_URL', '/swagger/')
+        json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
         if json_url:
             blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
 
-        ui_url = self.app.config.get('SMORE_SWAGGER_UI_URL', '/swagger-ui/')
+        ui_url = self.app.config.get('APISPEC_SWAGGER_UI_URL', '/swagger-ui/')
         if ui_url:
             blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
 

@@ -3,12 +3,12 @@
 import pytest
 
 from flask_apispec import doc
-from flask_apispec.extension import FlaskSmore
+from flask_apispec.extension import FlaskApiSpec
 from flask_apispec.views import MethodResource
 
 @pytest.fixture
 def docs(app):
-    return FlaskSmore(app)
+    return FlaskApiSpec(app)
 
 class TestExtension:
 
@@ -34,8 +34,8 @@ class TestExtension:
         assert res.json == docs.spec.to_dict()
 
     def test_serve_swagger_custom_url(self, app, client):
-        app.config['SMORE_SWAGGER_URL'] = '/swagger.json'
-        docs = FlaskSmore(app)
+        app.config['APISPEC_SWAGGER_URL'] = '/swagger.json'
+        docs = FlaskApiSpec(app)
         res = client.get('/swagger.json')
         assert res.json == docs.spec.to_dict()
 
@@ -43,6 +43,6 @@ class TestExtension:
         client.get('/swagger-ui/')
 
     def test_serve_swagger_ui_custom_url(self, app, client):
-        app.config['SMORE_SWAGGER_UI_URL'] = '/swagger-ui.html'
-        docs = FlaskSmore(app)
+        app.config['APISPEC_SWAGGER_UI_URL'] = '/swagger-ui.html'
+        FlaskApiSpec(app)
         client.get('/swagger-ui.html')
