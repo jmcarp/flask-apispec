@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import types
 
 import six
 from apispec.core import VALID_METHODS
@@ -10,45 +9,8 @@ from apispec.ext.marshmallow import swagger
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
 
-from flask_apispec import ResourceMeta
 from flask_apispec.paths import rule_to_path, rule_to_params
 from flask_apispec.utils import resolve_instance, resolve_annotations, merge_recursive
-
-class Documentation(object):
-    """API documentation collector.
-
-    Usage:
-
-    .. code-block:: python
-
-        app = Flask(__name__)
-        spec = APISpec(title='pets', version='v1', plugins=['apispec.ext.marshmallow'])
-        docs = Documentation(app, spec)
-
-        @app.route('/pet/<pet_id>')
-        def get_pet(pet_id):
-            return Pet.query.filter(Pet.id == pet_id).one()
-
-        docs.register(get_pet)
-
-    :param Flask app: App associated with API documentation
-    :param APISpec spec: Specification associated with API documentation
-    """
-    def __init__(self, app, spec):
-        self.app = app
-        self.spec = spec
-        self.view_converter = ViewConverter(app)
-        self.resource_converter = ResourceConverter(app)
-
-    def register(self, target, endpoint=None, blueprint=None):
-        if isinstance(target, types.FunctionType):
-            paths = self.view_converter.convert(target, endpoint, blueprint)
-        elif isinstance(target, ResourceMeta):
-            paths = self.resource_converter.convert(target, endpoint, blueprint)
-        else:
-            raise TypeError
-        for path in paths:
-            self.spec.add_path(**path)
 
 class Converter(object):
 

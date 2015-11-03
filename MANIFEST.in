@@ -1,1 +1,2 @@
 include *.rst LICENSE
+recursive-include node_modules/swagger-ui/dist *

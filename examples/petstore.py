@@ -60,17 +60,11 @@ class PetResource(CrudResource):
 
 import flask
 import flask.views
-from apispec import APISpec
 
-from flask_apispec.apidoc import Documentation
+from flask_smore.extension import FlaskSmore
 
 app = flask.Flask(__name__)
-spec = APISpec(
-    title='title',
-    version='v1',
-    plugins=['apispec.ext.marshmallow'],
-)
-docs = Documentation(app, spec)
+docs = FlaskSmore(app)
 
 @app.route('/pets/<pet_id>')
 @doc(params={'pet_id': {'description': 'pet id'}})

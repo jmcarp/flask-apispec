@@ -1,3 +1,5 @@
+node_modules/
+
 *.py[cod]
 
 # C extensions

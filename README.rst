@@ -78,24 +78,22 @@ Quickstart
             pet.delete()
             return make_response('', 204)
 
-**flask-apispec** generates Swagger markup for your view functions and classes:
+**flask-apispec** generates Swagger markup for your view functions and classes. By default, Swagger JSON is served at `/swagger/`, and Swagger-UI at `/swagger-ui/`.
 
 .. code-block:: python
 
     from apispec import APISpec
-    from flask_apispec.apidoc import Documentation
+    from flask_smore.extension import FlaskSmore
 
     spec = APISpec(
         title='pets',
         version='v1',
         plugins=['apispec.ext.marshmallow'],
     )
-    docs = Documentation(app, spec)
+    docs = FlaskSmore(app, spec)
 
     docs.register(get_pets)
     docs.register(PetResource)
-
-    docs.spec.to_dict()  # Complete Swagger JSON
 
 Notes
 -----
