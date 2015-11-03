@@ -3,8 +3,7 @@
 import six
 import marshmallow as ma
 
-from flask_apispec.utils import Ref
-from flask_apispec import ResourceMeta, doc, marshal_with, use_kwargs
+from flask_apispec import ResourceMeta, Ref, doc, marshal_with, use_kwargs
 
 class Pet:
     def __init__(self, name, type):
@@ -61,7 +60,7 @@ class PetResource(CrudResource):
 import flask
 import flask.views
 
-from flask_apispec.extension import FlaskApiSpec
+from flask_apispec import FlaskApiSpec
 
 app = flask.Flask(__name__)
 docs = FlaskApiSpec(app)
