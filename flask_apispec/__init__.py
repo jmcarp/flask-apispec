@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = '0.1.3'
+__version__ = '0.2.0'
 
 from flask_apispec.views import ResourceMeta
 from flask_apispec.extension import FlaskApiSpec

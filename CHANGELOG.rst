@@ -1,7 +1,14 @@
 Changelog
 ---------
 
-0.1.3 (unreleased)
+0.2.0 (2015-11-03)
+++++++++++++++++++
+
+* Add `FlaskApiSpec` Flask extension.
+* Serve Swagger and Swagger-UI automatically.
+* Reorganize file structure.
+
+0.1.3 (2015-11-01)
 ++++++++++++++++++
 
 * Rename to flask-apispec.
