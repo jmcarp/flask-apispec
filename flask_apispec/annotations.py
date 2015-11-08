@@ -19,7 +19,8 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
         def get_pets(**kwargs):
             return Pet.query.filter_by(**kwargs).all()
 
-    :param args: Mapping of argument names to `Field` objects
+    :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
+        objects, or :class:`Schema <marshmallow.Schema>`
     :param locations: Default request locations to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
@@ -50,7 +51,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
         def get_pet(pet_id):
             return Pet.query.filter(Pet.id == pet_id).one()
 
-    :param schema: Marshmallow schema class or instance, or `None`
+    :param schema: :class:`Schema <marshmallow.Schema>` class or instance, or `None`
     :param code: Optional HTTP response code
     :param description: Optional response description
     :param inherit: Inherit schemas from parent classes

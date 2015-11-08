@@ -1,0 +1,8 @@
+sphinx
+sphinx-rtd-theme
+
+six
+flask
+apispec
+webargs
+marshmallow-sqlalchemy
