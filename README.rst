@@ -1,10 +1,14 @@
-===========
+=============
 flask-apispec
-===========
+=============
 
 .. image:: https://img.shields.io/pypi/v/flask-apispec.svg
     :target: http://badge.fury.io/py/flask-apispec
     :alt: Latest version
+
+.. image:: https://readthedocs.org/projects/flask-apispec/badge/?version=latest
+    :target: https://flask-apispec.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation status
 
 .. image:: https://img.shields.io/travis/jmcarp/flask-apispec/master.svg
     :target: https://travis-ci.org/jmcarp/flask-apispec
