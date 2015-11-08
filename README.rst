@@ -19,7 +19,7 @@ flask-apispec
 Install
 -------
 
-.. code-block::
+::
 
     pip install flask-apispec 
 
