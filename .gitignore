@@ -1,4 +1,5 @@
 node_modules/
+flask_apispec/static/
 
 *.py[cod]
 

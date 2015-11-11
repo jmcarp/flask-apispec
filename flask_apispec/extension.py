@@ -46,8 +46,8 @@ class FlaskApiSpec(object):
         blueprint = flask.Blueprint(
             'flask-apispec',
             __name__,
+            static_folder='./static',
             template_folder='./templates',
-            static_folder='../node_modules/swagger-ui/dist',
             static_url_path='/flask-apispec/static',
         )
 

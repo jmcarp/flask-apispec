@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.3.0 (2015-11-11)
+++++++++++++++++++
+
+* Bundle templates and static files with install. Thanks @bmorgan21.
+* Use readthedocs for documentation.
+
 0.2.0 (2015-11-03)
 ++++++++++++++++++
 

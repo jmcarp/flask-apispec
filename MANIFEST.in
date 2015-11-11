@@ -1,2 +1,2 @@
 include *.rst LICENSE
-recursive-include node_modules/swagger-ui/dist *
+recursive-include flask_apispec *
