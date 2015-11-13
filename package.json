@@ -1,6 +1,6 @@
 {
   "name": "flask-apispec",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {
     "swagger-ui": "2.1.3"
   },
