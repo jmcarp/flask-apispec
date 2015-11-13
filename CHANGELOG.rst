@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.3.1 (2015-11-12)
+++++++++++++++++++
+
+* Update Swagger-UI assets. Thanks @evocateur.
+
 0.3.0 (2015-11-11)
 ++++++++++++++++++
 
