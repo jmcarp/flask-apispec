@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import types
 
 import flask
@@ -35,7 +34,7 @@ class FlaskApiSpec(object):
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
     :param enable_auth_key: Should we include a authentication token field in swagger ui
-    :param auth_key_name: The name of the authentication token to use, defaults to 'auth_token'
+    :param auth_key_name: The name of the auth token to use, defaults to 'auth_token'
     """
     def __init__(self, app, enable_auth_key=False, auth_key_name='auth_token'):
         self.app = app
