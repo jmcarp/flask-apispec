@@ -34,9 +34,13 @@ class FlaskApiSpec(object):
 
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
+    :param enable_auth_key: Should we include a authentication token field in swagger ui
+    :param auth_key_name: The name of the authentication token to use, defaults to 'auth_token'
     """
-    def __init__(self, app):
+    def __init__(self, app, enable_auth_key=False, auth_key_name='auth_token'):
         self.app = app
+        self.enable_auth_key = enable_auth_key
+        self.auth_key_name = auth_key_name
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or make_apispec()
@@ -65,7 +69,9 @@ class FlaskApiSpec(object):
         return flask.jsonify(self.spec.to_dict())
 
     def swagger_ui(self):
-        return flask.render_template('swagger-ui.html')
+        return flask.render_template('swagger-ui.html',
+                                     enable_auth_key=self.enable_auth_key,
+                                     auth_key_name=self.auth_key_name)
 
     def register(self, target, endpoint=None, blueprint=None):
         if isinstance(target, types.FunctionType):
