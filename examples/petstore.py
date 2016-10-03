@@ -95,4 +95,7 @@ class CatResource(MethodResource):
         return Pet('calici', 'cat')
 
 app.add_url_rule('/cat/<pet_id>', view_func=CatResource.as_view('CatResource'))
-docs.register(CatResource)
+docs.register(CatResource, endpoint='CatResource')
+
+if __name__ == '__main__':
+    app.run(debug=True)
