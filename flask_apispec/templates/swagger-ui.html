@@ -34,10 +34,6 @@
           $('pre code').each(function(i, e) {
             hljs.highlightBlock(e)
           });
-
-          {% if enable_auth_key %}
-            addApiKeyAuthorization();
-          {% endif %}
         },
         onFailure: function(data) {
           console.log('Unable to Load SwaggerUI');
@@ -47,36 +43,12 @@
         showRequestHeaders: false
       });
 
-      {% if enable_auth_key %}
-        function addApiKeyAuthorization(){
-          var key = encodeURIComponent($('#input_apiKey')[0].value);
-          if(key && key.trim() != "") {
-              var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("auth_token", key, "query");
-              window.swaggerUi.api.clientAuthorizations.add("auth_token", apiKeyAuth);
-              log("added key " + key);
-          }
-        }
-        $('#input_apiKey').change(addApiKeyAuthorization);
-      {% endif %}
-
       window.swaggerUi.load();
     });
   </script>
 </head>
 
 <body class="swagger-section">
-
-  {% if enable_auth_key %}
-  <div id='header'>
-    <div class="swagger-ui-wrap">
-      <a id="logo" href="http://swagger.io">swagger</a>
-      <form id='api_selector'>
-        <div class='input'><input placeholder="Authentication Token" id="input_apiKey" name="apiKey" type="text"/></div>
-      </form>
-    </div>
-  </div>
-  {% endif %}
-
   <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
   <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
 </body>
