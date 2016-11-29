@@ -26,6 +26,7 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     :param apply: Parse request with specified args
     """
     kwargs.update({'locations': locations})
+
     def wrapper(func):
         options = {
             'args': args,

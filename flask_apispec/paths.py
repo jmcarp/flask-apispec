@@ -8,6 +8,7 @@ PATH_RE = re.compile(r'<(?:[^:<>]+:)?([^<>]+)>')
 def rule_to_path(rule):
     return PATH_RE.sub(r'{\1}', rule.rule)
 
+
 CONVERTER_MAPPING = {
     werkzeug.routing.UnicodeConverter: ('string', None),
     werkzeug.routing.IntegerConverter: ('integer', 'int32'),
