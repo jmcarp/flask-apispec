@@ -74,9 +74,9 @@ class FlaskApiSpec(object):
         :param endpoint: (optional) endpoint name.
         :param blueprint: (optional) blueprint name.
         :param tuple resource_class_args: (optional) args to be forwarded to the
-            constructor of the resource.
+            view class constructor.
         :param dict resource_class_kwargs: (optional) kwargs to be forwarded to
-            the constructor of the resource.
+            the view class constructor.
         """
         if isinstance(target, types.FunctionType):
             paths = self.view_converter.convert(target, endpoint, blueprint)
