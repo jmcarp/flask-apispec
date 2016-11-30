@@ -26,6 +26,7 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     :param apply: Parse request with specified args
     """
     kwargs.update({'locations': locations})
+
     def wrapper(func):
         options = {
             'args': args,
@@ -34,6 +35,7 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
         annotate(func, 'args', [options], inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
+
 
 def marshal_with(schema, code='default', description='', inherit=None, apply=None):
     """Marshal the return value of the decorated view function using the
