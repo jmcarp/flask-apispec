@@ -5,8 +5,9 @@ import functools
 import six
 
 def resolve_instance(schema, **kwargs):
-    resource_class_args = kwargs.pop('resource_class_args', ())
-    resource_class_kwargs = kwargs.pop('resource_class_kwargs', {})
+    kwargs = kwargs or {}
+    resource_class_args = kwargs.get('resource_class_args') or ()
+    resource_class_kwargs = kwargs.get('resource_class_kwargs') or {}
     if isinstance(schema, type):
         return schema(*resource_class_args, **resource_class_kwargs)
     return schema
