@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.4.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+* Add `resource_class_args` and `resource_class_kwargs` to `FlaskApiSpec.register` for passing constructor arguments to `MethodResource` classes. Thanks @elatomo.
+
 0.3.2 (2015-12-06)
 ++++++++++++++++++
 
