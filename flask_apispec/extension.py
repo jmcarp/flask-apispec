@@ -67,11 +67,28 @@ class FlaskApiSpec(object):
     def swagger_ui(self):
         return flask.render_template('swagger-ui.html')
 
-    def register(self, target, endpoint=None, blueprint=None):
+    def register(self, target, endpoint=None, blueprint=None,
+                 resource_class_args=None, resource_class_kwargs=None):
+        """Register a view.
+
+        :param target: view function or view class.
+        :param endpoint: (optional) endpoint name.
+        :param blueprint: (optional) blueprint name.
+        :param tuple resource_class_args: (optional) args to be forwarded to the
+            view class constructor.
+        :param dict resource_class_kwargs: (optional) kwargs to be forwarded to
+            the view class constructor.
+        """
         if isinstance(target, types.FunctionType):
             paths = self.view_converter.convert(target, endpoint, blueprint)
         elif isinstance(target, ResourceMeta):
-            paths = self.resource_converter.convert(target, endpoint, blueprint)
+            paths = self.resource_converter.convert(
+                target,
+                endpoint,
+                blueprint,
+                resource_class_args=resource_class_args,
+                resource_class_kwargs=resource_class_kwargs,
+            )
         else:
             raise TypeError()
         for path in paths:

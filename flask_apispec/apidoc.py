@@ -17,16 +17,16 @@ class Converter(object):
     def __init__(self, app):
         self.app = app
 
-    def convert(self, target, endpoint=None, blueprint=None):
+    def convert(self, target, endpoint=None, blueprint=None, **kwargs):
         endpoint = endpoint or target.__name__.lower()
         if blueprint:
             endpoint = '{}.{}'.format(blueprint, endpoint)
         rules = self.app.url_map._rules_by_endpoint[endpoint]
-        return [self.get_path(rule, target) for rule in rules]
+        return [self.get_path(rule, target, **kwargs) for rule in rules]
 
-    def get_path(self, rule, target):
+    def get_path(self, rule, target, **kwargs):
         operations = self.get_operations(rule, target)
-        parent = self.get_parent(target)
+        parent = self.get_parent(target, **kwargs)
         return {
             'view': target,
             'path': rule_to_path(rule),
@@ -89,5 +89,5 @@ class ResourceConverter(Converter):
             if hasattr(resource, method.lower())
         }
 
-    def get_parent(self, resource):
-        return resolve_instance(resource)
+    def get_parent(self, resource, **kwargs):
+        return resolve_instance(resource, **kwargs)

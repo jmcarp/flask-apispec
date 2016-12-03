@@ -4,9 +4,12 @@ import functools
 
 import six
 
-def resolve_instance(schema):
+def resolve_instance(schema, **kwargs):
+    kwargs = kwargs or {}
+    resource_class_args = kwargs.get('resource_class_args') or ()
+    resource_class_kwargs = kwargs.get('resource_class_kwargs') or {}
     if isinstance(schema, type):
-        return schema()
+        return schema(*resource_class_args, **resource_class_kwargs)
     return schema
 
 class Ref(object):

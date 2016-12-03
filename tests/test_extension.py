@@ -29,6 +29,22 @@ class TestExtension:
         docs.register(BandResource, endpoint='band')
         assert '/bands/{band_id}/' in docs.spec._paths
 
+    def test_register_resource_with_constructor_args(self, app, docs):
+        @doc(tags=['band'])
+        class BandResource(MethodResource):
+            def __init__(self, arg_one, arg_two):
+                pass
+
+            def get(self, **kwargs):
+                return 'kraftwerk'
+
+        app.add_url_rule('/bands/<band_id>/',
+                         view_func=BandResource.as_view('band', True, arg_two=False))
+        docs.register(BandResource, endpoint='band',
+                      resource_class_args=(True, ),
+                      resource_class_kwargs={'arg_two': True})
+        assert '/bands/{band_id}/' in docs.spec._paths
+
     def test_serve_swagger(self, app, docs, client):
         res = client.get('/swagger/')
         assert res.json == docs.spec.to_dict()
