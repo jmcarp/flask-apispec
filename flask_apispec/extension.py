@@ -35,7 +35,11 @@ class FlaskApiSpec(object):
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
     """
-    def __init__(self, app):
+    def __init__(self, app=None):
+        if app:
+            self.init_app(app)
+
+    def init_app(self, app):
         self.app = app
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
