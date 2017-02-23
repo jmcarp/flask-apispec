@@ -64,7 +64,7 @@ class Converter(object):
         options = copy.copy(args.get('kwargs', {}))
         locations = options.pop('locations', None)
         if locations:
-            options['default_in'] = locations[0]
+            options['default_in'] = self.get_default_in(locations[0])
         return converter(
             args.get('args', {}),
             dump=False,
@@ -74,6 +74,11 @@ class Converter(object):
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
         return merge_recursive(annotation.options)
+
+    def get_default_in(self, location):
+        if location == 'json':
+            return 'body'
+        return location
 
 class ViewConverter(Converter):
 
