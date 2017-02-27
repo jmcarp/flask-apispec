@@ -99,6 +99,11 @@ Quickstart
     docs.register(get_pets)
     docs.register(PetResource)
 
+Documentation
+-------------
+
+https://flask-apispec.readthedocs.org/
+
 Notes
 -----
 
