@@ -7,7 +7,7 @@ flask-apispec
     :alt: Latest version
 
 .. image:: https://readthedocs.org/projects/flask-apispec/badge/?version=latest
-    :target: https://flask-apispec.readthedocs.org/en/latest/?badge=latest
+    :target: https://flask-apispec.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation status
 
 .. image:: https://img.shields.io/travis/jmcarp/flask-apispec/master.svg
@@ -98,6 +98,11 @@ Quickstart
 
     docs.register(get_pets)
     docs.register(PetResource)
+
+Documentation
+-------------
+
+https://flask-apispec.readthedocs.io/
 
 Notes
 -----
