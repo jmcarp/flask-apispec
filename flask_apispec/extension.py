@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import functools
 import types
 
 import flask
@@ -7,6 +7,7 @@ from apispec import APISpec
 
 from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
+
 
 class FlaskApiSpec(object):
     """Flask-apispec extension.
@@ -36,6 +37,12 @@ class FlaskApiSpec(object):
     :param APISpec spec: apispec specification associated with API documentation
     """
     def __init__(self, app=None):
+        self._deferred = []
+        self.app = app
+        self.view_converter = None
+        self.resource_converter = None
+        self.spec = None
+
         if app:
             self.init_app(app)
 
@@ -45,6 +52,14 @@ class FlaskApiSpec(object):
         self.resource_converter = ResourceConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or make_apispec()
         self.add_routes()
+
+        @app.before_first_request
+        def call_deferred():
+            for deferred in self._deferred:
+                deferred()
+
+    def _defer(self, callable, *args, **kwargs):
+        self._deferred.append(functools.partial(callable, *args, **kwargs))
 
     def add_routes(self):
         blueprint = flask.Blueprint(
@@ -73,6 +88,21 @@ class FlaskApiSpec(object):
 
     def register(self, target, endpoint=None, blueprint=None,
                  resource_class_args=None, resource_class_kwargs=None):
+        """Register a view.
+
+        :param target: view function or view class.
+        :param endpoint: (optional) endpoint name.
+        :param blueprint: (optional) blueprint name.
+        :param tuple resource_class_args: (optional) args to be forwarded to the
+            view class constructor.
+        :param dict resource_class_kwargs: (optional) kwargs to be forwarded to
+            the view class constructor.
+        """
+
+        self._defer(self._register, target, endpoint, blueprint, resource_class_args, resource_class_kwargs)
+
+    def _register(self, target, endpoint=None, blueprint=None,
+                  resource_class_args=None, resource_class_kwargs=None):
         """Register a view.
 
         :param target: view function or view class.
