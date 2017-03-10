@@ -36,6 +36,7 @@ class FlaskApiSpec(object):
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
     """
+
     def __init__(self, app=None):
         self._deferred = []
         self.app = app
@@ -50,7 +51,9 @@ class FlaskApiSpec(object):
         self.app = app
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
-        self.spec = self.app.config.get('APISPEC_SPEC') or make_apispec()
+        self.spec = self.app.config.get('APISPEC_SPEC') or \
+                    make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
+                                 self.app.config.get('APISPEC_VERSION', 'flask-apispec'))
         self.add_routes()
 
         @app.before_first_request
@@ -128,9 +131,10 @@ class FlaskApiSpec(object):
         for path in paths:
             self.spec.add_path(**path)
 
-def make_apispec():
+
+def make_apispec(title='flask-apispec', version='v1'):
     return APISpec(
-        title='flask-apispec',
-        version='v1',
+        title=title,
+        version=version,
         plugins=['apispec.ext.marshmallow'],
     )
