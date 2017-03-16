@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+import flask
 import functools
 import types
-
-import flask
 from apispec import APISpec
 
 from flask_apispec import ResourceMeta
@@ -56,13 +55,14 @@ class FlaskApiSpec(object):
                                  self.app.config.get('APISPEC_VERSION', 'flask-apispec'))
         self.add_routes()
 
-        @app.before_first_request
-        def call_deferred():
-            for deferred in self._deferred:
-                deferred()
+        for deferred in self._deferred:
+            deferred()
 
     def _defer(self, callable, *args, **kwargs):
-        self._deferred.append(functools.partial(callable, *args, **kwargs))
+        bound = functools.partial(callable, *args, **kwargs)
+        self._deferred.append(bound)
+        if self.app:
+            bound()
 
     def add_routes(self):
         blueprint = flask.Blueprint(
@@ -102,7 +102,8 @@ class FlaskApiSpec(object):
             the view class constructor.
         """
 
-        self._defer(self._register, target, endpoint, blueprint, resource_class_args, resource_class_kwargs)
+        self._defer(self._register, target, endpoint, blueprint,
+                    resource_class_args, resource_class_kwargs)
 
     def _register(self, target, endpoint=None, blueprint=None,
                   resource_class_args=None, resource_class_kwargs=None):

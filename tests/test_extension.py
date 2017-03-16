@@ -1,16 +1,35 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from flask import Blueprint
 
 from flask_apispec import doc
 from flask_apispec.extension import FlaskApiSpec
 from flask_apispec.views import MethodResource
+
 
 @pytest.fixture
 def docs(app):
     return FlaskApiSpec(app)
 
 class TestExtension:
+    def test_deferred_register(self, app):
+        blueprint = Blueprint('test', __name__)
+        docs = FlaskApiSpec()
+
+        @doc(tags=['band'])
+        class BandResource(MethodResource):
+            def get(self, **kwargs):
+                return 'slowdive'
+
+        blueprint.add_url_rule('/bands/<band_id>/', view_func=BandResource.as_view('band'))
+        docs.register(BandResource, endpoint='band', blueprint=blueprint.name)
+
+        app.register_blueprint(blueprint)
+        docs.init_app(app)
+
+        print(docs.spec.to_dict())
+        assert '/bands/{band_id}/' in docs.spec._paths
 
     def test_register_function(self, app, docs):
         @app.route('/bands/<int:band_id>/')
