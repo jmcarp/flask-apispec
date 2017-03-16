@@ -52,7 +52,7 @@ class FlaskApiSpec(object):
         self.resource_converter = ResourceConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
-                                 self.app.config.get('APISPEC_VERSION', 'flask-apispec'))
+                                 self.app.config.get('APISPEC_VERSION', 'v1'))
         self.add_routes()
 
         for deferred in self._deferred:
