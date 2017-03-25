@@ -11,7 +11,8 @@ Features:
 
 Other changes:
 
-- Test against Python 3.6. Prop support for Python 3.3.
+- Test against Python 3.6. Drop support for Python 3.3.
+- Support apispec>=0.17.0.
 
 0.3.2 (2015-12-06)
 ++++++++++++++++++
