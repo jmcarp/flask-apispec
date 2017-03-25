@@ -5,4 +5,3 @@ six
 flask
 apispec
 webargs
-marshmallow-sqlalchemy

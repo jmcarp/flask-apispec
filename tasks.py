@@ -1,18 +1,68 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
+import webbrowser
 
-from invoke import task, run
+from invoke import task
+
+docs_dir = 'docs'
+build_dir = os.path.join(docs_dir, '_build')
 
 @task
 def clean(ctx):
-    run('rm -rf dist')
-    run('rm -rf build')
-    run('rm -rf flask_apispec.egg-info')
+    ctx.run('rm -rf dist')
+    ctx.run('rm -rf build')
+    ctx.run('rm -rf flask_apispec.egg-info')
 
 @task
 def install(ctx):
-    run('npm install')
-    run('rm -rf flask_apispec/static')
-    run('cp -r node_modules/swagger-ui/dist flask_apispec/static')
+    ctx.run('npm install')
+    ctx.run('rm -rf flask_apispec/static')
+    ctx.run('cp -r node_modules/swagger-ui/dist flask_apispec/static')
+
+@task
+def clean_docs(ctx):
+    ctx.run("rm -rf %s" % build_dir)
+
+@task
+def browse_docs(ctx):
+    path = os.path.join(build_dir, 'index.html')
+    webbrowser.open_new_tab(path)
+
+def build_docs(ctx, browse):
+    ctx.run("sphinx-build %s %s" % (docs_dir, build_dir), echo=True)
+    if browse:
+        browse_docs(ctx)
+
+@task
+def docs(ctx, clean=False, browse=False, watch=False):
+    """Build the docs."""
+    if clean:
+        clean_docs(ctx)
+    if watch:
+        watch_docs(ctx, browse=browse)
+    else:
+        build_docs(ctx, browse=browse)
+
+@task
+def watch_docs(ctx, browse=False):
+    """Run build the docs when a file changes."""
+    try:
+        import sphinx_autobuild  # noqa
+    except ImportError:
+        print('ERROR: watch task requires the sphinx_autobuild package.')
+        print('Install it with:')
+        print('    pip install sphinx-autobuild')
+        sys.exit(1)
+    ctx.run('sphinx-autobuild {0} {1} {2} -z marshmallow'.format(
+        '--open-browser' if browse else '', docs_dir, build_dir), echo=True, pty=True)
+
+
+@task
+def readme(ctx, browse=False):
+    ctx.run("rst2html.py README.rst > README.html")
+    if browse:
+        webbrowser.open_new_tab('README.html')
 
 @task
 def publish(ctx, test=False):
@@ -20,8 +70,8 @@ def publish(ctx, test=False):
     clean(ctx)
     install(ctx)
     if test:
-        run('python setup.py register -r test sdist bdist_wheel', echo=True)
-        run('twine upload dist/* -r test', echo=True)
+        ctx.run('python setup.py register -r test sdist bdist_wheel', echo=True)
+        ctx.run('twine upload dist/* -r test', echo=True)
     else:
-        run('python setup.py register sdist bdist_wheel', echo=True)
-        run('twine upload dist/*', echo=True)
+        ctx.run('python setup.py register sdist bdist_wheel', echo=True)
+        ctx.run('twine upload dist/*', echo=True)
