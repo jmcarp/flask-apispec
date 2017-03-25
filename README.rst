@@ -89,11 +89,14 @@ Quickstart
     from apispec import APISpec
     from flask_apispec.extension import FlaskApiSpec
 
-    spec = APISpec(
-        title='pets',
-        version='v1',
-        plugins=['apispec.ext.marshmallow'],
-    )
+    app.config.update({
+        'APISPEC_SPEC': APISpec(
+            title='pets',
+            version='v1',
+            plugins=['apispec.ext.marshmallow'],
+        ),
+        'APISPEC_SWAGGER_URL': '/swagger/',
+    })
     docs = FlaskApiSpec(app)
 
     docs.register(get_pets)
