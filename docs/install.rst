@@ -20,6 +20,8 @@ You can clone the public repo: ::
 
 Once you have the source, you can install it into your site-packages with ::
 
+    $ pip install invoke
+    $ invoke install
     $ python setup.py install
 
 .. _Github: https://github.com/jmcarp/flask-apispec

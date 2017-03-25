@@ -107,8 +107,6 @@ https://flask-apispec.readthedocs.io/
 Notes
 -----
 
-**flask-apispec** isn't stable yet, and the interface and internals may change. Bug reports and pull requests are much appreciated.
-
 **flask-apispec** is strongly inspired by Flask-RESTful_ and Flask-RESTplus_, but attempts to provide similar functionality with greater flexibility and less code.
 
 .. _webargs: https://webargs.readthedocs.org/

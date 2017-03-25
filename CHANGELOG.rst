@@ -12,7 +12,7 @@ Features:
 Other changes:
 
 - Test against Python 3.6. Drop support for Python 3.3.
-- Support apispec>=0.17.0.
+- Support apispec>=0.17.0. Thanks @rth for fixing support for 0.20.0.
 
 0.3.2 (2015-12-06)
 ++++++++++++++++++
