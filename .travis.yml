@@ -2,11 +2,17 @@ language: python
 
 sudo: false
 
+env:
+  # Lowest supported version
+  - APISPEC_VERSION="==0.17.0"
+  # Latest release
+  - APISPEC_VERSION=""
+
 python:
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
   - "pypy"
 
 before_install:
@@ -15,6 +21,7 @@ before_install:
 install:
   - travis_retry pip install -U .
   - travis_retry pip install -U -r dev-requirements.txt
+  - travis_retry pip install -U apispec"$APISPEC_VERSION"
 
 before_script:
   - flake8 flask_apispec

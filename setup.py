@@ -9,7 +9,7 @@ REQUIRES = [
     'flask>=0.10.1',
     'marshmallow>=2.0',
     'webargs>=0.18.0',
-    'apispec>=0.4.1',
+    'apispec>=0.17.0',
 ]
 
 def find_version(fname):
@@ -56,9 +56,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests'
 )
