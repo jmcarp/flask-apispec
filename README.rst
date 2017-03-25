@@ -94,7 +94,7 @@ Quickstart
         version='v1',
         plugins=['apispec.ext.marshmallow'],
     )
-    docs = FlaskApiSpec(app, spec)
+    docs = FlaskApiSpec(app)
 
     docs.register(get_pets)
     docs.register(PetResource)
