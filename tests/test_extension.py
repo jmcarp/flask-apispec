@@ -28,7 +28,6 @@ class TestExtension:
         app.register_blueprint(blueprint)
         docs.init_app(app)
 
-        print(docs.spec.to_dict())
         assert '/bands/{band_id}/' in docs.spec._paths
 
     def test_register_function(self, app, docs):
@@ -81,3 +80,13 @@ class TestExtension:
         app.config['APISPEC_SWAGGER_UI_URL'] = '/swagger-ui.html'
         FlaskApiSpec(app)
         client.get('/swagger-ui.html')
+
+    def test_apispec_config(self, app):
+        app.config['APISPEC_TITLE'] = 'test-extension'
+        app.config['APISPEC_VERSION'] = '2.1'
+        docs = FlaskApiSpec(app)
+
+        assert docs.spec.info == {
+            'title': 'test-extension',
+            'version': '2.1',
+        }
