@@ -8,6 +8,7 @@ Features:
 
 * Add `resource_class_args` and `resource_class_kwargs` to `FlaskApiSpec.register` for passing constructor arguments to `MethodResource` classes. Thanks @elatomo.
 * Add `FlaskApiSpec.init_app` method to support app factories (#21). Thanks @lafrech for the suggestion and thanks @dases for the PR.
+* Defer registering views until `init_app` is called. Thanks @kageurufu for the PR.
 
 Other changes:
 
