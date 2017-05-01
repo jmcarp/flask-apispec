@@ -19,11 +19,16 @@ CONVERTER_MAPPING = {
 DEFAULT_TYPE = ('string', None)
 
 def rule_to_params(rule, overrides=None):
-    overrides = overrides or {}
-    return [
+    overrides = (overrides or {})
+    result = [
         argument_to_param(argument, rule, overrides.get(argument, {}))
         for argument in rule.arguments
     ]
+    for key in overrides.keys():
+        if overrides[key].get('in') in ('header', 'query'):
+            overrides[key]['name'] = overrides[key].get('name', key)
+            result.append(overrides[key])
+    return result
 
 def argument_to_param(argument, rule, override=None):
     param = {
