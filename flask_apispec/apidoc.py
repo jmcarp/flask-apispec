@@ -77,7 +77,7 @@ class Converter(object):
             **options
         ) if args else []
 
-        return rule_params + extra_params
+        return extra_params + rule_params
 
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
