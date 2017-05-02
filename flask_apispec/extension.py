@@ -53,7 +53,10 @@ class FlaskApiSpec(object):
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'))
-        self.add_routes()
+
+        self.register_existing_endpoints()
+
+        self.add_swagger_routes()
 
         for deferred in self._deferred:
             deferred()
@@ -64,7 +67,7 @@ class FlaskApiSpec(object):
         if self.app:
             bound()
 
-    def add_routes(self):
+    def add_swagger_routes(self):
         blueprint = flask.Blueprint(
             'flask-apispec',
             __name__,
@@ -88,6 +91,19 @@ class FlaskApiSpec(object):
 
     def swagger_ui(self):
         return flask.render_template('swagger-ui.html')
+
+    def register_existing_endpoints(self):
+        for name, rule in self.app.view_functions.items():
+            if name == 'static':
+                # For some reason, the default Flask `static` function breaks
+                continue
+
+            try:
+                blueprint_name, _ = name.split('.')
+            except ValueError:
+                blueprint_name = None
+            finally:
+                self.register(rule, blueprint=blueprint_name)
 
     def register(self, target, endpoint=None, blueprint=None,
                  resource_class_args=None, resource_class_kwargs=None):
