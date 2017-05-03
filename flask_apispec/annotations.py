@@ -65,7 +65,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
             code: {
                 'schema': schema or {},
                 'description': description,
-                'examples' : examples,
+                'examples': examples,
             },
         }
         annotate(func, 'schemas', [options], inherit=inherit, apply=apply)
@@ -83,7 +83,7 @@ def doc(inherit=None, **kwargs):
         @doc(tags=['pet'], description='a pet store')
         def get_pet(pet_id):
             return Pet.query.filter(Pet.id == pet_id).one()
-
+``
     :param inherit: Inherit Swagger documentation from parent classes
     """
     def wrapper(func):
