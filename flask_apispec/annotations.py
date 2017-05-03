@@ -37,7 +37,8 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     return wrapper
 
 
-def marshal_with(schema, code='default', description='', inherit=None, apply=None):
+def marshal_with(schema, code='default', description='', inherit=None, apply=None,
+                 examples=None):
     """Marshal the return value of the decorated view function using the
     specified schema.
 
@@ -64,6 +65,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
             code: {
                 'schema': schema or {},
                 'description': description,
+                'examples' : examples,
             },
         }
         annotate(func, 'schemas', [options], inherit=inherit, apply=apply)
