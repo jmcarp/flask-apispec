@@ -54,11 +54,12 @@ class FlaskApiSpec(object):
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'))
 
-        self.register_existing_resources()
         self.add_swagger_routes()
 
         for deferred in self._deferred:
             deferred()
+
+        self.register_existing_resources()
 
     def _defer(self, callable, *args, **kwargs):
         bound = functools.partial(callable, *args, **kwargs)
