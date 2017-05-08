@@ -59,8 +59,6 @@ class FlaskApiSpec(object):
         for deferred in self._deferred:
             deferred()
 
-        self.register_existing_resources()
-
     def _defer(self, callable, *args, **kwargs):
         bound = functools.partial(callable, *args, **kwargs)
         self._deferred.append(bound)
