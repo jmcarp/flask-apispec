@@ -70,10 +70,13 @@ class Converter(object):
             options['default_in'] = locations[0]
         if parse_version(apispec.__version__) < parse_version('0.20.0'):
             options['dump'] = False
-        return converter(
+        rule_params = rule_to_params(rule, docs.get('params')) or []
+        extra_params = converter(
             args.get('args', {}),
             **options
-        ) + rule_to_params(rule, docs.get('params'))
+        ) if args else []
+
+        return rule_params + extra_params
 
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
