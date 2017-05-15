@@ -5,7 +5,7 @@ import functools
 from flask_apispec import utils
 from flask_apispec.wrapper import Wrapper
 
-def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
+def use_kwargs(args, locations=None, inherit=None, apply=None, validate=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -24,8 +24,11 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     :param locations: Default request locations to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
+    :param callable validate: Validation function or list of validation functions
+            that receives the dictionary of parsed arguments. Validator either returns a
+            boolean or raises a :exc:`ValidationError`.
     """
-    kwargs.update({'locations': locations})
+    kwargs.update({'locations': locations, 'validate': validate})
 
     def wrapper(func):
         options = {
