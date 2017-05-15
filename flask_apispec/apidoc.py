@@ -66,7 +66,6 @@ class Converter(object):
         )
         options = copy.copy(args.get('kwargs', {}))
         locations = options.pop('locations', None)
-        validate = options.pop('validate', None)
         if locations:
             options['default_in'] = locations[0]
         if parse_version(apispec.__version__) < parse_version('0.20.0'):
