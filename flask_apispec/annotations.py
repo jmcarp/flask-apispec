@@ -24,7 +24,7 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, validate=None, **
     :param locations: Default request locations to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
-    :param callable validate: Validation function or list of validation functions
+    :param validate: Validation function or list of validation functions
             that receives the dictionary of parsed arguments. Validator either returns a
             boolean or raises a :exc:`ValidationError`.
     """
