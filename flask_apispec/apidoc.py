@@ -69,8 +69,7 @@ class Converter(object):
         validate = options.pop('validate', None)
         if locations:
             options['default_in'] = locations[0]
-        if validate:
-            options['validate'] = validate
+        options['validate'] = validate
         if parse_version(apispec.__version__) < parse_version('0.20.0'):
             options['dump'] = False
         return converter(
