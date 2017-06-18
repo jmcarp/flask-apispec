@@ -63,6 +63,14 @@ class TestExtension:
                       resource_class_kwargs={'arg_two': True})
         assert '/bands/{band_id}/' in docs.spec._paths
 
+    def test_register_existing_resources(self, app, docs):
+        @app.route('/bands/<int:band_id>/')
+        @doc(tags=['band'])
+        def get_band(band_id):
+            return 'queen'
+        docs.register_existing_resources()
+        assert '/bands/{band_id}/' in docs.spec._paths
+
     def test_serve_swagger(self, app, docs, client):
         res = client.get('/swagger/')
         assert res.json == docs.spec.to_dict()
