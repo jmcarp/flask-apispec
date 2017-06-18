@@ -29,7 +29,7 @@ issues_github_path = 'jmcarp/flask-apispec'
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'flask-apispec'
-copyright = 'Joshua Carp {0:%Y}'.format(dt.datetime.utcnow())
+copyright = 'Joshua Carp and contributors {0:%Y}'.format(dt.datetime.utcnow())
 
 version = release = flask_apispec.__version__
 

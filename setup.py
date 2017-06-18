@@ -46,7 +46,7 @@ setup(
     package_dir={'flask_apispec': 'flask_apispec'},
     include_package_data=True,
     install_requires=REQUIRES,
-    license=read('LICENSE'),
+    license='MIT',
     zip_safe=False,
     keywords='flask marshmallow webargs apispec',
     classifiers=[

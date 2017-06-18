@@ -25,7 +25,7 @@ Install
 
 ::
 
-    pip install flask-apispec 
+    pip install flask-apispec
 
 Quickstart
 ----------
