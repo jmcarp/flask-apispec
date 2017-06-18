@@ -33,6 +33,7 @@ def read(fname):
         content = fp.read()
     return content
 
+
 setup(
     name='flask-apispec',
     version=find_version('flask_apispec/__init__.py'),
