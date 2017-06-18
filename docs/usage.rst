@@ -117,6 +117,6 @@ To add Swagger markup that is not currently supported by apispec_, use the :func
     class PetResource(MethodResource):
         pass
 
-.. _webargs: https://webargs.readthedocs.org/
-.. _marshmallow: https://marshmallow.readthedocs.org/
-.. _apispec: https://apispec.readthedocs.org/
+.. _webargs: https://webargs.readthedocs.io/
+.. _marshmallow: https://marshmallow.readthedocs.io/
+.. _apispec: https://apispec.readthedocs.io/

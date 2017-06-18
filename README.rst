@@ -112,8 +112,8 @@ Notes
 
 **flask-apispec** is strongly inspired by Flask-RESTful_ and Flask-RESTplus_, but attempts to provide similar functionality with greater flexibility and less code.
 
-.. _webargs: https://webargs.readthedocs.org/
-.. _marshmallow: https://marshmallow.readthedocs.org/
-.. _apispec: https://apispec.readthedocs.org/
-.. _Flask-RESTful: https://flask-restful.readthedocs.org/
-.. _Flask-RESTplus: https://flask-restplus.readthedocs.org/
+.. _webargs: https://webargs.readthedocs.io/
+.. _marshmallow: https://marshmallow.readthedocs.io/
+.. _apispec: https://apispec.readthedocs.io/
+.. _Flask-RESTful: https://flask-restful.readthedocs.io/
+.. _Flask-RESTplus: https://flask-restplus.readthedocs.io/

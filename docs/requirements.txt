@@ -1,4 +1,5 @@
 sphinx
+sphinx-issues
 sphinx-rtd-theme
 
 six

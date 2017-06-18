@@ -6,30 +6,36 @@ Changelog
 
 Features:
 
-* Add `resource_class_args` and `resource_class_kwargs` to `FlaskApiSpec.register` for passing constructor arguments to `MethodResource` classes. Thanks @elatomo.
-* Add `FlaskApiSpec.init_app` method to support app factories (#21). Thanks @lafrech for the suggestion and thanks @dases for the PR.
-* Defer registering views until `init_app` is called. Thanks @kageurufu for the PR.
-* Add support for documenting headers and query params (#32). Thanks @rodjjo.
+* Add `resource_class_args` and `resource_class_kwargs` to `FlaskApiSpec.register` for passing constructor arguments to `MethodResource` classes. Thanks :user:`elatomo.`
+* Add `FlaskApiSpec.init_app` method to support app factories (:issue:`21`). Thanks :user:`lafrech` for the suggestion and thanks :user:`dases` for the PR.
+* Defer registering views until `init_app` is called. Thanks :user:`kageurufu` for the PR.
+* Add support for documenting headers and query params (:issue:`32).` Thanks :user:`rodjjo.`
+* Upon calling ``FlaskApiSpec(app)``, register rules which have already been registered on ``app`` (:issue:`48`). Thanks :user:`henryfjordan` for the fix.
+
+Bug fixes:
+
+* Return an empty list of parameters for undecorated views
+  (:issue:`48`). Thanks :user:`henryfjordan` for the fix.
 
 Other changes:
 
 - Test against Python 3.6. Drop support for Python 3.3.
-- Support apispec>=0.17.0. Thanks @rth for fixing support for 0.20.0.
+- Support apispec>=0.17.0. Thanks :user:`rth` for fixing support for 0.20.0.
 
 0.3.2 (2015-12-06)
 ++++++++++++++++++
 
-* Fix Swagger-UI favicons. Thanks @benbeadle.
+* Fix Swagger-UI favicons. Thanks :user:`benbeadle.`
 
 0.3.1 (2015-11-12)
 ++++++++++++++++++
 
-* Update Swagger-UI assets. Thanks @evocateur.
+* Update Swagger-UI assets. Thanks :user:`evocateur.`
 
 0.3.0 (2015-11-11)
 ++++++++++++++++++
 
-* Bundle templates and static files with install. Thanks @bmorgan21.
+* Bundle templates and static files with install. Thanks :user:`bmorgan21.`
 * Use readthedocs for documentation.
 
 0.2.0 (2015-11-03)
