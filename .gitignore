@@ -1,5 +1,4 @@
 node_modules/
-flask_apispec/static/
 
 *.py[cod]
 
@@ -47,3 +46,5 @@ docs/_build
 README.html
 
 _sandbox
+
+.idea/
