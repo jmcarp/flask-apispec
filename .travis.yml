@@ -11,12 +11,12 @@ python:
 - pypy
 before_install:
 - travis_retry pip install codecov
+# Fix travis issue with py3.4 builds
+- travis_retry pip install -U six
 install:
 - travis_retry pip install -U .
 - travis_retry pip install -U -r dev-requirements.txt
 - travis_retry pip install -U apispec"$APISPEC_VERSION"
-# Fix travis issue with py3.4 builds
-- travis_retry pip install -U six
 before_script:
 - flake8 flask_apispec
 script: py.test
