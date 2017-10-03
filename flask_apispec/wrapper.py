@@ -35,7 +35,10 @@ class Wrapper(object):
             for option in annotation.options:
                 schema = utils.resolve_instance(option['args'])
                 parsed = parser.parse(schema, locations=option['kwargs']['locations'])
-                kwargs.update(parsed)
+                if getattr(schema, 'many', False):
+                    args += tuple(parsed)
+                else:
+                    kwargs.update(parsed)
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
