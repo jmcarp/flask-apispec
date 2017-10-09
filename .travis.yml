@@ -21,6 +21,7 @@ before_script:
 - flake8 flask_apispec
 script: py.test
 after_success: codecov
+before_deploy: invoke install
 deploy:
   provider: pypi
   user: sloria
