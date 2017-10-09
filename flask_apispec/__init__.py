@@ -4,7 +4,7 @@ from flask_apispec.annotations import doc, wrap_with, use_kwargs, marshal_with
 from flask_apispec.extension import FlaskApiSpec
 from flask_apispec.utils import Ref
 
-__version__ = '0.4.1'
+__version__ = '0.4.1.post0'
 __all__ = [
     'doc',
     'wrap_with',
