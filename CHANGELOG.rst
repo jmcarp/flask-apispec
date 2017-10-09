@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.4.1 (2017-10-08)
+++++++++++++++++++
+
+Bug fixes:
+
+* Include static assets for swagger-ui in distribution (:issue:`28`,
+  :issue:`57`). Thanks :user:`ArthurPBressan` for reporting.
+
 0.4.0 (2017-06-18)
 ++++++++++++++++++
 
