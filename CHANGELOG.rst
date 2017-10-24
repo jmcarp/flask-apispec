@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.4.2 (2017-10-23)
+++++++++++++++++++
+
+Bug fixes:
+
+* Fix wrapping of data parsed by schema with ``many=True``
+  (:issue:`64`). Thanks :user:`decaz` for the catch and patch.
+
 0.4.1 (2017-10-08)
 ++++++++++++++++++
 
