@@ -35,7 +35,8 @@ Quickstart
     from flask import Flask
     from flask_apispec import use_kwargs, marshal_with
 
-    from marshmallow import fields, Schema
+    from marshmallow import Schema
+    from webargs import fields
 
     from .models import Pet
 
