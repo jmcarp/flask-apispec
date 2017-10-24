@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from flask import make_response
 from marshmallow import fields, Schema
 
@@ -30,6 +32,18 @@ class TestFunctionViews:
             return kwargs
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
+
+    def test_use_kwargs_schema_many(self, app, client):
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+        @app.route('/', methods=('POST',))
+        @use_kwargs(ArgSchema(many=True), locations=('json',))
+        def view(*args):
+            return list(args)
+        data = [{'name': 'freddie'}, {'name': 'john'}]
+        res = client.post('/', json.dumps(data), content_type='application/json')
+        assert res.json == data
 
     def test_use_kwargs_multiple(self, app, client):
         @app.route('/')
