@@ -8,6 +8,7 @@ from pkg_resources import parse_version
 import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import swagger
+from flask_classful import FlaskView, get_interesting_members
 
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
@@ -98,4 +99,43 @@ class ResourceConverter(Converter):
         }
 
     def get_parent(self, resource, **kwargs):
+        return resolve_instance(resource, **kwargs)
+
+
+class ClassfulConverter(Converter):
+
+    def convert(self, target, methods):
+        # endpoint = endpoint or target.__name__.lower()
+        # if blueprint:
+        #     endpoint = '{}.{}'.format(blueprint, endpoint)
+        # endpoint_prefix = target.__name__
+
+        paths = list()
+
+        for method in methods:
+            endpoint = method['endpoint']
+            target = method['target']
+            rules = self.app.url_map._rules_by_endpoint[endpoint]
+            for rule in rules:
+                print(f"METHOD: {method} rule: {rule}")
+                paths.append(self.get_path(rule, target))
+
+        return paths
+        # return [self.get_path(method['endpoint'], method['target']) for method in methods]
+
+
+        # for member in get_interesting_members(FlaskView, target):
+            # print(f"target: {target} member: {member} method: {method}")
+        # rules = self.app.url_map._rules_by_endpoint[endpoint]
+        # return [self.get_path(rule, target, **kwargs) for rule in rules]
+
+    def get_operations(self, rule, resource):
+        return {
+            method: getattr(resource, method.lower())
+            for method in rule.methods
+            if hasattr(resource, method.lower())
+        }
+
+    def get_parent(self, resource, **kwargs):
+        print(f"get_parent resource: {resource}")
         return resolve_instance(resource, **kwargs)

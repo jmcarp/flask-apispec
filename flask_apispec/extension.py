@@ -3,9 +3,10 @@ import flask
 import functools
 import types
 from apispec import APISpec
+from flask_classful import FlaskView
 
 from flask_apispec import ResourceMeta
-from flask_apispec.apidoc import ViewConverter, ResourceConverter
+from flask_apispec.apidoc import ViewConverter, ResourceConverter, ClassfulConverter
 
 
 class FlaskApiSpec(object):
@@ -50,6 +51,7 @@ class FlaskApiSpec(object):
         self.app = app
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
+        self.classful_converter = ClassfulConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'))
@@ -132,6 +134,8 @@ class FlaskApiSpec(object):
         """
         if isinstance(target, types.FunctionType):
             paths = self.view_converter.convert(target, endpoint, blueprint)
+        elif issubclass(target, FlaskView):
+            paths = self.classful_converter.convert(target, endpoint)
         elif isinstance(target, ResourceMeta):
             paths = self.resource_converter.convert(
                 target,
