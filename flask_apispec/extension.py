@@ -102,7 +102,11 @@ class FlaskApiSpec(object):
             try:
                 if hasattr(rule, '_classful_meta'):
                     _classful_meta = getattr(rule, '_classful_meta')
-                    self._register(_classful_meta['target'], _classful_meta, blueprint=blueprint_name)
+                    self._register(
+                        _classful_meta['target'],
+                        _classful_meta,
+                        blueprint=blueprint_name,
+                    )
                 else:
                     self.register(rule, blueprint=blueprint_name)
             except TypeError:
