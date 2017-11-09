@@ -58,11 +58,6 @@ class FlaskApiSpec(object):
 
         self.add_swagger_routes()
 
-        # register flask-classful views
-        if hasattr(app, '_classful_resource_views'):
-            for view_class, endpoints in app._classful_resource_views.items():
-                self._register(view_class, endpoints)
-
         for deferred in self._deferred:
             deferred()
 
@@ -105,7 +100,11 @@ class FlaskApiSpec(object):
                 blueprint_name = None
 
             try:
-                self.register(rule, blueprint=blueprint_name)
+                if hasattr(rule, '_classful_meta'):
+                    _classful_meta = getattr(rule, '_classful_meta')
+                    self._register(_classful_meta['target'], _classful_meta, blueprint=blueprint_name)
+                else:
+                    self.register(rule, blueprint=blueprint_name)
             except TypeError:
                 pass
 

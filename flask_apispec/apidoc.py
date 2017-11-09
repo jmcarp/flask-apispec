@@ -110,14 +110,13 @@ class ResourceConverter(Converter):
 
 class ClassfulConverter(Converter):
 
-    def convert(self, resource, endpoints):
+    def convert(self, resource, endpoint):
         paths = list()
-        for endpoint in endpoints:
-            route = endpoint['route']
-            rule = endpoint['rule']
-            rules = self.app.url_map._rules_by_endpoint[route]
-            for rule in rules:
-                paths.append(self.get_path(rule, endpoint, classful_endpoint=endpoint))
+        route = endpoint['route']
+        rule = endpoint['rule']
+        rules = self.app.url_map._rules_by_endpoint[route]
+        for rule in rules:
+            paths.append(self.get_path(rule, endpoint, classful_endpoint=endpoint))
 
         return paths
 
