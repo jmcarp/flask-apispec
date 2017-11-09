@@ -8,13 +8,13 @@ from pkg_resources import parse_version
 import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import swagger
-from flask_classful import FlaskView, get_interesting_members
 
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
 from flask_apispec.utils import resolve_instance, resolve_annotations, merge_recursive
+import inspect
 
 class Converter(object):
 
@@ -51,8 +51,14 @@ class Converter(object):
             'responses': self.get_responses(view, parent),
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
+        description = self.get_description(view)
+        if description:
+            operation['description'] = description
         docs.pop('params', None)
         return merge_recursive([operation, docs])
+
+    def get_description(self, view):
+        return None
 
     def get_parent(self, view):
         return None
@@ -104,38 +110,28 @@ class ResourceConverter(Converter):
 
 class ClassfulConverter(Converter):
 
-    def convert(self, target, methods):
-        # endpoint = endpoint or target.__name__.lower()
-        # if blueprint:
-        #     endpoint = '{}.{}'.format(blueprint, endpoint)
-        # endpoint_prefix = target.__name__
-
+    def convert(self, resource, endpoints):
         paths = list()
-
-        for method in methods:
-            endpoint = method['endpoint']
-            target = method['target']
-            rules = self.app.url_map._rules_by_endpoint[endpoint]
+        for endpoint in endpoints:
+            route = endpoint['route']
+            rule = endpoint['rule']
+            rules = self.app.url_map._rules_by_endpoint[route]
             for rule in rules:
-                print(f"METHOD: {method} rule: {rule}")
-                paths.append(self.get_path(rule, target))
+                paths.append(self.get_path(rule, endpoint))
 
         return paths
-        # return [self.get_path(method['endpoint'], method['target']) for method in methods]
 
+    def get_description(self, view):
+        return inspect.getdoc(view)
 
-        # for member in get_interesting_members(FlaskView, target):
-            # print(f"target: {target} member: {member} method: {method}")
-        # rules = self.app.url_map._rules_by_endpoint[endpoint]
-        # return [self.get_path(rule, target, **kwargs) for rule in rules]
-
-    def get_operations(self, rule, resource):
+    def get_operations(self, rule, endpoint):
+        # remove OPTIONS (its for CORS)
+        methods = set(rule.methods) - {'OPTIONS'}
         return {
-            method: getattr(resource, method.lower())
-            for method in rule.methods
-            if hasattr(resource, method.lower())
+            method: endpoint['view_func']
+            for method in methods
         }
 
     def get_parent(self, resource, **kwargs):
-        print(f"get_parent resource: {resource}")
+        # print(f"get_parent resource: {resource}")
         return resolve_instance(resource, **kwargs)
