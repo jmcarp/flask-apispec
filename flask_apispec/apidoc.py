@@ -117,7 +117,7 @@ class ClassfulConverter(Converter):
             rule = endpoint['rule']
             rules = self.app.url_map._rules_by_endpoint[route]
             for rule in rules:
-                paths.append(self.get_path(rule, endpoint))
+                paths.append(self.get_path(rule, endpoint, classful_endpoint=endpoint))
 
         return paths
 
@@ -132,6 +132,5 @@ class ClassfulConverter(Converter):
             for method in methods
         }
 
-    def get_parent(self, resource, **kwargs):
-        # print(f"get_parent resource: {resource}")
-        return resolve_instance(resource, **kwargs)
+    def get_parent(self, resource, classful_endpoint, **kwargs):
+        return classful_endpoint['target']
