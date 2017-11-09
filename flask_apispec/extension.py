@@ -58,6 +58,11 @@ class FlaskApiSpec(object):
 
         self.add_swagger_routes()
 
+        # register flask-classful views
+        if hasattr(app, '_classful_resource_views'):
+            for view_class, endpoints in app._classful_resource_views.items():
+                self._register(view_class, endpoints)
+
         for deferred in self._deferred:
             deferred()
 
