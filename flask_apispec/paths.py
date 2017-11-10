@@ -23,6 +23,7 @@ def rule_to_params(rule, overrides=None):
     result = [
         argument_to_param(argument, rule, overrides.get(argument, {}))
         for argument in rule.arguments
+        if argument in rule._converters
     ]
     for key in overrides.keys():
         if overrides[key].get('in') in ('header', 'query'):
