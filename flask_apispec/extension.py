@@ -93,12 +93,17 @@ class FlaskApiSpec(object):
     def register_existing_resources(self):
         for name, rule in self.app.view_functions.items():
             try:
-                blueprint_name, _ = name.split('.')
+                blueprint_name, endpoint_name = name.split('.')
             except ValueError:
+                endpoint_name = name
                 blueprint_name = None
-
+            # don't auto-register ResourceMeta endpoints
+            if hasattr(rule, 'view_class'):
+                view_class = rule.view_class
+                if isinstance(view_class, ResourceMeta):
+                    continue
             try:
-                self.register(rule, blueprint=blueprint_name)
+                self.register(rule, endpoint=endpoint_name, blueprint=blueprint_name)
             except TypeError:
                 pass
 
