@@ -95,6 +95,9 @@ class ViewConverter(Converter):
     def get_operations(self, rule, view):
         return {method: view for method in rule.methods}
 
+    def get_parent(self, resource, **kwargs):
+        return resource.method_view if hasattr(resource, 'method_view') else None
+
 class ResourceConverter(Converter):
 
     def get_operations(self, rule, resource):
