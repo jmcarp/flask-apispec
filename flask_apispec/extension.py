@@ -100,10 +100,8 @@ class FlaskApiSpec(object):
 
             try:
                 if hasattr(rule, '_classful_meta'):
-                    _classful_meta = getattr(rule, '_classful_meta')
                     self._register(
-                        _classful_meta['target'],
-                        _classful_meta,
+                        rule,
                         blueprint=blueprint_name,
                     )
                 else:
@@ -139,10 +137,11 @@ class FlaskApiSpec(object):
         :param dict resource_class_kwargs: (optional) kwargs to be forwarded to
             the view class constructor.
         """
-        if isinstance(target, types.FunctionType):
+        if hasattr(target, '_classful_meta'):
+            classful_meta = getattr(target, '_classful_meta')
+            paths = self.classful_converter.convert(classful_meta)
+        elif isinstance(target, types.FunctionType):
             paths = self.view_converter.convert(target, endpoint, blueprint)
-        elif issubclass(target, FlaskView):
-            paths = self.classful_converter.convert(target, endpoint)
         elif isinstance(target, ResourceMeta):
             paths = self.resource_converter.convert(
                 target,

@@ -110,13 +110,13 @@ class ResourceConverter(Converter):
 
 class ClassfulConverter(Converter):
 
-    def convert(self, resource, endpoint):
+    def convert(self, classful_meta):
         paths = list()
-        route = endpoint['route']
-        rule = endpoint['rule']
+        route = classful_meta['route']
+        rule = classful_meta['rule']
         rules = self.app.url_map._rules_by_endpoint[route]
         for rule in rules:
-            paths.append(self.get_path(rule, endpoint, classful_endpoint=endpoint))
+            paths.append(self.get_path(rule, classful_meta, classful_meta=classful_meta))
 
         return paths
 
@@ -131,5 +131,5 @@ class ClassfulConverter(Converter):
             for method in methods
         }
 
-    def get_parent(self, resource, classful_endpoint, **kwargs):
-        return classful_endpoint['target']
+    def get_parent(self, resource, classful_meta, **kwargs):
+        return classful_meta['target']
