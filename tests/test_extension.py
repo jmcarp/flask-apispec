@@ -64,7 +64,7 @@ class TestExtension:
             methods=['GET'],
         )
         setattr(view_func, "_classful_meta", meta)
-        docs.register(view_func)
+        docs.register_existing_resources()
         assert '/bands/{band_id}/' in docs.spec._paths
 
     def test_register_resource_with_constructor_args(self, app, docs):

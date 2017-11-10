@@ -17,9 +17,6 @@ class Ref(object):
     def __init__(self, key):
         self.key = key
 
-    def __repr__(self):
-        return "<Ref: {}>".format(self.key)
-
     def resolve(self, obj):
         return getattr(obj, self.key, None)
 
