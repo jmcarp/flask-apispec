@@ -3,7 +3,6 @@ import flask
 import functools
 import types
 from apispec import APISpec
-from flask_classful import FlaskView
 
 from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter, ClassfulConverter
