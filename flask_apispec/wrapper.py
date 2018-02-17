@@ -50,10 +50,7 @@ class Wrapper(object):
         if schema and annotation.apply is not False:
             schema = utils.resolve_instance(schema['schema'])
             dumped = schema.dump(unpacked[0])
-            if isinstance(dumped, dict):
-                output = dumped
-            else:
-                output = dumped.data
+            output = dumped.data if core.MARSHMALLOW_VERSION_INFO[0] < 3 else dumped
         else:
             output = unpacked[0]
         return format_output((format_response(output), ) + unpacked[1:])
