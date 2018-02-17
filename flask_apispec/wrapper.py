@@ -49,7 +49,11 @@ class Wrapper(object):
         schema = schemas.get(status_code, schemas.get('default'))
         if schema and annotation.apply is not False:
             schema = utils.resolve_instance(schema['schema'])
-            output = schema.dump(unpacked[0]).data
+            dumped = schema.dump(unpacked[0])
+            if isinstance(dumped, dict):
+                output = dumped
+            else:
+                output = dumped.data
         else:
             output = unpacked[0]
         return format_output((format_response(output), ) + unpacked[1:])
