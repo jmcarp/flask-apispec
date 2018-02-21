@@ -91,6 +91,49 @@ class TestArgSchema:
         )
         assert params == expected
 
+class TestMultipleLocations:
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        class QuerySchema(Schema):
+            name = fields.Str()
+
+        class JSONSchema(Schema):
+            address = fields.Str()
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(QuerySchema, locations=('query', ))
+        @use_kwargs(JSONSchema, locations=('json', ))
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec, function_view):
+        converter = ViewConverter(app)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.add_path(**path)
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+            [{
+                'in': 'query',
+                'name': 'name',
+                'required': False,
+                'type': 'string'
+            }, {
+                'in': 'json',
+                'name': 'address',
+                'required': False,
+                'type': 'string'
+            }] + rule_to_params(rule)
+        )
+        assert params == expected
+
 class TestDeleteView:
 
     @pytest.fixture

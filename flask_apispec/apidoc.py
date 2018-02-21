@@ -58,26 +58,28 @@ class Converter(object):
 
     def get_parameters(self, rule, view, docs, parent=None):
         annotation = resolve_annotations(view, 'args', parent)
-        args = merge_recursive(annotation.options)
-        converter = (
-            swagger.schema2parameters
-            if is_instance_or_subclass(args.get('args', {}), Schema)
-            else swagger.fields2parameters
-        )
-        options = copy.copy(args.get('kwargs', {}))
-        locations = options.pop('locations', None)
-        if locations:
-            options['default_in'] = locations[0]
-        if parse_version(apispec.__version__) < parse_version('0.20.0'):
-            options['dump'] = False
+        params = []
 
-        rule_params = rule_to_params(rule, docs.get('params')) or []
-        extra_params = converter(
-            args.get('args', {}),
-            **options
-        ) if args else []
+        for args in annotation.options:
+            converter = (
+                swagger.schema2parameters
+                if is_instance_or_subclass(args.get('args', {}), Schema)
+                else swagger.fields2parameters
+            )
+            options = copy.copy(args.get('kwargs', {}))
+            locations = options.pop('locations', None)
+            if locations:
+                options['default_in'] = locations[0]
+            if parse_version(apispec.__version__) < parse_version('0.20.0'):
+                options['dump'] = False
 
-        return extra_params + rule_params
+            params += converter(
+                args.get('args', {}),
+                **options
+            ) if args else []
+
+        params += rule_to_params(rule, docs.get('params')) or []
+        return params
 
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
