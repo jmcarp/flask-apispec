@@ -98,12 +98,12 @@ class TestMultipleLocations:
         class QuerySchema(Schema):
             name = fields.Str()
 
-        class JSONSchema(Schema):
+        class BodySchema(Schema):
             address = fields.Str()
 
         @app.route('/bands/<int:band_id>/')
         @use_kwargs(QuerySchema, locations=('query', ))
-        @use_kwargs(JSONSchema, locations=('json', ))
+        @use_kwargs(BodySchema, locations=('body', ))
         def get_band(**kwargs):
             return kwargs
         return get_band
@@ -126,10 +126,13 @@ class TestMultipleLocations:
                 'required': False,
                 'type': 'string'
             }, {
-                'in': 'json',
-                'name': 'address',
+                'in': 'body',
+                'name': 'body',
                 'required': False,
-                'type': 'string'
+                'schema': {
+                    'properties': {'address': {'type': 'string'}},
+                    'type': 'object'
+                }
             }] + rule_to_params(rule)
         )
         assert params == expected
