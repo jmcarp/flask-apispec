@@ -91,6 +91,22 @@ class TestArgSchema:
         )
         assert params == expected
 
+class TestCallableAsArgSchema(TestArgSchema):
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        def schema_factory(request):
+            class ArgSchema(Schema):
+                name = fields.Str()
+
+            return ArgSchema
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(schema_factory, locations=('query', ))
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
+
 class TestDeleteView:
 
     @pytest.fixture
