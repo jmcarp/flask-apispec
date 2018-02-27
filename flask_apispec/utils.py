@@ -3,8 +3,7 @@
 import functools
 
 import six
-
-from marshmallow import Schema
+import marshmallow as ma
 
 def resolve_resource(resource, **kwargs):
     resource_class_args = kwargs.get('resource_class_args') or ()
@@ -14,7 +13,7 @@ def resolve_resource(resource, **kwargs):
     return resource
 
 def resolve_schema(schema, request=None):
-    if isinstance(schema, type) and issubclass(schema, Schema):
+    if isinstance(schema, type) and issubclass(schema, ma.Schema):
         schema = schema()
     elif callable(schema):
         schema = schema(request)
