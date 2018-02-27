@@ -59,11 +59,17 @@ class Converter(object):
     def get_parameters(self, rule, view, docs, parent=None):
         annotation = resolve_annotations(view, 'args', parent)
         args = merge_recursive(annotation.options)
-        converter = (
-            swagger.schema2parameters
-            if is_instance_or_subclass(args.get('args', {}), Schema)
-            else swagger.fields2parameters
-        )
+        schema = args.get('args', {})
+        if is_instance_or_subclass(schema, Schema):
+            converter = swagger.schema2parameters
+        elif callable(schema):
+            schema = schema(request=None)
+            if is_instance_or_subclass(schema, Schema):
+                converter = swagger.schema2parameters
+            else:
+                converter = swagger.fields2parameters
+        else:
+            converter = swagger.fields2parameters
         options = copy.copy(args.get('kwargs', {}))
         locations = options.pop('locations', None)
         if locations:
@@ -72,10 +78,7 @@ class Converter(object):
             options['dump'] = False
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
-        extra_params = converter(
-            args.get('args', {}),
-            **options
-        ) if args else []
+        extra_params = converter(schema, **options) if args else []
 
         return extra_params + rule_params
 
