@@ -33,7 +33,7 @@ class Wrapper(object):
         annotation = utils.resolve_annotations(self.func, 'args', self.instance)
         if annotation.apply is not False:
             for option in annotation.options:
-                schema = utils.resolve_instance(option['args'])
+                schema = utils.resolve_schema(option['args'], request=flask.request)
                 parsed = parser.parse(schema, locations=option['kwargs']['locations'])
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
@@ -48,7 +48,7 @@ class Wrapper(object):
         schemas = utils.merge_recursive(annotation.options)
         schema = schemas.get(status_code, schemas.get('default'))
         if schema and annotation.apply is not False:
-            schema = utils.resolve_instance(schema['schema'])
+            schema = utils.resolve_schema(schema['schema'], request=flask.request)
             output = schema.dump(unpacked[0]).data
         else:
             output = unpacked[0]
