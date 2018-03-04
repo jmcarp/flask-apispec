@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.5.0 (2018-03-04)
+++++++++++++++++++
+
+Features:
+
+* Allow a schema factory to be passed to `use_args` and `use_kwargs`
+  (:issue:`79`). Thanks :user:`decaz` for the PR.
+
 0.4.2 (2017-10-23)
 ++++++++++++++++++
 
