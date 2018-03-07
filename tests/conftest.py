@@ -17,7 +17,9 @@ class Bunch(object):
 
 @pytest.fixture
 def app():
-    return flask.Flask(__name__)
+    app_ = flask.Flask(__name__)
+    app_.debug = True
+    return app_
 
 @pytest.fixture
 def client(app):
