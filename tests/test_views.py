@@ -23,9 +23,6 @@ class TestFunctionViews:
         class ArgSchema(Schema):
             name = fields.Str()
 
-            class Meta:
-                strict = True
-
         @app.route('/')
         @use_kwargs(ArgSchema)
         def view(**kwargs):
@@ -61,9 +58,6 @@ class TestFunctionViews:
 
             class ArgSchema(Schema):
                 name = fields.Str()
-
-                class Meta:
-                    strict = True
 
             return ArgSchema
 
