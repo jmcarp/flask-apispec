@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.6.0 (2018-03-11)
+++++++++++++++++++
+
+Features:
+
+* Support marshmallow 3 beta. Thanks :user:`tonycpsu` for the PR.
+
 0.5.0 (2018-03-04)
 ++++++++++++++++++
 
