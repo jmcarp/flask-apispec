@@ -31,7 +31,9 @@ jobs:
     env: []
     # Override install, and script to no-ops
     before_install: true
-    install: true
+    install: 
+    - travis_retry pip install -U .
+    - travis_retry pip install -r dev-requirements.txt
     before_script: true
     script: echo "Releasing to PyPI..."
     after_success: true
