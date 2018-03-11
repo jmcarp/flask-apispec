@@ -3,12 +3,13 @@ sudo: false
 env:
 - APISPEC_VERSION="==0.17.0"
 - APISPEC_VERSION=""
+- MARSHMALLOW_VERSION="==2.13.0"
+- MARSHMALLOW_VERSION=""
 python:
 - '2.7'
 - '3.4'
 - '3.5'
 - '3.6'
-- pypy
 before_install:
 - travis_retry pip install codecov
 # Fix travis issue with py3.4 builds
@@ -16,7 +17,8 @@ before_install:
 install:
 - travis_retry pip install -U .
 - travis_retry pip install -U -r dev-requirements.txt
-- travis_retry pip install -U apispec"$APISPEC_VERSION"
+- travis_retry pip install -U --pre apispec"$APISPEC_VERSION"
+- travis_retry pip install -U --pre marshmallow"$MARSHMALLOW_VERSION"
 before_script:
 - flake8 flask_apispec
 script: py.test
