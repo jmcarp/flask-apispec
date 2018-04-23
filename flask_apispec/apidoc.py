@@ -77,6 +77,8 @@ class Converter(object):
         if parse_version(apispec.__version__) < parse_version('0.20.0'):
             options['dump'] = False
 
+        options['spec'] = self.app.config.get('APISPEC_SPEC', None)
+
         rule_params = rule_to_params(rule, docs.get('params')) or []
         extra_params = converter(schema, **options) if args else []
 
