@@ -11,26 +11,24 @@
 <body class="swagger-section">
   <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
   <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-</body>
-
 <script src="{{ url_for('flask-apispec.static', filename='swagger-ui-bundle.js') }}" type="text/javascript"></script>
 <script src="{{ url_for('flask-apispec.static', filename='swagger-ui-standalone-preset.js') }}" type="text/javascript"></script>
-<script>
-  window.onload = function() {
-    const ui = SwaggerUIBundle({
-      url: "{{ url_for('flask-apispec.swagger-json') }}",
-      dom_id: '#swagger-ui-container',
-      deepLinking: true,
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
-      ],
-      plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
-      ],
-      layout: "BaseLayout"
+<script type="text/javascript">
+  var ui = SwaggerUIBundle({
+    url: "{{ url_for('flask-apispec.swagger-json') }}",
+    dom_id: '#swagger-ui-container',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "BaseLayout"
   })
   window.ui = ui
-}
 </script>
+</body>
+
 </html>
