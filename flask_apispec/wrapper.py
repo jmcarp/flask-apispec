@@ -53,13 +53,16 @@ class Wrapper(object):
         annotation = utils.resolve_annotations(self.func, 'schemas', self.instance)
         schemas = utils.merge_recursive(annotation.options)
         schema = schemas.get(status_code, schemas.get('default'))
-        if schema and annotation.apply is not False:
-            schema = utils.resolve_schema(schema['schema'], request=flask.request)
+        if schema and schema['schema'] and annotation.apply is not False:            
+            schema = utils.resolve_schema(schema['schema'], request=flask.request)            
             dumped = schema.dump(unpacked[0])
             output = dumped.data if MARSHMALLOW_VERSION_INFO[0] < 3 else dumped
         else:
             output = unpacked[0]
+        if not output and status_code == 204:
+            return '', 204
         return format_output((format_response(output), ) + unpacked[1:])
+    
 
 def identity(value):
     return value
