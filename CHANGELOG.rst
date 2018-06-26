@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.6.1 (2018-06-25)
+++++++++++++++++++
+
+Bug fixes:
+
+* Fix resolution of path parameters (:issue:`92`). Thanks
+  :user:`DStape` for the fix.
+
 0.6.0 (2018-03-11)
 ++++++++++++++++++
 
