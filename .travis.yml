@@ -7,13 +7,10 @@ env:
 - MARSHMALLOW_VERSION=""
 python:
 - '2.7'
-- '3.4'
 - '3.5'
 - '3.6'
 before_install:
 - travis_retry pip install codecov
-# Fix travis issue with py3.4 builds
-- travis_retry pip install -U six
 install:
 - travis_retry pip install -U .
 - travis_retry pip install -U -r dev-requirements.txt
