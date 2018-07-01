@@ -1,7 +1,7 @@
 language: python
 sudo: false
 env:
-- APISPEC_VERSION="==0.17.0"
+- APISPEC_VERSION="==0.39.0"
 - APISPEC_VERSION=""
 - MARSHMALLOW_VERSION="==2.13.0"
 - MARSHMALLOW_VERSION=""

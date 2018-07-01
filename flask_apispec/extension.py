@@ -3,6 +3,7 @@ import flask
 import functools
 import types
 from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
 
 from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
@@ -20,7 +21,7 @@ class FlaskApiSpec(object):
             'APISPEC_SPEC': APISpec(
                 title='pets',
                 version='v1',
-                plugins=['apispec.ext.marshmallow'],
+                plugins=[MarshmallowPlugin()],
             ),
             'APISPEC_SWAGGER_URL': '/swagger/',
         })
@@ -48,13 +49,12 @@ class FlaskApiSpec(object):
 
     def init_app(self, app):
         self.app = app
-        self.view_converter = ViewConverter(self.app)
-        self.resource_converter = ResourceConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'))
-
         self.add_swagger_routes()
+        self.resource_converter = ResourceConverter(self.app, spec=self.spec)
+        self.view_converter = ViewConverter(app=self.app, spec=self.spec)
 
         for deferred in self._deferred:
             deferred()
@@ -150,5 +150,5 @@ def make_apispec(title='flask-apispec', version='v1'):
     return APISpec(
         title=title,
         version=version,
-        plugins=['apispec.ext.marshmallow'],
+        plugins=[MarshmallowPlugin()],
     )
