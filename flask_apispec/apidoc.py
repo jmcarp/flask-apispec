@@ -3,11 +3,9 @@
 import copy
 
 import six
-from pkg_resources import parse_version
 
-import apispec
 from apispec.core import VALID_METHODS
-from apispec.ext.marshmallow import swagger
+from apispec.ext.marshmallow import MarshmallowPlugin
 
 from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
@@ -17,8 +15,19 @@ from flask_apispec.utils import resolve_resource, resolve_annotations, merge_rec
 
 class Converter(object):
 
-    def __init__(self, app):
+    def __init__(self, app, spec):
         self.app = app
+        self.spec = spec
+        try:
+            self.marshmallow_plugin = next(
+                plugin for plugin in self.spec.plugins
+                if isinstance(plugin, MarshmallowPlugin)
+            )
+        except StopIteration:
+            raise RuntimeError(
+                "Must have a MarshmallowPlugin instance in the spec's list "
+                'of plugins.'
+            )
 
     def convert(self, target, endpoint=None, blueprint=None, **kwargs):
         endpoint = endpoint or target.__name__.lower()
@@ -57,26 +66,24 @@ class Converter(object):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
+        openapi = self.marshmallow_plugin.openapi
         annotation = resolve_annotations(view, 'args', parent)
         args = merge_recursive(annotation.options)
         schema = args.get('args', {})
         if is_instance_or_subclass(schema, Schema):
-            converter = swagger.schema2parameters
+            converter = openapi.schema2parameters
         elif callable(schema):
             schema = schema(request=None)
             if is_instance_or_subclass(schema, Schema):
-                converter = swagger.schema2parameters
+                converter = openapi.schema2parameters
             else:
-                converter = swagger.fields2parameters
+                converter = openapi.fields2parameters
         else:
-            converter = swagger.fields2parameters
+            converter = openapi.fields2parameters
         options = copy.copy(args.get('kwargs', {}))
         locations = options.pop('locations', None)
         if locations:
             options['default_in'] = locations[0]
-        if parse_version(apispec.__version__) < parse_version('0.20.0'):
-            options['dump'] = False
-
         options['spec'] = self.app.config.get('APISPEC_SPEC', None)
 
         rule_params = rule_to_params(rule, docs.get('params')) or []

@@ -50,3 +50,5 @@ _sandbox
 
 # JetBrains
 .idea/
+
+.pytest_cache/

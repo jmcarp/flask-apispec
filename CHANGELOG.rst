@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.7.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+* Supports apispec>=0.39.0. Older apispec versions are no longer supported.
+
 0.6.1 (2018-06-25)
 ++++++++++++++++++
 
