@@ -3,9 +3,7 @@
 import copy
 
 import six
-from pkg_resources import parse_version
 
-import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -86,9 +84,6 @@ class Converter(object):
         locations = options.pop('locations', None)
         if locations:
             options['default_in'] = locations[0]
-        if parse_version(apispec.__version__) < parse_version('0.20.0'):
-            options['dump'] = False
-
         options['spec'] = self.app.config.get('APISPEC_SPEC', None)
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
