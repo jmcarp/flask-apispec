@@ -27,6 +27,19 @@ def spec(marshmallow_plugin):
 def openapi(marshmallow_plugin):
     return marshmallow_plugin.openapi
 
+
+def test_error_if_spec_does_not_have_marshmallow_plugin(app):
+    bad_spec = APISpec(
+        title='title',
+        version='v1',
+        plugins=[],  # oh no! no MarshmallowPlugin
+    )
+    with pytest.raises(RuntimeError):
+        ViewConverter(app=app, spec=bad_spec)
+    with pytest.raises(RuntimeError):
+        ResourceConverter(app=app, spec=bad_spec)
+
+
 class TestFunctionView:
 
     @pytest.fixture
