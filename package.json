@@ -2,7 +2,7 @@
   "name": "flask-apispec",
   "version": "0.6.0",
   "dependencies": {
-    "swagger-ui-dist": "3.9.3"
+    "swagger-ui-dist": "3.17.2"
   },
   "repository": {
     "type": "git",
