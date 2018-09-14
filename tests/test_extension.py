@@ -3,7 +3,7 @@
 import pytest
 from flask import Blueprint
 
-from flask_apispec import doc
+from flask_apispec import doc, marshal_with
 from flask_apispec.extension import FlaskApiSpec
 from flask_apispec.views import MethodResource
 
@@ -29,6 +29,18 @@ class TestExtension:
         docs.init_app(app)
 
         assert '/bands/{band_id}/' in docs.spec._paths
+
+    def test_generate_spec_mixed_code_types(self, app, docs):
+        @app.route('/intocde')
+        @marshal_with(None)
+        @marshal_with(None, 201)
+        @marshal_with(None, 404)
+        def get_band_intcode():
+            return 'queen', 201
+
+        with app.app_context():
+            docs.register_existing_resources()
+            docs.swagger_json()
 
     def test_register_function(self, app, docs):
         @app.route('/bands/<int:band_id>/')
