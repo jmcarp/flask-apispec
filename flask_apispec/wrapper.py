@@ -52,7 +52,7 @@ class Wrapper(object):
         format_response = config.get('APISPEC_FORMAT_RESPONSE', flask.jsonify) or identity
         annotation = utils.resolve_annotations(self.func, 'schemas', self.instance)
         schemas = utils.merge_recursive(annotation.options)
-        schema = schemas.get(status_code, schemas.get('default'))
+        schema = schemas.get(str(status_code), schemas.get('default'))
         if schema and annotation.apply is not False:
             schema = utils.resolve_schema(schema['schema'], request=flask.request)
             dumped = schema.dump(unpacked[0])

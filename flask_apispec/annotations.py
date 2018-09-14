@@ -62,7 +62,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
     """
     def wrapper(func):
         options = {
-            code: {
+            str(code): {
                 'schema': schema or {},
                 'description': description,
             },
