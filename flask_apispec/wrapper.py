@@ -43,8 +43,11 @@ class Wrapper(object):
                 parsed = parser.parse(schema, locations=option['kwargs']['locations'])
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
-                else:
+                elif getattr(parsed, 'update', False):
                     kwargs.update(parsed)
+                else:
+                    args += (parsed, )
+
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
