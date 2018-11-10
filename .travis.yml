@@ -1,33 +1,47 @@
 language: python
+cache: pip
 sudo: false
 env:
-- APISPEC_VERSION="==0.17.0"
+- APISPEC_VERSION="==0.39.0"
 - APISPEC_VERSION=""
+- MARSHMALLOW_VERSION="==2.13.0"
+- MARSHMALLOW_VERSION=""
 python:
 - '2.7'
-- '3.4'
 - '3.5'
 - '3.6'
-- pypy
 before_install:
 - travis_retry pip install codecov
-# Fix travis issue with py3.4 builds
-- travis_retry pip install -U six
 install:
 - travis_retry pip install -U .
 - travis_retry pip install -U -r dev-requirements.txt
-- travis_retry pip install -U apispec"$APISPEC_VERSION"
+- travis_retry pip install -U --pre apispec"$APISPEC_VERSION"
+- travis_retry pip install -U --pre marshmallow"$MARSHMALLOW_VERSION"
 before_script:
 - flake8 flask_apispec
 script: py.test
 after_success: codecov
-before_deploy: invoke install
-deploy:
-  provider: pypi
-  user: sloria
-  password:
-    secure: ONHrjS08OGOhuM9hANqwVa5UP0cqQSshLOyIadP/a6zE7N3FivzDUVKUmf1fjTWgSeorBLHLb8dWGcMvQrzfdzp965OLynCKHXrZ/3IcjKyUGNazNbfQExPmMc5znx4ZkKPSnC+15JWcHATwup1RwHOVrJ7jXr7agJEmciIUS00A9+SYxlDHMUyXBs9EaSIIr2su4H/+IfdRKwEXRcw6XIE7fY2FjiMT5mDlA76pwNHuFJEU7d0JAUtV7O97G+xoOvzLoVXztlnIoiBmMAAqrGl3RzzglmR/O9Oi1bR6mulDkb/0Ew50RqEOwkHZRsvURZp7o2PNBtfO6Msy4kBs5UaUAA+DtF02WrfBdcZ36H8HPdxlPo+ua1itroRx3jTV8q5vdIlwvN0E7SYO71mxyOP8qO0dpRSx7in/29vFvU30P+al2qVfODSKXk4Pu0xOWYAG6e3bxDsAHq61TSaBAP2ovp3C3CrW+00ilssPvdDjhMmeoESjn7rBNk4O97Il02jsu+HoCzkzs0QcWIKbEmGPpq+nf5LQjsA4Y3EHDmrZHPxY/V/AXq83WPrn0w4oSzqOK3kFAjmjavSnnSpX43h0ss05XwTL6z4RDTrZjIJiZoMgZU+XsDqDwqe1XKysU9JP4iRVAUeJV6YGYfCRM8yocKlNaYlG6GScvz6Yg7o=
-  on:
-    tags: true
-  distributions: "sdist bdist_wheel"
-  skip_cleanup: true
+jobs:
+  include:
+  - stage: PyPI Release
+    if: tag IS present
+    python: "3.6"
+    env: []
+    # Override install, and script to no-ops
+    before_install: true
+    install: 
+    - travis_retry pip install -U .
+    - travis_retry pip install -r dev-requirements.txt
+    before_script: true
+    script: echo "Releasing to PyPI..."
+    after_success: true
+    before_deploy: invoke install
+    deploy:
+      provider: pypi
+      user: sloria
+      password:
+        secure: ONHrjS08OGOhuM9hANqwVa5UP0cqQSshLOyIadP/a6zE7N3FivzDUVKUmf1fjTWgSeorBLHLb8dWGcMvQrzfdzp965OLynCKHXrZ/3IcjKyUGNazNbfQExPmMc5znx4ZkKPSnC+15JWcHATwup1RwHOVrJ7jXr7agJEmciIUS00A9+SYxlDHMUyXBs9EaSIIr2su4H/+IfdRKwEXRcw6XIE7fY2FjiMT5mDlA76pwNHuFJEU7d0JAUtV7O97G+xoOvzLoVXztlnIoiBmMAAqrGl3RzzglmR/O9Oi1bR6mulDkb/0Ew50RqEOwkHZRsvURZp7o2PNBtfO6Msy4kBs5UaUAA+DtF02WrfBdcZ36H8HPdxlPo+ua1itroRx3jTV8q5vdIlwvN0E7SYO71mxyOP8qO0dpRSx7in/29vFvU30P+al2qVfODSKXk4Pu0xOWYAG6e3bxDsAHq61TSaBAP2ovp3C3CrW+00ilssPvdDjhMmeoESjn7rBNk4O97Il02jsu+HoCzkzs0QcWIKbEmGPpq+nf5LQjsA4Y3EHDmrZHPxY/V/AXq83WPrn0w4oSzqOK3kFAjmjavSnnSpX43h0ss05XwTL6z4RDTrZjIJiZoMgZU+XsDqDwqe1XKysU9JP4iRVAUeJV6YGYfCRM8yocKlNaYlG6GScvz6Yg7o=
+      on:
+        tags: true
+      distributions: "sdist bdist_wheel"
+      skip_cleanup: true

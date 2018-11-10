@@ -3,13 +3,20 @@
 import functools
 
 import six
+import marshmallow as ma
 
-def resolve_instance(schema, **kwargs):
-    kwargs = kwargs or {}
+def resolve_resource(resource, **kwargs):
     resource_class_args = kwargs.get('resource_class_args') or ()
     resource_class_kwargs = kwargs.get('resource_class_kwargs') or {}
-    if isinstance(schema, type):
-        return schema(*resource_class_args, **resource_class_kwargs)
+    if isinstance(resource, type):
+        return resource(*resource_class_args, **resource_class_kwargs)
+    return resource
+
+def resolve_schema(schema, request=None):
+    if isinstance(schema, type) and issubclass(schema, ma.Schema):
+        schema = schema()
+    elif callable(schema):
+        schema = schema(request)
     return schema
 
 class Ref(object):

@@ -2,7 +2,7 @@
 
 import pytest
 from apispec import APISpec
-from apispec.ext.marshmallow import swagger
+from apispec.ext.marshmallow import MarshmallowPlugin
 from marshmallow import fields, Schema
 from flask import make_response
 
@@ -11,13 +11,34 @@ from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
+@pytest.fixture()
+def marshmallow_plugin():
+    return MarshmallowPlugin()
+
 @pytest.fixture
-def spec():
+def spec(marshmallow_plugin):
     return APISpec(
         title='title',
         version='v1',
-        plugins=['apispec.ext.marshmallow'],
+        plugins=[marshmallow_plugin],
     )
+
+@pytest.fixture()
+def openapi(marshmallow_plugin):
+    return marshmallow_plugin.openapi
+
+
+def test_error_if_spec_does_not_have_marshmallow_plugin(app):
+    bad_spec = APISpec(
+        title='title',
+        version='v1',
+        plugins=[],  # oh no! no MarshmallowPlugin
+    )
+    with pytest.raises(RuntimeError):
+        ViewConverter(app=app, spec=bad_spec)
+    with pytest.raises(RuntimeError):
+        ResourceConverter(app=app, spec=bad_spec)
+
 
 class TestFunctionView:
 
@@ -33,7 +54,7 @@ class TestFunctionView:
 
     @pytest.fixture
     def path(self, app, spec, function_view):
-        converter = ViewConverter(app)
+        converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
             spec.add_path(**path)
@@ -53,10 +74,11 @@ class TestFunctionView:
         )
         assert params == expected
 
-    def test_responses(self, schemas, path):
+    def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        assert response['schema'] == swagger.schema2jsonschema(schemas.BandSchema)
+        expected = openapi.schema2jsonschema(schemas.BandSchema)
+        assert response['schema'] == expected
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
@@ -76,20 +98,37 @@ class TestArgSchema:
 
     @pytest.fixture
     def path(self, app, spec, function_view):
-        converter = ViewConverter(app)
+        converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
             spec.add_path(**path)
         return spec._paths['/bands/{band_id}/']
 
-    def test_params(self, app, path):
+    def test_params(self, app, path, openapi):
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
+            openapi.fields2parameters(
+                {'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected
+
+class TestCallableAsArgSchema(TestArgSchema):
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        def schema_factory(request):
+            class ArgSchema(Schema):
+                name = fields.Str()
+
+            return ArgSchema
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(schema_factory, locations=('query', ))
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
 
 class TestDeleteView:
 
@@ -103,7 +142,7 @@ class TestDeleteView:
 
     @pytest.fixture
     def path(self, app, spec, function_view):
-        converter = ViewConverter(app)
+        converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
             spec.add_path(**path)
@@ -130,25 +169,27 @@ class TestResourceView:
 
     @pytest.fixture
     def path(self, app, spec, resource_view):
-        converter = ResourceConverter(app)
+        converter = ResourceConverter(app=app, spec=spec)
         paths = converter.convert(resource_view, endpoint='band')
         for path in paths:
             spec.add_path(**path)
         return spec._paths['/bands/{band_id}/']
 
-    def test_params(self, app, path):
+    def test_params(self, app, path, openapi):
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['band'][0]
         expected = (
-            swagger.fields2parameters({'name': fields.Str()}, default_in='query') +
+            openapi.fields2parameters(
+                {'name': fields.Str()}, default_in='query') +
             rule_to_params(rule)
         )
         assert params == expected
 
-    def test_responses(self, schemas, path):
+    def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        assert response['schema'] == swagger.schema2jsonschema(schemas.BandSchema)
+        expected = openapi.schema2jsonschema(schemas.BandSchema)
+        assert response['schema'] == expected
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']

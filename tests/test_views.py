@@ -23,9 +23,6 @@ class TestFunctionViews:
         class ArgSchema(Schema):
             name = fields.Str()
 
-            class Meta:
-                strict = True
-
         @app.route('/')
         @use_kwargs(ArgSchema)
         def view(**kwargs):
@@ -53,6 +50,23 @@ class TestFunctionViews:
             return kwargs
         res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
         assert res.json == {'name': 'freddie', 'instrument': 'vocals'}
+
+    def test_use_kwargs_callable_as_schema(self, app, client):
+        def schema_factory(request):
+            assert request.method == 'GET'
+            assert request.path == '/'
+
+            class ArgSchema(Schema):
+                name = fields.Str()
+
+            return ArgSchema
+
+        @app.route('/')
+        @use_kwargs(schema_factory)
+        def view(**kwargs):
+            return kwargs
+        res = client.get('/', {'name': 'freddie'})
+        assert res.json == {'name': 'freddie'}
 
     def test_marshal_with_default(self, app, client, models, schemas):
         @app.route('/')

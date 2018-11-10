@@ -18,7 +18,7 @@ def clean(ctx):
 def install(ctx):
     ctx.run('npm install')
     ctx.run('rm -rf flask_apispec/static')
-    ctx.run('cp -r node_modules/swagger-ui/dist flask_apispec/static')
+    ctx.run('cp -r node_modules/swagger-ui-dist flask_apispec/static')
 
 @task
 def clean_docs(ctx):

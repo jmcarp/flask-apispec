@@ -47,3 +47,8 @@ docs/_build
 README.html
 
 _sandbox
+
+# JetBrains
+.idea/
+
+.pytest_cache/
