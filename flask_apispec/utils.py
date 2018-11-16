@@ -48,11 +48,10 @@ class Annotation(object):
 
     def __eq__(self, other):
         if isinstance(other, Annotation):
-            return (
-                self.options == other.options and
-                self.inherit == other.inherit and
+            return self.options == other.options and \
+                self.inherit == other.inherit and \
                 self.apply == other.apply
-            )
+
         return NotImplemented
 
     def __ne__(self, other):
@@ -76,10 +75,9 @@ class Annotation(object):
         )
 
 def resolve_annotations(func, key, parent=None):
-    annotations = (
-        getattr(func, '__apispec__', {}).get(key, []) +
+    annotations = getattr(func, '__apispec__', {}).get(key, []) + \
         getattr(parent, '__apispec__', {}).get(key, [])
-    )
+
     return functools.reduce(
         lambda first, second: first.merge(second),
         [annotation.resolve(parent) for annotation in annotations],
