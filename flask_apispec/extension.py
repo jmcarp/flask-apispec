@@ -5,7 +5,7 @@ import types
 from apispec import APISpec
 
 from flask_apispec import ResourceMeta
-from flask_apispec.apidoc import ViewConverter, ResourceConverter
+from flask_apispec.apidoc import ViewConverter, ResourceConverter, ClassfulConverter
 
 
 class FlaskApiSpec(object):
@@ -50,6 +50,7 @@ class FlaskApiSpec(object):
         self.app = app
         self.view_converter = ViewConverter(self.app)
         self.resource_converter = ResourceConverter(self.app)
+        self.classful_converter = ClassfulConverter(self.app)
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'))
@@ -103,7 +104,13 @@ class FlaskApiSpec(object):
                 if isinstance(view_class, ResourceMeta):
                     continue
             try:
-                self.register(rule, endpoint=endpoint_name, blueprint=blueprint_name)
+                if hasattr(rule, '_classful_meta'):
+                    self._register(
+                        rule,
+                        blueprint=blueprint_name,
+                    )
+                else:
+                    self.register(rule, endpoint=endpoint_name, blueprint=blueprint_name)
             except TypeError:
                 pass
 
@@ -135,7 +142,10 @@ class FlaskApiSpec(object):
         :param dict resource_class_kwargs: (optional) kwargs to be forwarded to
             the view class constructor.
         """
-        if isinstance(target, types.FunctionType):
+        if hasattr(target, '_classful_meta'):
+            classful_meta = getattr(target, '_classful_meta')
+            paths = self.classful_converter.convert(classful_meta)
+        elif isinstance(target, types.FunctionType):
             paths = self.view_converter.convert(target, endpoint, blueprint)
         elif isinstance(target, ResourceMeta):
             paths = self.resource_converter.convert(

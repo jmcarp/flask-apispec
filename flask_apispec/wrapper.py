@@ -51,6 +51,7 @@ class Wrapper(object):
             schema = utils.resolve_instance(schema['schema'])
             output = schema.dump(unpacked[0]).data
         else:
+            format_response = identity
             output = unpacked[0]
         return format_output((format_response(output), ) + unpacked[1:])
 
