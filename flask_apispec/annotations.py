@@ -20,7 +20,8 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
             return Pet.query.filter_by(**kwargs).all()
 
     :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
-        objects, or :class:`Schema <marshmallow.Schema>`
+        objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
+        request and returns a :class:`Schema <marshmallow.Schema>`
     :param locations: Default request locations to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args

@@ -57,9 +57,12 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    test_suite='tests'
+    test_suite='tests',
+    project_urls={
+        'Bug Reports': 'https://github.com/jmcarp/flask-apispec/issues',
+        'Changelog': 'https://flask-apispec.readthedocs.io/en/latest/changelog.html',
+    },
 )

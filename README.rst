@@ -87,13 +87,14 @@ Quickstart
 .. code-block:: python
 
     from apispec import APISpec
+    from apispec.ext.marshmallow import MarshmallowPlugin
     from flask_apispec.extension import FlaskApiSpec
 
     app.config.update({
         'APISPEC_SPEC': APISpec(
             title='pets',
             version='v1',
-            plugins=['apispec.ext.marshmallow'],
+            plugins=[MarshmallowPlugin()],
         ),
         'APISPEC_SWAGGER_URL': '/swagger/',
     })

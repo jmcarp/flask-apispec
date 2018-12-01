@@ -1,6 +1,37 @@
 Changelog
 ---------
 
+0.7.0 (2018-07-01)
+++++++++++++++++++
+
+Features:
+
+* Supports apispec>=0.39.0 (:issue:`105`). Older apispec versions are no longer supported.
+* Upgrade swagger-ui to version 3.17.2 (:issue:`76`). Thanks :user:`paxnovem`.
+
+0.6.1 (2018-06-25)
+++++++++++++++++++
+
+Bug fixes:
+
+* Fix resolution of path parameters (:issue:`92`). Thanks
+  :user:`DStape` for the fix.
+
+0.6.0 (2018-03-11)
+++++++++++++++++++
+
+Features:
+
+* Support marshmallow 3 beta. Thanks :user:`tonycpsu` for the PR.
+
+0.5.0 (2018-03-04)
+++++++++++++++++++
+
+Features:
+
+* Allow a schema factory to be passed to `use_args` and `use_kwargs`
+  (:issue:`79`). Thanks :user:`decaz` for the PR.
+
 0.4.2 (2017-10-23)
 ++++++++++++++++++
 
