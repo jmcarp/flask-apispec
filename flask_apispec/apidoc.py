@@ -39,13 +39,14 @@ class Converter(object):
     def get_path(self, rule, target, **kwargs):
         operations = self.get_operations(rule, target)
         parent = self.get_parent(target, **kwargs)
+        valid_methods = VALID_METHODS[self.spec.openapi_version.major]
         return {
             'view': target,
             'path': rule_to_path(rule),
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
                 for method, view in six.iteritems(operations)
-                if method.lower() in (set(VALID_METHODS) - {'head'})
+                if method.lower() in (set(valid_methods) - {'head'})
             },
         }
 
@@ -84,7 +85,6 @@ class Converter(object):
         locations = options.pop('locations', None)
         if locations:
             options['default_in'] = locations[0]
-        options['spec'] = self.app.config.get('APISPEC_SPEC', None)
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
         extra_params = converter(schema, **options) if args else []
