@@ -2,7 +2,7 @@ language: python
 cache: pip
 sudo: false
 env:
-- APISPEC_VERSION="==1.0.0b5"
+- APISPEC_VERSION="==1.0.0rc1"
 - APISPEC_VERSION=""
 - MARSHMALLOW_VERSION="==2.13.0"
 - MARSHMALLOW_VERSION=""

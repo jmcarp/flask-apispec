@@ -13,7 +13,7 @@ from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
 @pytest.fixture()
 def marshmallow_plugin():
-    return MarshmallowPlugin()
+    return MarshmallowPlugin(schema_name_resolver=lambda x: None)
 
 @pytest.fixture
 def spec(marshmallow_plugin):
