@@ -9,7 +9,7 @@ REQUIRES = [
     'flask>=0.10.1',
     'marshmallow>=2.0.0',
     'webargs>=0.18.0',
-    'apispec==1.0.0b3',
+    'apispec==1.0.0b5',
 ]
 
 def find_version(fname):

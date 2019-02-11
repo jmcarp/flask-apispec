@@ -59,7 +59,7 @@ class TestFunctionView:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path):
@@ -103,7 +103,7 @@ class TestArgSchema:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path, openapi):
@@ -147,7 +147,7 @@ class TestDeleteView:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_responses(self, schemas, path):
@@ -174,7 +174,7 @@ class TestResourceView:
         converter = ResourceConverter(app=app, spec=spec)
         paths = converter.convert(resource_view, endpoint='band')
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path, openapi):

@@ -145,7 +145,7 @@ class FlaskApiSpec(object):
         else:
             raise TypeError()
         for path in paths:
-            self.spec.add_path(**path)
+            self.spec.path(**path)
 
 
 def make_apispec(title='flask-apispec', version='v1', openapi_version='2.0'):
