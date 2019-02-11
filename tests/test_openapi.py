@@ -20,6 +20,7 @@ def spec(marshmallow_plugin):
     return APISpec(
         title='title',
         version='v1',
+        openapi_version='2.0',
         plugins=[marshmallow_plugin],
     )
 
@@ -32,6 +33,7 @@ def test_error_if_spec_does_not_have_marshmallow_plugin(app):
     bad_spec = APISpec(
         title='title',
         version='v1',
+        openapi_version='2.0',
         plugins=[],  # oh no! no MarshmallowPlugin
     )
     with pytest.raises(RuntimeError):
