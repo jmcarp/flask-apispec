@@ -13,7 +13,7 @@ from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
 @pytest.fixture()
 def marshmallow_plugin():
-    return MarshmallowPlugin(schema_name_resolver=lambda x: None)
+    return MarshmallowPlugin()
 
 @pytest.fixture
 def spec(marshmallow_plugin):
@@ -28,6 +28,10 @@ def spec(marshmallow_plugin):
 def openapi(marshmallow_plugin):
     return marshmallow_plugin.openapi
 
+def ref_path(spec):
+    if spec.openapi_version.version[0] < 3:
+        return "#/definitions/"
+    return "#/components/schemas/"
 
 def test_error_if_spec_does_not_have_marshmallow_plugin(app):
     bad_spec = APISpec(
@@ -79,8 +83,7 @@ class TestFunctionView:
     def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        expected = openapi.schema2jsonschema(schemas.BandSchema)
-        assert response['schema'] == expected
+        assert response['schema'] == {'$ref': ref_path(openapi.spec) + 'Band'}
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
@@ -190,8 +193,7 @@ class TestResourceView:
     def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        expected = openapi.schema2jsonschema(schemas.BandSchema)
-        assert response['schema'] == expected
+        assert response['schema'] == {'$ref': ref_path(openapi.spec) + 'Band'}
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
