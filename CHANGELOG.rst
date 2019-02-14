@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.8.0 (2018-02-13)
+******************
+
+Features:
+
+* Supports apispec>=1.0.0 (:issue:`130`). Older apispec versions are no longer supported.
+  Thanks :user:`DStape` for the PR.
+* Upgrade swagger-ui to version 3.20.7.
+
 0.7.0 (2018-07-01)
 ++++++++++++++++++
 
