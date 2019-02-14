@@ -20,6 +20,7 @@ def spec(marshmallow_plugin):
     return APISpec(
         title='title',
         version='v1',
+        openapi_version='2.0',
         plugins=[marshmallow_plugin],
     )
 
@@ -27,11 +28,16 @@ def spec(marshmallow_plugin):
 def openapi(marshmallow_plugin):
     return marshmallow_plugin.openapi
 
+def ref_path(spec):
+    if spec.openapi_version.version[0] < 3:
+        return "#/definitions/"
+    return "#/components/schemas/"
 
 def test_error_if_spec_does_not_have_marshmallow_plugin(app):
     bad_spec = APISpec(
         title='title',
         version='v1',
+        openapi_version='2.0',
         plugins=[],  # oh no! no MarshmallowPlugin
     )
     with pytest.raises(RuntimeError):
@@ -57,7 +63,7 @@ class TestFunctionView:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path):
@@ -77,8 +83,7 @@ class TestFunctionView:
     def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        expected = openapi.schema2jsonschema(schemas.BandSchema)
-        assert response['schema'] == expected
+        assert response['schema'] == {'$ref': ref_path(openapi.spec) + 'Band'}
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
@@ -101,7 +106,7 @@ class TestArgSchema:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path, openapi):
@@ -145,7 +150,7 @@ class TestDeleteView:
         converter = ViewConverter(app=app, spec=spec)
         paths = converter.convert(function_view)
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_responses(self, schemas, path):
@@ -172,7 +177,7 @@ class TestResourceView:
         converter = ResourceConverter(app=app, spec=spec)
         paths = converter.convert(resource_view, endpoint='band')
         for path in paths:
-            spec.add_path(**path)
+            spec.path(**path)
         return spec._paths['/bands/{band_id}/']
 
     def test_params(self, app, path, openapi):
@@ -188,8 +193,7 @@ class TestResourceView:
     def test_responses(self, schemas, path, openapi):
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
-        expected = openapi.schema2jsonschema(schemas.BandSchema)
-        assert response['schema'] == expected
+        assert response['schema'] == {'$ref': ref_path(openapi.spec) + 'Band'}
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']

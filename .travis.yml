@@ -2,8 +2,6 @@ language: python
 cache: pip
 sudo: false
 env:
-- APISPEC_VERSION="==0.39.0"
-- APISPEC_VERSION=""
 - MARSHMALLOW_VERSION="==2.13.0"
 - MARSHMALLOW_VERSION=""
 python:
@@ -15,7 +13,6 @@ before_install:
 install:
 - travis_retry pip install -U .
 - travis_retry pip install -U -r dev-requirements.txt
-- travis_retry pip install -U --pre apispec"$APISPEC_VERSION"
 - travis_retry pip install -U --pre marshmallow"$MARSHMALLOW_VERSION"
 before_script:
 - flake8 flask_apispec
@@ -29,7 +26,7 @@ jobs:
     env: []
     # Override install, and script to no-ops
     before_install: true
-    install: 
+    install:
     - travis_retry pip install -U .
     - travis_retry pip install -r dev-requirements.txt
     before_script: true
