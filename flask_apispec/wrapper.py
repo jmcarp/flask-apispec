@@ -15,14 +15,14 @@ MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in ma.__version__.split('.') if part.isdigit()]
 )
 
-def asdict(row):
+def asdict(row, fill_none=True):
     """convert Sqlalchemy instance to dict"""
     result = dict()
     for key in row.__mapper__.c.keys():
-        if getattr(row, key) is not None:
-            result[key] = str(getattr(row, key))
-        else:
+        if getattr(row, key, None) is not None:
             result[key] = getattr(row, key)
+        elif not fill_none:
+            result[key] = None
     return result
 
 class Wrapper(object):
