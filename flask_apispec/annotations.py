@@ -48,9 +48,9 @@ def use_args(args, locations=None, inherit=None, apply=None, **kwargs):
 
         from marshmallow import fields
 
-        @use_args({'name': fields.Str(), 'category': fields.Str()})
-        def create_pet(args):
-            db.session.add(args)
+        @use_args(PetSchema(exclude=('id','created'))
+        def create_pet(pet):
+            db.session.add(pet)
             db.session.commit()
             return args
 
