@@ -15,12 +15,23 @@ MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in ma.__version__.split('.') if part.isdigit()]
 )
 
+def asdict(row):
+    """convert Sqlalchemy instance to dict"""
+    result = dict()
+    for key in row.__mapper__.c.keys():
+        if getattr(row, key) is not None:
+            result[key] = str(getattr(row, key))
+        else:
+            result[key] = getattr(row, key)
+    return result
+
 class Wrapper(object):
     """Apply annotations to a view function.
 
     :param func: View function to wrap
     :param instance: Optional instance or parent
     """
+
     def __init__(self, func, instance=None):
         self.func = func
         self.instance = instance
@@ -44,10 +55,8 @@ class Wrapper(object):
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
                 else:
-                    if 'use_args' in option and option['use_args']:
-                        args += (parsed,)
-                    else:
-                        kwargs.update(parsed)
+                    kwargs.update(asdict(parsed)
+                                  if hasattr(parsed,'__mapper__') else parsed)  # support flask-marshmallow
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
@@ -62,14 +71,17 @@ class Wrapper(object):
             output = dumped.data if MARSHMALLOW_VERSION_INFO[0] < 3 else dumped
         else:
             output = unpacked[0]
-        return format_output((format_response(output), ) + unpacked[1:])
+        return format_output((format_response(output),) + unpacked[1:])
+
 
 def identity(value):
     return value
 
+
 def unpack(resp):
-    resp = resp if isinstance(resp, tuple) else (resp, )
-    return resp + (None, ) * (3 - len(resp))
+    resp = resp if isinstance(resp, tuple) else (resp,)
+    return resp + (None,) * (3 - len(resp))
+
 
 def format_output(values):
     while values[-1] is None:
