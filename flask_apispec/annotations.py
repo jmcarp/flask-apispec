@@ -38,6 +38,42 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     return wrapper
 
 
+def use_args(args, locations=None, inherit=None, apply=None, **kwargs):
+    """Inject keyword arguments from the specified webargs arguments into the
+    decorated view function.
+
+    Usage:
+
+    .. code-block:: python
+
+        from marshmallow import fields
+
+        @use_args({'name': fields.Str(), 'category': fields.Str()})
+        def create_pet(args):
+            db.session.add(args)
+            db.session.commit()
+            return args
+
+    :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
+        objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
+        request and returns a :class:`Schema <marshmallow.Schema>`
+    :param locations: Default request locations to parse
+    :param inherit: Inherit args from parent classes
+    :param apply: Parse request with specified args
+    """
+    kwargs.update({'locations': locations})
+
+    def wrapper(func):
+        options = {
+            'args': args,
+            'kwargs': kwargs,
+            'use_args': True
+        }
+        annotate(func, 'args', [options], inherit=inherit, apply=apply)
+        return activate(func)
+    return wrapper
+
+
 def marshal_with(schema, code='default', description='', inherit=None, apply=None):
     """Marshal the return value of the decorated view function using the
     specified schema.

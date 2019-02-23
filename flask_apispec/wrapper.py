@@ -44,7 +44,10 @@ class Wrapper(object):
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
                 else:
-                    kwargs.update(parsed)
+                    if 'use_args' in option and option['use_args']:
+                        args += (parsed,)
+                    else:
+                        kwargs.update(parsed)
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
