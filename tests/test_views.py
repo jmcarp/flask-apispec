@@ -271,8 +271,15 @@ class TestClassViews:
         class ConcreteResource(MethodResource):
             @marshal_with(None, code=204)
             def delete(self, **kwargs):
-                return make_response('', 204)
+                from flask import Response
+                response = Response(None, 204)
+                
+                # remove content-type as webtest raises error for this
+                # https://github.com/Pylons/webtest/blob/master/webtest/lint.py#L543
+                response.headers.pop('Content-Type', None)
+                return response
 
         app.add_url_rule('/<id>/', view_func=ConcreteResource.as_view('concrete'))
         res = client.delete('/5/')
+        assert res.status_code == 204
         assert res.body == b''

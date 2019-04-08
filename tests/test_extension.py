@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 
 import pytest
 from flask import Blueprint
@@ -98,3 +99,29 @@ class TestExtension:
         assert docs.spec.title == 'test-extension'
         assert docs.spec.version == '2.1'
         assert docs.spec.openapi_version == '2.0'
+
+    def test_make_url_with_suffix_version_with_version(self, app):
+        app.config['APISPEC_VERSION'] = 'v2'
+        docs = FlaskApiSpec(app, support_multiple_version=True)
+
+        assert docs.make_url_with_suffix_version('/swagger/') == '/swagger-v2/'
+        assert docs.make_url_with_suffix_version('/swagger-ui/') == '/swagger-ui-v2/'
+        assert docs.make_url_with_suffix_version('/swagger.json') == '/swagger-v2.json'
+        assert docs.make_url_with_suffix_version('/swagger.html') == '/swagger-v2.html'
+        assert docs.make_url_with_suffix_version('/swagger') == '/swagger-v2'
+
+    def test_urls_with_support_multiple_version(self, app, client):
+        app.config['APISPEC_VERSION'] = 'v2'
+        docs = FlaskApiSpec(app, support_multiple_version=True)
+        res = client.get('/swagger-v2/')
+        assert res.json == docs.spec.to_dict()
+        client.get('/swagger-ui-v2/')
+
+    def test_support_multiple_version_by_changing_blueprint_name(self, app):
+        version = 'v{}'.format(random.randint(1, 5))
+        app.config['APISPEC_VERSION'] = version
+        docs = FlaskApiSpec(app, support_multiple_version=True)
+        assert docs.blueprint_name == 'flask-apispec-' + version
+
+        docs_without_support_multiple_version = FlaskApiSpec(app)
+        assert docs_without_support_multiple_version.blueprint_name == 'flask-apispec'
