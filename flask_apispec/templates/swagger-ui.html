@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Swagger UI</title>
-  <link rel="icon" type="image/png" href="{{ url_for('flask-apispec.static', filename='favicon-32x32.png') }}" sizes="32x32" />
-  <link rel="icon" type="image/png" href="{{ url_for('flask-apispec.static', filename='favicon-16x16.png') }}" sizes="16x16" />
-  <link href="{{ url_for('flask-apispec.static', filename='swagger-ui.css') }}" rel="stylesheet" type="text/css"/>
+  <link rel="icon" type="image/png" href="{{ url_for(blueprint_name + '.static', filename='favicon-32x32.png') }}" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{{ url_for(blueprint_name + '.static', filename='favicon-16x16.png') }}" sizes="16x16" />
+  <link href="{{ url_for(blueprint_name + '.static', filename='swagger-ui.css') }}" rel="stylesheet" type="text/css"/>
 </head>
 
 <body class="swagger-section">
   <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
   <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-<script src="{{ url_for('flask-apispec.static', filename='swagger-ui-bundle.js') }}" type="text/javascript"></script>
-<script src="{{ url_for('flask-apispec.static', filename='swagger-ui-standalone-preset.js') }}" type="text/javascript"></script>
+<script src="{{ url_for(blueprint_name + '.static', filename='swagger-ui-bundle.js') }}" type="text/javascript"></script>
+<script src="{{ url_for(blueprint_name + '.static', filename='swagger-ui-standalone-preset.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
   var ui = SwaggerUIBundle({
-    url: "{{ url_for('flask-apispec.swagger-json') }}",
+    url: "{{ url_for(blueprint_name + '.swagger-json') }}",
     dom_id: '#swagger-ui-container',
     deepLinking: true,
     presets: [
@@ -26,8 +26,8 @@
       SwaggerUIBundle.plugins.DownloadUrl
     ],
     layout: "BaseLayout"
-  })
-  window.ui = ui
+  });
+  window.ui = ui;
 </script>
 </body>
 

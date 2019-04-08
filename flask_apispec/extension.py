@@ -36,14 +36,17 @@ class FlaskApiSpec(object):
 
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
+    :param bool support_multiple_version: support multiple version swaggers
+           by register doc to 'swagger-{api_version}' url
     """
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, support_multiple_version=False):
         self._deferred = []
         self.app = app
         self.view_converter = None
         self.resource_converter = None
         self.spec = None
+        self.support_multiple_version = support_multiple_version
 
         if app:
             self.init_app(app)
@@ -67,9 +70,15 @@ class FlaskApiSpec(object):
         if self.app:
             bound()
 
+    @property
+    def blueprint_name(self):
+        if self.support_multiple_version:
+            return 'flask-apispec-' + self.spec.version
+        return 'flask-apispec'
+
     def add_swagger_routes(self):
         blueprint = flask.Blueprint(
-            'flask-apispec',
+            self.blueprint_name,
             __name__,
             static_folder='./static',
             template_folder='./templates',
@@ -78,19 +87,37 @@ class FlaskApiSpec(object):
 
         json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
         if json_url:
+            if self.support_multiple_version:
+                json_url = self.make_url_with_suffix_version(json_url)
+
             blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
 
         ui_url = self.app.config.get('APISPEC_SWAGGER_UI_URL', '/swagger-ui/')
         if ui_url:
+            if self.support_multiple_version:
+                ui_url = self.make_url_with_suffix_version(ui_url)
             blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
 
         self.app.register_blueprint(blueprint)
+
+    def make_url_with_suffix_version(self, url):
+        # adding version suffix
+        if url.endswith('/'):
+            url = url[:-1] + '-' + self.spec.version + '/'
+        elif url.endswith('.json') or url.endswith('.html'):
+            # support extension url
+            url = url.replace('.json', '-' + self.spec.version + '.json') \
+                     .replace('.html', '-' + self.spec.version + '.html')
+        else:
+            url += '-' + self.spec.version
+        return url
 
     def swagger_json(self):
         return flask.jsonify(self.spec.to_dict())
 
     def swagger_ui(self):
-        return flask.render_template('swagger-ui.html')
+        return flask.render_template('swagger-ui.html',
+                                     blueprint_name=self.blueprint_name)
 
     def register_existing_resources(self):
         for name, rule in self.app.view_functions.items():
