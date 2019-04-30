@@ -44,7 +44,10 @@ class Wrapper(object):
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
                 else:
-                    kwargs.update(parsed)
+                    if isinstance(parsed, dict):
+                        kwargs.update(parsed)
+                    else:
+                        args, kwargs = (parsed,), {}
         return self.func(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
