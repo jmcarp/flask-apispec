@@ -3,14 +3,19 @@
 import re
 from setuptools import setup
 from setuptools import find_packages
+import sys
 
 REQUIRES = [
     'six>=1.9.0',
     'flask>=0.10.1',
-    'marshmallow>=2.0.0',
     'webargs>=0.18.0',
     'apispec>=1.0.0',
 ]
+
+if sys.version_info[0] == 2:
+    REQUIRES.append('marshmallow>=2.0.0,<3', )
+else:
+    REQUIRES.append('marshmallow>=2.0.0', )
 
 def find_version(fname):
     """Attempts to find the version number in the file names fname.
