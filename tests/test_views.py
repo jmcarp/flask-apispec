@@ -42,7 +42,7 @@ class TestFunctionViews:
             name = fields.Str()
 
             @post_load
-            def make_object(self, data):
+            def make_object(self, data, **kwargs):
                 return User(**data)
 
         @app.route('/', methods=('POST', ))
