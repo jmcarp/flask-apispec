@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.8.1 (unreleased)
+******************
+
+Bug fixes:
+
+* Fix support for ``@post_load`` methods that return a non-dictionary objec
+  (:issue:`103`). Thanks :user:`erezatiya` for reporting and thanks :user:`elatomo`
+  for the PR.
+
 0.8.0 (2019-02-13)
 ******************
 
