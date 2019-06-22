@@ -3,7 +3,7 @@
 import json
 
 from flask import make_response
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_load
 
 from flask_apispec.utils import Ref
 from flask_apispec.views import MethodResource
@@ -29,6 +29,31 @@ class TestFunctionViews:
             return kwargs
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
+
+    def test_use_kwargs_schema_with_post_load(self, app, client):
+        class User:
+            def __init__(self, name):
+                self.name = name
+
+            def update(self, name):
+                self.name = name
+
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+            @post_load
+            def make_object(self, data):
+                return User(**data)
+
+        @app.route('/', methods=('POST', ))
+        @use_kwargs(ArgSchema())
+        def view(user):
+            assert isinstance(user, User)
+            return {'name': user.name}
+
+        data = {'name': 'freddie'}
+        res = client.post('/', data)
+        assert res.json == data
 
     def test_use_kwargs_schema_many(self, app, client):
         class ArgSchema(Schema):
