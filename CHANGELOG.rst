@@ -1,14 +1,15 @@
 Changelog
 ---------
 
-0.8.1 (unreleased)
+0.8.1 (2019-06-22)
 ******************
 
 Bug fixes:
 
-* Fix support for ``@post_load`` methods that return a non-dictionary objec
+* Fix support for ``@post_load`` methods that return a non-dictionary object
   (:issue:`103`). Thanks :user:`erezatiya` for reporting and thanks :user:`elatomo`
   for the PR.
+* Restrict marshmallow version based on Python version (:pr:`150`).
 
 0.8.0 (2019-02-13)
 ******************
