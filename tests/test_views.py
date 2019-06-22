@@ -271,7 +271,9 @@ class TestClassViews:
         class ConcreteResource(MethodResource):
             @marshal_with(None, code=204)
             def delete(self, **kwargs):
-                return make_response('', 204)
+                response = make_response('', 204)
+                response.headers = {}
+                return response
 
         app.add_url_rule('/<id>/', view_func=ConcreteResource.as_view('concrete'))
         res = client.delete('/5/')

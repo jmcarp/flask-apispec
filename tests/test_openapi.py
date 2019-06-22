@@ -154,7 +154,7 @@ class TestDeleteView:
         return spec._paths['/bands/{band_id}/']
 
     def test_responses(self, schemas, path):
-        response = path['delete']['responses'][204]
+        response = path['delete']['responses']['204']
         assert response['description'] == 'a deleted band'
         assert response['schema'] == {}
 
