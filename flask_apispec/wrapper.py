@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
+try:
+    from collections.abc import Mapping
+except ImportError:  # Python 2
+    from collections import Mapping
 
-from six.moves import http_client as http
 
 import flask
-
+import marshmallow as ma
 import werkzeug
+from six.moves import http_client as http
 from webargs import flaskparser
 
 from flask_apispec import utils
 
-import marshmallow as ma
 
 MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in ma.__version__.split('.') if part.isdigit()]
@@ -43,7 +46,7 @@ class Wrapper(object):
                 parsed = parser.parse(schema, locations=option['kwargs']['locations'])
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
-                elif getattr(parsed, 'update', False):
+                elif isinstance(parsed, Mapping):
                     kwargs.update(parsed)
                 else:
                     args += (parsed, )

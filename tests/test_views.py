@@ -35,6 +35,9 @@ class TestFunctionViews:
             def __init__(self, name):
                 self.name = name
 
+            def update(self, name):
+                self.name = name
+
         class ArgSchema(Schema):
             name = fields.Str()
 
