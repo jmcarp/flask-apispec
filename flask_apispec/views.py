@@ -7,7 +7,7 @@ from flask_apispec.annotations import activate
 
 def inherit(child, parents):
     child.__apispec__ = child.__dict__.get('__apispec__', {})
-    for key in ['args', 'schemas', 'docs']:
+    for key in ['kwargs', 'schemas', 'docs']:
         child.__apispec__.setdefault(key, []).extend(
             annotation
             for parent in parents
