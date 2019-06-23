@@ -4,6 +4,7 @@ try:
 except ImportError:  # Python 2
     from collections import Mapping
 
+from types import MethodType
 
 import flask
 import marshmallow as ma
@@ -37,21 +38,32 @@ class Wrapper(object):
         return self.marshal_result(unpacked, status_code)
 
     def call_view(self, *args, **kwargs):
+        view_fn = self.func
         config = flask.current_app.config
         parser = config.get('APISPEC_WEBARGS_PARSER', flaskparser.parser)
+        # Delegate webargs.use_args annotations
         annotation = utils.resolve_annotations(self.func, 'args', self.instance)
         if annotation.apply is not False:
             for option in annotation.options:
-                schema = utils.resolve_schema(option['args'], request=flask.request)
-                parsed = parser.parse(schema, locations=option['kwargs']['locations'])
+                schema = utils.resolve_schema(option['argmap'], request=flask.request)
+                view_fn = parser.use_args(schema, **option['kwargs'])(view_fn)
+        # Delegate webargs.use_kwargs annotations
+        annotation = utils.resolve_annotations(self.func, 'kwargs', self.instance)
+        if annotation.apply is not False:
+            for option in annotation.options:
+                schema = utils.resolve_schema(option['argmap'], request=flask.request)
                 if getattr(schema, 'many', False):
-                    args += tuple(parsed)
-                elif isinstance(parsed, Mapping):
-                    kwargs.update(parsed)
-                else:
-                    args += (parsed, )
-
-        return self.func(*args, **kwargs)
+                    raise Exception("@use_kwargs cannot be used with a with a "
+                                    "'many=True' schema, as it must deserialize "
+                                    "to a dict")
+                elif isinstance(schema, ma.Schema):
+                    # Spy the post_load to provide a more informative error
+                    # if it doesn't return a Mapping
+                    post_load_fns = post_load_fn_names(schema)
+                    for post_load_fn_name in post_load_fns:
+                        spy_post_load(schema, post_load_fn_name)
+                view_fn = parser.use_kwargs(schema, **option['kwargs'])(view_fn)
+        return view_fn(*args, **kwargs)
 
     def marshal_result(self, unpacked, status_code):
         config = flask.current_app.config
@@ -78,3 +90,46 @@ def format_output(values):
     while values[-1] is None:
         values = values[:-1]
     return values if len(values) > 1 else values[0]
+
+def post_load_fn_names(schema):
+    fn_names = []
+    if hasattr(schema, '_hooks'):
+        # Marshmallow >=3
+        hooks = getattr(schema, '_hooks')
+        for key in ((ma.decorators.POST_LOAD, True),
+                    (ma.decorators.POST_LOAD, False)):
+            if key in hooks:
+                fn_names.append(*hooks[key])
+    else:
+        # Marshmallow <= 2
+        processors = getattr(schema, '__processors__')
+        for key in ((ma.decorators.POST_LOAD, True),
+                    (ma.decorators.POST_LOAD, False)):
+            if key in processors:
+                fn_names.append(*processors[key])
+    return fn_names
+
+def spy_post_load(schema, post_load_fn_name):
+    processor = getattr(schema, post_load_fn_name)
+
+    def _spy_processor(_self, *args, **kwargs):
+        rv = processor(*args, **kwargs)
+        if not isinstance(rv, Mapping):
+            raise Exception("The @use_kwargs decorator can only use Schemas that "
+                            "return dicts, but the @post_load-annotated method "
+                            "'{schema_type}.{post_load_fn_name}' returned: {rv}"
+                            .format(schema_type=type(schema),
+                                    post_load_fn_name=post_load_fn_name,
+                                    rv=rv))
+        return rv
+
+    for attr in (
+            # Marshmallow <= 2.x
+            '__marshmallow_tags__',
+            '__marshmallow_kwargs__',
+            # Marshmallow >= 3.x
+            '__marshmallow_hook__'
+    ):
+        if hasattr(processor, attr):
+            setattr(_spy_processor, attr, getattr(processor, attr))
+    setattr(schema, post_load_fn_name, MethodType(_spy_processor, schema))

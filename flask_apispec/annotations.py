@@ -5,7 +5,45 @@ import functools
 from flask_apispec import utils
 from flask_apispec.wrapper import Wrapper
 
-def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
+
+def use_args(argmap, locations=None, inherit=None, apply=None, **kwargs):
+    """Inject positional arguments from the specified webargs arguments into the
+    decorated view function.
+
+    Usage:
+
+    .. code-block:: python
+
+        from marshmallow import fields, Schema
+
+        class PetSchema(Schema):
+            name = fields.Str()
+
+        @use_args(PetSchema)
+        def create_pet(data):
+            pet = Pet(**data)
+            return session.add(pet)
+
+    :param argmap: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
+        objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
+        request and returns a :class:`Schema <marshmallow.Schema>`
+    :param locations: Default request locations to parse
+    :param inherit: Inherit args from parent classes
+    :param apply: Parse request with specified args
+    """
+    kwargs.update({'locations': locations})
+
+    def wrapper(func):
+        options = {
+            'argmap': argmap,
+            'kwargs': kwargs
+        }
+        annotate(func, 'args', [options], inherit=inherit, apply=apply)
+        return activate(func)
+
+    return wrapper
+
+def use_kwargs(argmap, locations=None, inherit=None, apply=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -19,7 +57,7 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
         def get_pets(**kwargs):
             return Pet.query.filter_by(**kwargs).all()
 
-    :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
+    :param argmap: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
         objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
         request and returns a :class:`Schema <marshmallow.Schema>`
     :param locations: Default request locations to parse
@@ -30,13 +68,12 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
 
     def wrapper(func):
         options = {
-            'args': args,
+            'argmap': argmap,
             'kwargs': kwargs,
         }
-        annotate(func, 'args', [options], inherit=inherit, apply=apply)
+        annotate(func, 'kwargs', [options], inherit=inherit, apply=apply)
         return activate(func)
     return wrapper
-
 
 def marshal_with(schema, code='default', description='', inherit=None, apply=None):
     """Marshal the return value of the decorated view function using the

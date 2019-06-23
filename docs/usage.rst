@@ -6,20 +6,26 @@ Usage
 Decorators
 ----------
 
-Use the :func:`use_kwargs <flask_apispec.annotations.use_kwargs>` and :func:`marshal_with <flask_apispec.annotations.marshal_with>` decorators on functions, methods, or classes to declare request parsing and response marshalling behavior, respectively.
+Use the :func:`use_args <flask_apispec.annotations.use_args>`, :func:`use_kwargs <flask_apispec.annotations.use_kwargs>` and :func:`marshal_with <flask_apispec.annotations.marshal_with>` decorators on functions, methods, or classes to declare request parsing and response marshalling behavior, respectively.
 
 .. code-block:: python
 
     import flask
     from webargs import fields
-    from flask_apispec import use_kwargs, marshal_with
+    from flask_apispec import use_args, use_kwargs, marshal_with
 
     from .models import Pet
     from .schemas import PetSchema
 
     app = flask.Flask(__name__)
 
-    @app.route('/pets')
+    @app.route('/pets', methods=['POST'])
+    @use_args(PetSchema)
+    @marshal_with(PetSchema)
+    def create_pet(data):
+        return Pet(**data)
+
+    @app.route('/pets', methods=['GET'])
     @use_kwargs({'species': fields.Str()})
     @marshal_with(PetSchema(many=True))
     def list_pets(**kwargs):
