@@ -93,7 +93,26 @@ class Converter(object):
 
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
-        return merge_recursive(annotation.options)
+        options = []
+        for option in annotation.options:
+            exploded = {}
+            for status_code, meta in option.items():
+                if self.spec.openapi_version.major < 3:
+                    meta.pop('content_type', None)
+                    exploded[status_code] = meta
+                else:
+                    content_type = meta['content_type'] or 'application/json'
+                    exploded[status_code] = {
+                        'content': {
+                            content_type: {
+                                'schema': meta['schema']
+                            }
+                        }
+                    }
+                    if meta['description']:
+                        exploded[status_code]['description'] = meta['description']
+            options.append(exploded)
+        return merge_recursive(options)
 
 class ViewConverter(Converter):
 

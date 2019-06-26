@@ -24,6 +24,15 @@ def spec(marshmallow_plugin):
         plugins=[marshmallow_plugin],
     )
 
+@pytest.fixture
+def spec_oapi3(marshmallow_plugin):
+    return APISpec(
+        title='title',
+        version='v1',
+        openapi_version='3.0',
+        plugins=[marshmallow_plugin],
+    )
+
 @pytest.fixture()
 def openapi(marshmallow_plugin):
     return marshmallow_plugin.openapi
@@ -84,6 +93,51 @@ class TestFunctionView:
         response = path['get']['responses']['default']
         assert response['description'] == 'a band'
         assert response['schema'] == {'$ref': ref_path(openapi.spec) + 'Band'}
+
+    def test_tags(self, path):
+        assert path['get']['tags'] == ['band']
+
+class TestFunctionView_OpenAPI3:
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        @app.route('/bands/<int:band_id>/')
+        @doc(tags=['band'])
+        @use_kwargs({'name': fields.Str(missing='queen')}, locations=('query',))
+        @marshal_with(schemas.BandSchema, description='a band', content_type='text/json')
+        def get_band(band_id):
+            return models.Band(name='slowdive', genre='spacerock')
+
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec_oapi3, function_view):
+        converter = ViewConverter(app=app, spec=spec_oapi3)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec_oapi3.path(**path)
+        return spec_oapi3._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+                [{
+                    'in': 'query',
+                    'name': 'name',
+                    'required': False,
+                    'schema': {
+                        'type': 'string',
+                        'default': 'queen',
+                    }
+                }] + rule_to_params(rule)
+        )
+        assert params == expected
+
+    def test_responses(self, schemas, path, openapi):
+        response = path['get']['responses']['default']
+        assert response['description'] == 'a band'
+        assert response['content'] == {'text/json': {'schema': {'$ref': ref_path(openapi.spec) + 'Band'}}}
 
     def test_tags(self, path):
         assert path['get']['tags'] == ['band']
