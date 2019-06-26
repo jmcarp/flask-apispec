@@ -68,9 +68,9 @@ class Converter(object):
 
     def get_parameters(self, rule, view, docs, parent=None):
         openapi = self.marshmallow_plugin.openapi
-        annotation = resolve_annotations(view, 'args', parent)
+        annotation = resolve_annotations(view, 'kwargs', parent)
         args = merge_recursive(annotation.options)
-        schema = args.get('args', {})
+        schema = args.get('argmap', {})
         if is_instance_or_subclass(schema, Schema):
             converter = openapi.schema2parameters
         elif callable(schema):

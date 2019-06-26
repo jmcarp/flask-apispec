@@ -64,10 +64,10 @@ Quickstart
         def get(self, pet_id):
             return Pet.query.filter(Pet.id == pet_id).one()
 
-        @use_kwargs(PetSchema)
+        @use_args(PetSchema)
         @marshal_with(PetSchema, code=201)
-        def post(self, **kwargs):
-            return Pet(**kwargs)
+        def post(self, data):
+            return Pet(**data)
 
         @use_kwargs(PetSchema)
         @marshal_with(PetSchema)
