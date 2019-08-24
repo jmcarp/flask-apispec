@@ -73,7 +73,8 @@ class FlaskApiSpec(object):
             __name__,
             static_folder='./static',
             template_folder='./templates',
-            static_url_path='/flask-apispec/static',
+            static_url_path=self.app.config.get('APISPEC_SWAGGER_STATIC_URL',
+                                                '/flask-apispec/static')
         )
 
         json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
