@@ -70,13 +70,13 @@ class TestFunctionView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-                [{
-                    'in': 'query',
-                    'name': 'name',
-                    'type': 'string',
-                    'required': False,
-                    'default': 'queen',
-                }] + rule_to_params(rule)
+            [{
+                'in': 'query',
+                'name': 'name',
+                'type': 'string',
+                'required': False,
+                'default': 'queen',
+            }] + rule_to_params(rule)
         )
         assert params == expected
 
@@ -113,9 +113,9 @@ class TestArgSchema:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-                openapi.fields2parameters(
-                    {'name': fields.Str()}, default_in='query') +
-                rule_to_params(rule)
+            openapi.fields2parameters(
+                {'name': fields.Str()}, default_in='query') +
+            rule_to_params(rule)
         )
         assert params == expected
 
@@ -184,9 +184,9 @@ class TestResourceView:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['band'][0]
         expected = (
-                openapi.fields2parameters(
-                    {'name': fields.Str()}, default_in='query') +
-                rule_to_params(rule)
+            openapi.fields2parameters(
+                {'name': fields.Str()}, default_in='query') +
+            rule_to_params(rule)
         )
         assert params == expected
 
@@ -228,16 +228,16 @@ class TestMultipleLocations:
         params = path['get']['parameters']
         rule = app.url_map._rules_by_endpoint['get_band'][0]
         expected = (
-                [{
-                    'in': 'query',
-                    'name': 'name',
-                    'required': False,
-                    'type': 'string'
-                }, {
-                    'in': 'body',
-                    'name': 'body',
-                    'required': False,
-                    'schema': {'$ref': '#/definitions/Body'}
-                }] + rule_to_params(rule)
+            [{
+                'in': 'query',
+                'name': 'name',
+                'required': False,
+                'type': 'string'
+            }, {
+                'in': 'body',
+                'name': 'body',
+                'required': False,
+                'schema': {'$ref': '#/definitions/Body'}
+            }] + rule_to_params(rule)
         )
         assert params == expected

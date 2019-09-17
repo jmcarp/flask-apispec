@@ -90,7 +90,6 @@ class Converter(object):
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
 
-
         return extra_params + rule_params
 
     def get_responses(self, view, parent=None):
