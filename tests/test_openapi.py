@@ -9,7 +9,7 @@ from flask import make_response
 from flask_apispec.paths import rule_to_params
 from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
-from flask_apispec.apidoc import ViewConverter, ResourceConverter
+from flask_apispec.apidoc import APISPEC_VERSION_INFO, ViewConverter, ResourceConverter
 
 @pytest.fixture()
 def marshmallow_plugin():
@@ -26,7 +26,10 @@ def spec(marshmallow_plugin):
 
 @pytest.fixture()
 def openapi(marshmallow_plugin):
-    return marshmallow_plugin.openapi
+    if APISPEC_VERSION_INFO[0] < 3:
+        return marshmallow_plugin.openapi
+    else:
+        return marshmallow_plugin.converter
 
 def ref_path(spec):
     if spec.openapi_version.version[0] < 3:
