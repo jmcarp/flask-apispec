@@ -69,25 +69,26 @@ class Converter(object):
     def get_parameters(self, rule, view, docs, parent=None):
         openapi = self.marshmallow_plugin.openapi
         annotation = resolve_annotations(view, 'args', parent)
-        args = merge_recursive(annotation.options)
-        schema = args.get('args', {})
-        if is_instance_or_subclass(schema, Schema):
-            converter = openapi.schema2parameters
-        elif callable(schema):
-            schema = schema(request=None)
+        extra_params = []
+        for args in annotation.options:
+            schema = args.get('args', {})
             if is_instance_or_subclass(schema, Schema):
                 converter = openapi.schema2parameters
+            elif callable(schema):
+                schema = schema(request=None)
+                if is_instance_or_subclass(schema, Schema):
+                    converter = openapi.schema2parameters
+                else:
+                    converter = openapi.fields2parameters
             else:
                 converter = openapi.fields2parameters
-        else:
-            converter = openapi.fields2parameters
-        options = copy.copy(args.get('kwargs', {}))
-        locations = options.pop('locations', None)
-        if locations:
-            options['default_in'] = locations[0]
+            options = copy.copy(args.get('kwargs', {}))
+            locations = options.pop('locations', None)
+            if locations:
+                options['default_in'] = locations[0]
+            extra_params += converter(schema, **options) if args else []
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
-        extra_params = converter(schema, **options) if args else []
 
         return extra_params + rule_params
 
