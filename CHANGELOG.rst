@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.3 (2019-09-17)
+******************
+
+Bug fixes:
+
+* Fix compatibility with apispec>=3.0.0 (:issue:`163`).
+  Thanks :user:`decaz`.
+
 0.8.2 (2019-09-16)
 ******************
 
