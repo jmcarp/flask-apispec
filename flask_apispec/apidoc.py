@@ -4,6 +4,7 @@ import copy
 
 import six
 
+import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -12,6 +13,10 @@ from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
 from flask_apispec.utils import resolve_resource, resolve_annotations, merge_recursive
+
+APISPEC_VERSION_INFO = tuple(
+    [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
+)
 
 class Converter(object):
 
@@ -67,7 +72,10 @@ class Converter(object):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        openapi = self.marshmallow_plugin.openapi
+        if APISPEC_VERSION_INFO[0] < 3:
+            openapi = self.marshmallow_plugin.openapi
+        else:
+            openapi = self.marshmallow_plugin.converter
         annotation = resolve_annotations(view, 'args', parent)
         extra_params = []
         for args in annotation.options:
