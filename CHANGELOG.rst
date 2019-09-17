@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.2 (2019-09-16)
+******************
+
+Bug fixes:
+
+* Handle multiple locations when using use_kwargs multiple times on the same view (:issue:`78`).
+  Thanks :user:`norbert-sebok` for the PR and thanks :user:`shrsubra` for updating it.
+
 0.8.1 (2019-06-22)
 ******************
 
