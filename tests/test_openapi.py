@@ -48,7 +48,6 @@ def test_error_if_spec_does_not_have_marshmallow_plugin(app):
     with pytest.raises(RuntimeError):
         ResourceConverter(app=app, spec=bad_spec)
 
-
 class TestFunctionView:
 
     @pytest.fixture
@@ -242,5 +241,82 @@ class TestMultipleLocations:
                 'required': False,
                 'schema': {'$ref': '#/definitions/Body'}
             }] + rule_to_params(rule)
+        )
+        assert params == expected
+
+
+class TestFiledsNoLocationProvided:
+
+    @pytest.fixture
+    def function_view(self, app):
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs({'name': fields.Str(), 'address': fields.Str()})
+        def get_band(**kwargs):
+            return kwargs
+
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec, function_view):
+        converter = ViewConverter(app=app, spec=spec)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.path(**path)
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+                [{
+                    'in': 'body',
+                    'name': 'body',
+                    'required': False,
+                    'schema': {
+                        'properties': {
+                            'address': {
+                                'type': 'string'
+                            },
+                            'name': {
+                                'type': 'string'
+                            }
+                        },
+                        'type': 'object'
+                    },
+                }] + rule_to_params(rule)
+        )
+        assert params == expected
+
+class TestSchemaNoLocationProvided:
+
+    @pytest.fixture
+    def function_view(self, app, models, schemas):
+        class BodySchema(Schema):
+            address = fields.Str()
+
+        @app.route('/bands/<int:band_id>/')
+        @use_kwargs(BodySchema)
+        def get_band(**kwargs):
+            return kwargs
+        return get_band
+
+    @pytest.fixture
+    def path(self, app, spec, function_view):
+        converter = ViewConverter(app=app, spec=spec)
+        paths = converter.convert(function_view)
+        for path in paths:
+            spec.path(**path)
+        return spec._paths['/bands/{band_id}/']
+
+    def test_params(self, app, path):
+        params = path['get']['parameters']
+        rule = app.url_map._rules_by_endpoint['get_band'][0]
+        expected = (
+                [{
+                    'in': 'body',
+                    'name': 'body',
+                    'required': False,
+                    'schema': {'$ref': '#/definitions/Body'}
+                }] + rule_to_params(rule)
         )
         assert params == expected
