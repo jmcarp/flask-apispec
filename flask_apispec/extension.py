@@ -69,7 +69,7 @@ class FlaskApiSpec(object):
 
     def add_swagger_routes(self):
         blueprint = flask.Blueprint(
-            'flask-apispec',
+            self.app.config.get('APISPEC_BLUEPRINT_NAME', 'flask-apispec'),
             __name__,
             static_folder='./static',
             template_folder='./templates',
