@@ -44,6 +44,7 @@ class FlaskApiSpec(object):
         self.view_converter = None
         self.resource_converter = None
         self.spec = None
+        self.blueprint = None
 
         if app:
             self.init_app(app)
@@ -54,6 +55,7 @@ class FlaskApiSpec(object):
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'),
                                  self.app.config.get('APISPEC_OAS_VERSION', '2.0'))
+        self.blueprint = self.app.config.get('APISPEC_BLUEPRINT') or make_blueprint()
         self.add_swagger_routes()
         self.resource_converter = ResourceConverter(self.app, spec=self.spec)
         self.view_converter = ViewConverter(app=self.app, spec=self.spec)
@@ -68,23 +70,15 @@ class FlaskApiSpec(object):
             bound()
 
     def add_swagger_routes(self):
-        blueprint = flask.Blueprint(
-            self.app.config.get('APISPEC_BLUEPRINT_NAME', 'flask-apispec'),
-            __name__,
-            static_folder='./static',
-            template_folder='./templates',
-            static_url_path='/flask-apispec/static',
-        )
-
         json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
         if json_url:
-            blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
+            self.blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
 
         ui_url = self.app.config.get('APISPEC_SWAGGER_UI_URL', '/swagger-ui/')
         if ui_url:
-            blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
+            self.blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
 
-        self.app.register_blueprint(blueprint)
+        self.app.register_blueprint(self.blueprint)
 
     def swagger_json(self):
         return flask.jsonify(self.spec.to_dict())
@@ -146,6 +140,17 @@ class FlaskApiSpec(object):
             raise TypeError()
         for path in paths:
             self.spec.path(**path)
+
+
+def make_blueprint(name='flask-apispec', static_folder='./static', template_folder='./templates',
+                   static_url_path='/flask-apispec/static'):
+    return flask.Blueprint(
+        name,
+        __name__,
+        static_folder=static_folder,
+        template_folder=template_folder,
+        static_url_path=static_url_path,
+    )
 
 
 def make_apispec(title='flask-apispec', version='v1', openapi_version='2.0'):

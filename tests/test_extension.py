@@ -98,3 +98,10 @@ class TestExtension:
         assert docs.spec.title == 'test-extension'
         assert docs.spec.version == '2.1'
         assert docs.spec.openapi_version == '2.0'
+
+    def test_apispec_blueprint_config(self, app):
+        from flask_apispec.extension import make_blueprint
+        app.config['APISPEC_BLUEPRINT'] = make_blueprint(name='1')
+        docs = FlaskApiSpec(app)
+
+        assert docs.blueprint.name == '1'
