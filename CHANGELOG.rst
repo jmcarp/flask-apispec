@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.4 (2019-12-04)
+******************
+
+Bug fixes:
+
+* Fix passing ``default_in`` argument when generating parameters (:issue:`165`).
+  Thanks :user:`d42` for reporting and thanks :user:`zzz4zzz` for the fix.
+
 0.8.3 (2019-09-17)
 ******************
 
