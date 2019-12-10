@@ -245,7 +245,7 @@ class TestMultipleLocations:
         assert params == expected
 
 
-class TestFiledsNoLocationProvided:
+class TestGetFieldsNoLocationProvided:
 
     @pytest.fixture
     def function_view(self, app):
@@ -266,26 +266,19 @@ class TestFiledsNoLocationProvided:
 
     def test_params(self, app, path):
         params = path['get']['parameters']
-        rule = app.url_map._rules_by_endpoint['get_band'][0]
-        expected = (
-                [{
-                    'in': 'body',
-                    'name': 'body',
-                    'required': False,
-                    'schema': {
-                        'properties': {
-                            'address': {
-                                'type': 'string'
-                            },
-                            'name': {
-                                'type': 'string'
-                            }
-                        },
-                        'type': 'object'
-                    },
-                }] + rule_to_params(rule)
-        )
-        assert params == expected
+        assert {
+            'in': 'body',
+            'name': 'body',
+            'required': False,
+            'schema': {
+                'properties': {
+                    'address': {'type': 'string'},
+                    'name': {'type': 'string'},
+                },
+                'type': 'object',
+            },
+        } in params
+
 
 class TestSchemaNoLocationProvided:
 
@@ -310,13 +303,5 @@ class TestSchemaNoLocationProvided:
 
     def test_params(self, app, path):
         params = path['get']['parameters']
-        rule = app.url_map._rules_by_endpoint['get_band'][0]
-        expected = (
-                [{
-                    'in': 'body',
-                    'name': 'body',
-                    'required': False,
-                    'schema': {'$ref': '#/definitions/Body'}
-                }] + rule_to_params(rule)
-        )
-        assert params == expected
+        assert {'name': 'body', 'in': 'body', 'required': False,
+                'schema': {'$ref': '#/definitions/Body'}} in params

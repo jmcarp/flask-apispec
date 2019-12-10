@@ -94,7 +94,7 @@ class Converter(object):
             locations = options.pop('locations', None)
             if locations:
                 options['default_in'] = locations[0]
-            else:
+            elif 'default_in' not in options:
                 options['default_in'] = 'body'
             extra_params += converter(schema, **options) if args else []
 
