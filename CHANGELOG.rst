@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.5 (2020-01-05)
+******************
+
+Bug fixes:
+
+* Fix setting ``default_in`` for compatibility with newer versions of apispec (:pr:`173`).
+  Thanks :user:`AbdealiJK` for the PR.
+
 0.8.4 (2019-12-04)
 ******************
 
