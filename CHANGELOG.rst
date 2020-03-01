@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.8.6 (2020-03-01)
+******************
+
+Bug fixes:
+
+* Restrict webargs version to <6.0 (:issue:`176`).
+  Thanks :user:`c-kruse` for reporting and thanks :user:`saydamir`
+  for the PR.
+
 0.8.5 (2020-01-05)
 ******************
 
