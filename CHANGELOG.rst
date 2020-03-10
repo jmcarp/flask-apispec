@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.7 (unreleased)
+******************
+
+Bug fixes:
+
+* Fix serialisation problem with return codes when used with flask-restful  (:issue:`98`, :issue:`93`).
+  Thanks :user:`AdamLeyshon` for the PR.
+
 0.8.6 (2020-03-01)
 ******************
 
@@ -25,6 +33,7 @@ Bug fixes:
 
 * Fix passing ``default_in`` argument when generating parameters (:issue:`165`).
   Thanks :user:`d42` for reporting and thanks :user:`zzz4zzz` for the fix.
+>>>>>>> master
 
 0.8.3 (2019-09-17)
 ******************
