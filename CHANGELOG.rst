@@ -1,13 +1,39 @@
 Changelog
 ---------
 
-0.8.4 (unreleased)
+0.8.7 (unreleased)
 ******************
 
 Bug fixes:
 
 * Fix serialisation problem with return codes when used with flask-restful  (:issue:`98`, :issue:`93`).
   Thanks :user:`AdamLeyshon` for the PR.
+
+0.8.6 (2020-03-01)
+******************
+
+Bug fixes:
+
+* Restrict webargs version to <6.0 (:issue:`176`).
+  Thanks :user:`c-kruse` for reporting and thanks :user:`saydamir`
+  for the PR.
+
+0.8.5 (2020-01-05)
+******************
+
+Bug fixes:
+
+* Fix setting ``default_in`` for compatibility with newer versions of apispec (:pr:`173`).
+  Thanks :user:`AbdealiJK` for the PR.
+
+0.8.4 (2019-12-04)
+******************
+
+Bug fixes:
+
+* Fix passing ``default_in`` argument when generating parameters (:issue:`165`).
+  Thanks :user:`d42` for reporting and thanks :user:`zzz4zzz` for the fix.
+>>>>>>> master
 
 0.8.3 (2019-09-17)
 ******************
