@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.8.4 (unreleased)
+******************
+
+Bug fixes:
+
+* Fix serialisation problem with return codes when used with flask-restful  (:issue:`98`, :issue:`93`).
+  Thanks :user:`AdamLeyshon` for the PR.
+
 0.8.3 (2019-09-17)
 ******************
 
