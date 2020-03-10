@@ -12,7 +12,9 @@ from marshmallow import Schema
 from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
-from flask_apispec.utils import resolve_resource, resolve_annotations, merge_recursive
+from flask_apispec.utils import resolve_instance, resolve_annotations, merge_recursive
+import inspect
+
 
 APISPEC_VERSION_INFO = tuple(
     [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
@@ -65,8 +67,14 @@ class Converter(object):
             'responses': self.get_responses(view, parent),
             'parameters': self.get_parameters(rule, view, docs, parent),
         }
+        description = self.get_description(view)
+        if description:
+            operation['description'] = description
         docs.pop('params', None)
         return merge_recursive([operation, docs])
+
+    def get_description(self, view):
+        return None
 
     def get_parent(self, view):
         return None
@@ -111,6 +119,9 @@ class ViewConverter(Converter):
     def get_operations(self, rule, view):
         return {method: view for method in rule.methods}
 
+    def get_parent(self, resource, **kwargs):
+        return resource.method_view if hasattr(resource, 'method_view') else None
+
 class ResourceConverter(Converter):
 
     def get_operations(self, rule, resource):
@@ -122,3 +133,30 @@ class ResourceConverter(Converter):
 
     def get_parent(self, resource, **kwargs):
         return resolve_resource(resource, **kwargs)
+
+
+class ClassfulConverter(Converter):
+
+    def convert(self, classful_meta):
+        paths = list()
+        route = classful_meta['route']
+        rule = classful_meta['rule']
+        rules = self.app.url_map._rules_by_endpoint[route]
+        for rule in rules:
+            paths.append(self.get_path(rule, classful_meta, classful_meta=classful_meta))
+
+        return paths
+
+    def get_description(self, view):
+        return inspect.getdoc(view)
+
+    def get_operations(self, rule, endpoint):
+        # remove OPTIONS (its for CORS)
+        methods = set(rule.methods) - {'OPTIONS'}
+        return {
+            method: endpoint['view_func']
+            for method in methods
+        }
+
+    def get_parent(self, resource, classful_meta, **kwargs):
+        return classful_meta['target']

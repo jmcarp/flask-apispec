@@ -47,6 +47,26 @@ class TestExtension:
         docs.register(BandResource, endpoint='band')
         assert '/bands/{band_id}/' in docs.spec._paths
 
+    def test_register_classful(self, app, docs):
+        @doc(tags=['band'])
+        class BandResource(MethodResource):
+            def get(self, **kwargs):
+                return 'slowdive'
+        route = '/bands/<band_id>/'
+        view_func = BandResource.as_view('band')
+        app.add_url_rule(route, view_func=view_func)
+        rule = docs.app.view_functions['band']
+        meta = dict(
+            view_func=view_func,
+            rule=rule,
+            route='band',
+            target=BandResource,
+            methods=['GET'],
+        )
+        setattr(view_func, "_classful_meta", meta)
+        docs.register_existing_resources()
+        assert '/bands/{band_id}/' in docs.spec._paths
+
     def test_register_resource_with_constructor_args(self, app, docs):
         @doc(tags=['band'])
         class BandResource(MethodResource):

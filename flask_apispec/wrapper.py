@@ -66,6 +66,7 @@ class Wrapper(object):
             dumped = schema.dump(unpacked[0])
             output = dumped.data if MARSHMALLOW_VERSION_INFO[0] < 3 else dumped
         else:
+            format_response = identity
             output = unpacked[0]
 
         response_object = format_response(output)  # type: Response
