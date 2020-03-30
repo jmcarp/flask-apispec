@@ -19,6 +19,37 @@ class TestFunctionViews:
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
 
+    def test_view_returning_tuple(self, app, client):
+        @app.route('/all')
+        @use_kwargs({'name': fields.Str()})
+        def all(**kwargs):
+            return kwargs, 202, {'x-msg': 'test'}
+
+        @app.route('/headers')
+        @use_kwargs({'name': fields.Str()})
+        def view_headers(**kwargs):
+            return kwargs, {'x-msg': 'test'}
+
+        @app.route('/code')
+        @use_kwargs({'name': fields.Str()})
+        def view_code(**kwargs):
+            return kwargs, 202
+
+        res_all = client.get('/all', {'name': 'freddie'})
+        assert res_all.json == {'name': 'freddie'}
+        assert res_all.status_code == 202
+        assert res_all.headers.get('x-msg') == 'test'
+
+        res_headers = client.get('/headers', {'name': 'freddie'})
+        assert res_headers.json == {'name': 'freddie'}
+        assert res_headers.status_code == 200
+        assert res_headers.headers.get('x-msg') == 'test'
+
+        res_code = client.get('/code', {'name': 'freddie'})
+        assert res_code.json == {'name': 'freddie'}
+        assert res_code.status_code == 202
+        assert 'x-msg' not in res_code.headers
+
     def test_use_kwargs_schema(self, app, client):
         class ArgSchema(Schema):
             name = fields.Str()

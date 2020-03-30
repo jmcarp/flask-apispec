@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.8.8 (unreleased)
+******************
+
+Bug fixes:
+
+* Fix behavior when view returns ``(obj, status_code, headers)``
+  (regression in 0.8.7) (:issue:`181`).
+  Thanks :user:`decaz` for reporting and thanks :user:`c-kruse`
+  for the PR.
+
 0.8.7 (2020-03-10)
 ******************
 
