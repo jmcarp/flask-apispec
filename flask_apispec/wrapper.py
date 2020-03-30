@@ -36,8 +36,8 @@ class Wrapper(object):
             return response
         rv, status_code, headers = unpack(response)
         mv = self.marshal_result(rv, status_code)
-        resposne = packed(mv, status_code, headers)
-        return flask.current_app.make_response(resposne)
+        response = packed(mv, status_code, headers)
+        return flask.current_app.make_response(response)
 
     def call_view(self, *args, **kwargs):
         config = flask.current_app.config
