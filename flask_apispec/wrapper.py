@@ -9,7 +9,6 @@ except ImportError:  # Python 2
 import flask
 import marshmallow as ma
 import werkzeug
-from six.moves import http_client as http
 from webargs import flaskparser
 
 from flask_apispec import utils
@@ -69,7 +68,7 @@ class Wrapper(object):
         else:
             output = result
 
-        return format_response(output) # type: Response
+        return format_response(output)  # type: Response
 
 
 def identity(value):
