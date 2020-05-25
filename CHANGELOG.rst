@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.9.0 (unreleased)
+******************
+
+Features:
+
+* Add option to exclude OPTIONS requests (:issue:`111`).
+  Thanks :user:`Brcrwilliams` for the PR.
+
 0.8.8 (2020-03-29)
 ******************
 

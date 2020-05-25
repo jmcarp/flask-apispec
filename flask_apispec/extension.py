@@ -36,14 +36,17 @@ class FlaskApiSpec(object):
 
     :param Flask app: App associated with API documentation
     :param APISpec spec: apispec specification associated with API documentation
+    :param bool document_options: Whether or not to include
+        OPTIONS requests in the specification
     """
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, document_options=True):
         self._deferred = []
         self.app = app
         self.view_converter = None
         self.resource_converter = None
         self.spec = None
+        self.document_options = document_options
 
         if app:
             self.init_app(app)
@@ -55,8 +58,10 @@ class FlaskApiSpec(object):
                                  self.app.config.get('APISPEC_VERSION', 'v1'),
                                  self.app.config.get('APISPEC_OAS_VERSION', '2.0'))
         self.add_swagger_routes()
-        self.resource_converter = ResourceConverter(self.app, spec=self.spec)
-        self.view_converter = ViewConverter(app=self.app, spec=self.spec)
+        self.resource_converter = ResourceConverter(self.app,
+                                                    self.spec,
+                                                    self.document_options)
+        self.view_converter = ViewConverter(self.app, self.spec, self.document_options)
 
         for deferred in self._deferred:
             deferred()

@@ -20,9 +20,10 @@ APISPEC_VERSION_INFO = tuple(
 
 class Converter(object):
 
-    def __init__(self, app, spec):
+    def __init__(self, app, spec, document_options=True):
         self.app = app
         self.spec = spec
+        self.document_options = document_options
         try:
             self.marshmallow_plugin = next(
                 plugin for plugin in self.spec.plugins
@@ -45,13 +46,16 @@ class Converter(object):
         operations = self.get_operations(rule, target)
         parent = self.get_parent(target, **kwargs)
         valid_methods = VALID_METHODS[self.spec.openapi_version.major]
+        excluded_methods = {'head'}
+        if not self.document_options:
+            excluded_methods.add('options')
         return {
             'view': target,
             'path': rule_to_path(rule),
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
                 for method, view in six.iteritems(operations)
-                if method.lower() in (set(valid_methods) - {'head'})
+                if method.lower() in (set(valid_methods) - excluded_methods)
             },
         }
 
