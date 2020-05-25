@@ -3,7 +3,7 @@
 import json
 
 from flask import make_response
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_load
 
 from flask_apispec.utils import Ref
 from flask_apispec.views import MethodResource
@@ -19,6 +19,37 @@ class TestFunctionViews:
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
 
+    def test_view_returning_tuple(self, app, client):
+        @app.route('/all')
+        @use_kwargs({'name': fields.Str()})
+        def all(**kwargs):
+            return kwargs, 202, {'x-msg': 'test'}
+
+        @app.route('/headers')
+        @use_kwargs({'name': fields.Str()})
+        def view_headers(**kwargs):
+            return kwargs, {'x-msg': 'test'}
+
+        @app.route('/code')
+        @use_kwargs({'name': fields.Str()})
+        def view_code(**kwargs):
+            return kwargs, 202
+
+        res_all = client.get('/all', {'name': 'freddie'})
+        assert res_all.json == {'name': 'freddie'}
+        assert res_all.status_code == 202
+        assert res_all.headers.get('x-msg') == 'test'
+
+        res_headers = client.get('/headers', {'name': 'freddie'})
+        assert res_headers.json == {'name': 'freddie'}
+        assert res_headers.status_code == 200
+        assert res_headers.headers.get('x-msg') == 'test'
+
+        res_code = client.get('/code', {'name': 'freddie'})
+        assert res_code.json == {'name': 'freddie'}
+        assert res_code.status_code == 202
+        assert 'x-msg' not in res_code.headers
+
     def test_use_kwargs_schema(self, app, client):
         class ArgSchema(Schema):
             name = fields.Str()
@@ -29,6 +60,31 @@ class TestFunctionViews:
             return kwargs
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
+
+    def test_use_kwargs_schema_with_post_load(self, app, client):
+        class User:
+            def __init__(self, name):
+                self.name = name
+
+            def update(self, name):
+                self.name = name
+
+        class ArgSchema(Schema):
+            name = fields.Str()
+
+            @post_load
+            def make_object(self, data, **kwargs):
+                return User(**data)
+
+        @app.route('/', methods=('POST', ))
+        @use_kwargs(ArgSchema())
+        def view(user):
+            assert isinstance(user, User)
+            return {'name': user.name}
+
+        data = {'name': 'freddie'}
+        res = client.post('/', data)
+        assert res.json == data
 
     def test_use_kwargs_schema_many(self, app, client):
         class ArgSchema(Schema):
@@ -271,7 +327,9 @@ class TestClassViews:
         class ConcreteResource(MethodResource):
             @marshal_with(None, code=204)
             def delete(self, **kwargs):
-                return make_response('', 204)
+                response = make_response('', 204)
+                response.headers = {}
+                return response
 
         app.add_url_rule('/<id>/', view_func=ConcreteResource.as_view('concrete'))
         res = client.delete('/5/')

@@ -4,6 +4,7 @@ import copy
 
 import six
 
+import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import MarshmallowPlugin
 
@@ -12,6 +13,10 @@ from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
 from flask_apispec.utils import resolve_resource, resolve_annotations, merge_recursive
+
+APISPEC_VERSION_INFO = tuple(
+    [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
+)
 
 class Converter(object):
 
@@ -40,6 +45,7 @@ class Converter(object):
     def get_path(self, rule, target, **kwargs):
         operations = self.get_operations(rule, target)
         parent = self.get_parent(target, **kwargs)
+        valid_methods = VALID_METHODS[self.spec.openapi_version.major]
         excluded_methods = {'head'}
         if not self.document_options:
             excluded_methods.add('options')
@@ -49,7 +55,7 @@ class Converter(object):
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
                 for method, view in six.iteritems(operations)
-                if method.lower() in (set(VALID_METHODS) - excluded_methods)
+                if method.lower() in (set(valid_methods) - excluded_methods)
             },
         }
 
@@ -70,28 +76,33 @@ class Converter(object):
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        openapi = self.marshmallow_plugin.openapi
+        if APISPEC_VERSION_INFO[0] < 3:
+            openapi = self.marshmallow_plugin.openapi
+        else:
+            openapi = self.marshmallow_plugin.converter
         annotation = resolve_annotations(view, 'args', parent)
-        args = merge_recursive(annotation.options)
-        schema = args.get('args', {})
-        if is_instance_or_subclass(schema, Schema):
-            converter = openapi.schema2parameters
-        elif callable(schema):
-            schema = schema(request=None)
+        extra_params = []
+        for args in annotation.options:
+            schema = args.get('args', {})
             if is_instance_or_subclass(schema, Schema):
                 converter = openapi.schema2parameters
+            elif callable(schema):
+                schema = schema(request=None)
+                if is_instance_or_subclass(schema, Schema):
+                    converter = openapi.schema2parameters
+                else:
+                    converter = openapi.fields2parameters
             else:
                 converter = openapi.fields2parameters
-        else:
-            converter = openapi.fields2parameters
-        options = copy.copy(args.get('kwargs', {}))
-        locations = options.pop('locations', None)
-        if locations:
-            options['default_in'] = locations[0]
-        options['spec'] = self.app.config.get('APISPEC_SPEC', None)
+            options = copy.copy(args.get('kwargs', {}))
+            locations = options.pop('locations', None)
+            if locations:
+                options['default_in'] = locations[0]
+            elif 'default_in' not in options:
+                options['default_in'] = 'body'
+            extra_params += converter(schema, **options) if args else []
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
-        extra_params = converter(schema, **options) if args else []
 
         return extra_params + rule_params
 

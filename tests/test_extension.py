@@ -92,9 +92,9 @@ class TestExtension:
     def test_apispec_config(self, app):
         app.config['APISPEC_TITLE'] = 'test-extension'
         app.config['APISPEC_VERSION'] = '2.1'
+        app.config['APISPEC_OAS_VERSION'] = '2.0'
         docs = FlaskApiSpec(app)
 
-        assert docs.spec.info == {
-            'title': 'test-extension',
-            'version': '2.1',
-        }
+        assert docs.spec.title == 'test-extension'
+        assert docs.spec.version == '2.1'
+        assert docs.spec.openapi_version == '2.0'

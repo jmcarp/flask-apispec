@@ -21,6 +21,7 @@ class FlaskApiSpec(object):
             'APISPEC_SPEC': APISpec(
                 title='pets',
                 version='v1',
+                openapi_version='2.0',
                 plugins=[MarshmallowPlugin()],
             ),
             'APISPEC_SWAGGER_URL': '/swagger/',
@@ -54,7 +55,8 @@ class FlaskApiSpec(object):
         self.app = app
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
-                                 self.app.config.get('APISPEC_VERSION', 'v1'))
+                                 self.app.config.get('APISPEC_VERSION', 'v1'),
+                                 self.app.config.get('APISPEC_OAS_VERSION', '2.0'))
         self.add_swagger_routes()
         self.resource_converter = ResourceConverter(self.app,
                                                     self.spec,
@@ -148,12 +150,13 @@ class FlaskApiSpec(object):
         else:
             raise TypeError()
         for path in paths:
-            self.spec.add_path(**path)
+            self.spec.path(**path)
 
 
-def make_apispec(title='flask-apispec', version='v1'):
+def make_apispec(title='flask-apispec', version='v1', openapi_version='2.0'):
     return APISpec(
         title=title,
         version=version,
+        openapi_version=openapi_version,
         plugins=[MarshmallowPlugin()],
     )
