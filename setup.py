@@ -9,9 +9,10 @@ REQUIRES = [
     'flask>=0.10.1',
     'marshmallow>=2.0.0,<3.0.0rc6; python_version<"3"',
     'marshmallow>=2.0.0; python_version>="3"',
-    'webargs>=0.18.0,<6.0.0',
+    'webargs>=6.0.0',
     'apispec>=1.0.0',
 ]
+
 
 def find_version(fname):
     """Attempts to find the version number in the file names fname.

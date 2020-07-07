@@ -95,9 +95,9 @@ class Converter(object):
             else:
                 converter = openapi.fields2parameters
             options = copy.copy(args.get('kwargs', {}))
-            locations = options.pop('locations', None)
-            if locations:
-                options['default_in'] = locations[0]
+            location = options.pop('location', None)
+            if location:
+                options['default_in'] = location
             elif 'default_in' not in options:
                 options['default_in'] = 'body'
             extra_params += converter(schema, **options) if args else []

@@ -45,7 +45,7 @@ class Wrapper(object):
         if annotation.apply is not False:
             for option in annotation.options:
                 schema = utils.resolve_schema(option['args'], request=flask.request)
-                parsed = parser.parse(schema, locations=option['kwargs']['locations'])
+                parsed = parser.parse(schema, location=option['kwargs']['location'])
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
                 elif isinstance(parsed, Mapping):

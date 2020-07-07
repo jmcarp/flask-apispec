@@ -54,7 +54,7 @@ class TestFunctionView:
     def function_view(self, app, models, schemas):
         @app.route('/bands/<int:band_id>/')
         @doc(tags=['band'])
-        @use_kwargs({'name': fields.Str(missing='queen')}, locations=('query', ))
+        @use_kwargs({'name': fields.Str(missing='queen')}, location='query')
         @marshal_with(schemas.BandSchema, description='a band')
         def get_band(band_id):
             return models.Band(name='slowdive', genre='spacerock')
@@ -98,7 +98,7 @@ class TestArgSchema:
             name = fields.Str()
 
         @app.route('/bands/<int:band_id>/')
-        @use_kwargs(ArgSchema, locations=('query', ))
+        @use_kwargs(ArgSchema, location='query')
         def get_band(**kwargs):
             return kwargs
         return get_band
@@ -132,7 +132,7 @@ class TestCallableAsArgSchema(TestArgSchema):
             return ArgSchema
 
         @app.route('/bands/<int:band_id>/')
-        @use_kwargs(schema_factory, locations=('query', ))
+        @use_kwargs(schema_factory, location='query')
         def get_band(**kwargs):
             return kwargs
         return get_band
@@ -166,7 +166,7 @@ class TestResourceView:
     def resource_view(self, app, models, schemas):
         @doc(tags=['band'])
         class BandResource(MethodResource):
-            @use_kwargs({'name': fields.Str()}, locations=('query', ))
+            @use_kwargs({'name': fields.Str()}, location='query')
             @marshal_with(schemas.BandSchema, description='a band')
             def get(self, **kwargs):
                 return models.Band('slowdive', 'shoegaze')
@@ -212,8 +212,8 @@ class TestMultipleLocations:
             address = fields.Str()
 
         @app.route('/bands/<int:band_id>/')
-        @use_kwargs(QuerySchema, locations=('query', ))
-        @use_kwargs(BodySchema, locations=('body', ))
+        @use_kwargs(QuerySchema, location='query')
+        @use_kwargs(BodySchema, location='body')
         def get_band(**kwargs):
             return kwargs
         return get_band

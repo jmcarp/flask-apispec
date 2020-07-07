@@ -5,7 +5,8 @@ import functools
 from flask_apispec import utils
 from flask_apispec.wrapper import Wrapper
 
-def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
+
+def use_kwargs(args, location=None, inherit=None, apply=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -22,11 +23,12 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
         objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
         request and returns a :class:`Schema <marshmallow.Schema>`
-    :param locations: Default request locations to parse
+    :param location: Default request location to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
     """
-    kwargs.update({'locations': locations})
+
+    kwargs.update({'location': location})
 
     def wrapper(func):
         options = {
