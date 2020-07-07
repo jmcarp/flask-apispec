@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import functools
 
 from flask_apispec import utils
@@ -73,6 +71,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
         return activate(func)
     return wrapper
 
+
 def doc(inherit=None, **kwargs):
     """Annotate the decorated view function or class with the specified Swagger
     attributes.
@@ -92,6 +91,7 @@ def doc(inherit=None, **kwargs):
         return activate(func)
     return wrapper
 
+
 def wrap_with(wrapper_cls):
     """Use a custom `Wrapper` to apply annotations to the decorated function.
 
@@ -102,10 +102,12 @@ def wrap_with(wrapper_cls):
         return activate(func)
     return wrapper
 
+
 def annotate(func, key, options, **kwargs):
     annotation = utils.Annotation(options, **kwargs)
     func.__apispec__ = func.__dict__.get('__apispec__', {})
     func.__apispec__.setdefault(key, []).insert(0, annotation)
+
 
 def activate(func):
     if isinstance(func, type) or getattr(func, '__apispec__', {}).get('wrapped'):

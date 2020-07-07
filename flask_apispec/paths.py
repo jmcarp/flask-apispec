@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import re
 
 import werkzeug.routing
 
 PATH_RE = re.compile(r'<(?:[^:<>]+:)?([^<>]+)>')
+
 
 def rule_to_path(rule):
     return PATH_RE.sub(r'{\1}', rule.rule)
@@ -17,6 +16,7 @@ CONVERTER_MAPPING = {
 }
 
 DEFAULT_TYPE = ('string', None)
+
 
 def rule_to_params(rule, overrides=None):
     overrides = (overrides or {})

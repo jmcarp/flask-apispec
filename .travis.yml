@@ -5,7 +5,6 @@ env:
 - MARSHMALLOW_VERSION="==2.13.0"
 - MARSHMALLOW_VERSION=""
 python:
-- '2.7'
 - '3.5'
 - '3.6'
 before_install:

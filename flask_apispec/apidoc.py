@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import copy
-
-import six
 
 import apispec
 from apispec.core import VALID_METHODS
@@ -18,7 +14,7 @@ APISPEC_VERSION_INFO = tuple(
     [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
 )
 
-class Converter(object):
+class Converter:
 
     def __init__(self, app, spec, document_options=True):
         self.app = app
@@ -54,7 +50,7 @@ class Converter(object):
             'path': rule_to_path(rule),
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
-                for method, view in six.iteritems(operations)
+                for method, view in operations.items()
                 if method.lower() in (set(valid_methods) - excluded_methods)
             },
         }

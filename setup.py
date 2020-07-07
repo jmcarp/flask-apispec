@@ -5,10 +5,8 @@ from setuptools import setup
 from setuptools import find_packages
 
 REQUIRES = [
-    'six>=1.9.0',
     'flask>=0.10.1',
-    'marshmallow>=2.0.0,<3.0.0rc6; python_version<"3"',
-    'marshmallow>=2.0.0; python_version>="3"',
+    'marshmallow>=2.0.0',
     'webargs>=6.0.0',
     'apispec>=1.0.0',
 ]
@@ -29,6 +27,7 @@ def find_version(fname):
     if not version:
         raise RuntimeError('Cannot find version information')
     return version
+
 
 def read(fname):
     with open(fname) as fp:
@@ -51,17 +50,7 @@ setup(
     license='MIT',
     zip_safe=False,
     keywords='flask marshmallow webargs apispec',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-    ],
+    python_requires=">=3.5",
     test_suite='tests',
     project_urls={
         'Bug Reports': 'https://github.com/jmcarp/flask-apispec/issues',

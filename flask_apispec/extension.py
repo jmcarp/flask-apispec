@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import flask
 import functools
 import types
@@ -9,7 +8,7 @@ from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
 
-class FlaskApiSpec(object):
+class FlaskApiSpec:
     """Flask-apispec extension.
 
     Usage:
