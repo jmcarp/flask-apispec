@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+import base64
 from flask import Blueprint
 
 from flask_apispec import doc
@@ -88,6 +89,34 @@ class TestExtension:
         app.config['APISPEC_SWAGGER_UI_URL'] = '/swagger-ui.html'
         FlaskApiSpec(app)
         client.get('/swagger-ui.html')
+
+    def test_serve_swagger_ui_invalid_http_auth(self, app, client):
+        app.config['APISPEC_AUTH'] = dict(
+            ENABLED=True,
+            USERNAME="username",
+            PASSWORD="password"
+        )
+        FlaskApiSpec(app)
+        res = client.get('/swagger-ui/', expect_errors=True)
+        assert res.status_code == 401
+
+    def test_serve_swagger_ui_valid_http_auth(self, app, client):
+        app.config['APISPEC_AUTH'] = dict(
+            ENABLED=True,
+            USERNAME="username",
+            PASSWORD="password"
+        )
+        FlaskApiSpec(app)
+
+        valid_credentials = base64.b64encode(
+            b"username:password"
+        ).decode("utf-8")
+        res = client.get(
+            '/swagger-ui/',
+            headers={"Authorization": "Basic " + valid_credentials},
+            expect_errors=True
+        )
+        assert res.status_code == 200
 
     def test_apispec_config(self, app):
         app.config['APISPEC_TITLE'] = 'test-extension'

@@ -11,7 +11,9 @@ REQUIRES = [
     'marshmallow>=2.0.0; python_version>="3"',
     'webargs>=0.18.0,<6.0.0',
     'apispec>=1.0.0',
+    'Flask-HTTPAuth==4.1.0'
 ]
+
 
 def find_version(fname):
     """Attempts to find the version number in the file names fname.

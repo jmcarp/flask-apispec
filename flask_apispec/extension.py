@@ -2,11 +2,28 @@
 import flask
 import functools
 import types
+from flask_httpauth import HTTPBasicAuth
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
 from flask_apispec import ResourceMeta
 from flask_apispec.apidoc import ViewConverter, ResourceConverter
+
+auth = HTTPBasicAuth()
+config = None
+
+
+@auth.verify_password
+def verify_password(username=None, password=None):
+    if "APISPEC_AUTH" not in config or \
+            not config.get("APISPEC_AUTH", {}).get("ENABLED"):
+        return True
+
+    basic_auth = config.get("APISPEC_AUTH")
+    if username == basic_auth.get("USERNAME") and \
+            password == basic_auth.get("PASSWORD"):
+        return True
+    return False
 
 
 class FlaskApiSpec(object):
@@ -53,6 +70,8 @@ class FlaskApiSpec(object):
 
     def init_app(self, app):
         self.app = app
+        global config
+        config = self.app.config
         self.spec = self.app.config.get('APISPEC_SPEC') or \
                     make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
                                  self.app.config.get('APISPEC_VERSION', 'v1'),
@@ -94,6 +113,7 @@ class FlaskApiSpec(object):
     def swagger_json(self):
         return flask.jsonify(self.spec.to_dict())
 
+    @auth.login_required
     def swagger_ui(self):
         return flask.render_template('swagger-ui.html')
 
