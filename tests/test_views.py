@@ -4,10 +4,40 @@ import json
 
 from flask import make_response
 from marshmallow import fields, Schema, post_load
+from marshmallow import EXCLUDE
 
 from flask_apispec.utils import Ref
 from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
+
+
+class NameSchema(Schema):
+    name = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class NameGenreSchema(Schema):
+    name = fields.Str()
+    genre = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class GenreSchema(Schema):
+    genre = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class InstrumentSchema(Schema):
+    instrument = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
 class TestFunctionViews:
 
@@ -109,13 +139,12 @@ class TestFunctionViews:
 
     def test_use_kwargs_multiple(self, app, client):
         @app.route('/')
-        @use_kwargs({'name': fields.Str()}, location='querystring')
-        @use_kwargs({'instrument': fields.Str()}, location='querystring')
+        @use_kwargs(NameSchema, location='querystring')
+        @use_kwargs(InstrumentSchema, location='querystring')
         def view(**kwargs):
             return kwargs
-        # I'M UNABLE TO MAKE THIS WORK
-        # res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
-        # assert res.json == {'name': 'freddie', 'instrument': 'vocals'}
+        res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
+        assert res.json == {'name': 'freddie', 'instrument': 'vocals'}
 
     def test_use_kwargs_callable_as_schema(self, app, client):
         def schema_factory(request):
@@ -153,7 +182,10 @@ class TestFunctionViews:
 
     def test_integration(self, app, client, models, schemas):
         @app.route('/')
-        @use_kwargs({'name': fields.Str(), 'genre': fields.Str()}, location='querystring')
+        @use_kwargs(
+            {'name': fields.Str(), 'genre': fields.Str()},
+            location='querystring'
+        )
         @marshal_with(schemas.BandSchema)
         def view(**kwargs):
             return models.Band(**kwargs)
@@ -195,57 +227,55 @@ class TestClassViews:
 
     def test_kwargs_inheritance(self, app, client):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str()}, location='querystring')
+            @use_kwargs(NameSchema, location='querystring')
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'genre': fields.Str()}, location='querystring')
+            @use_kwargs(GenreSchema, location='querystring')
             def get(self, **kwargs):
                 return kwargs
 
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
-        # I'M UNABLE TO MAKE THIS WORK
-        # res = client.get('/', {'name': 'queen', 'genre': 'rock'})
-        # assert res.json == {'name': 'queen', 'genre': 'rock'}
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen', 'genre': 'rock'}
 
     def test_kwargs_inheritance_ref(self, app, client, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str()}, location='querystring')
+            @use_kwargs(NameSchema, location='querystring')
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            kwargs = {'genre': fields.Str()}
+            kwargs = GenreSchema
+
             @use_kwargs(Ref('kwargs'), location='querystring')
             @marshal_with(schemas.BandSchema)
             def get(self, **kwargs):
                 return kwargs
 
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
-        # I'M UNABLE TO MAKE THIS WORK
-        # res = client.get('/', {'name': 'queen', 'genre': 'rock'})
-        # assert res.json == {'name': 'queen', 'genre': 'rock'}
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen', 'genre': 'rock'}
 
     def test_kwargs_inheritance_false(self, app, client, models, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str(), 'genre': fields.Str()}, location='querystring')
+            @use_kwargs(NameGenreSchema, location='querystring')
             def get(self):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'name': fields.Str()}, inherit=False, location='querystring')
+            @use_kwargs(NameSchema, inherit=False, location='querystring')
             def get(self, **kwargs):
                 return kwargs
 
         app.add_url_rule('/', view_func=ConcreteResource.as_view('concrete'))
-        # I'M UNABLE TO MAKE THIS WORK
-        # res = client.get('/', {'name': 'queen', 'genre': 'rock'})
-        # assert res.json == {'name': 'queen'}
+        res = client.get('/', {'name': 'queen', 'genre': 'rock'})
+        assert res.json == {'name': 'queen'}
 
     def test_kwargs_apply_false(self, app, client):
         class ConcreteResource(MethodResource):
-            @use_kwargs({'genre': fields.Str()}, apply=False)
+            @use_kwargs(GenreSchema, apply=False)
             def get(self, **kwargs):
                 return kwargs
 
