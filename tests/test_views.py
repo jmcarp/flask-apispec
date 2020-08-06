@@ -10,6 +10,9 @@ from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
 
 
+# All the following schemas are set with unknown = EXCLUDE
+# because part of a multiple schema input.
+# This way none of them will raise errors for unknown fields handled by others
 class NameSchema(Schema):
     name = fields.Str()
 
