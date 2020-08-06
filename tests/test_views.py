@@ -3,8 +3,7 @@
 import json
 
 from flask import make_response
-from marshmallow import fields, Schema, post_load
-from marshmallow import EXCLUDE
+from marshmallow import fields, Schema, post_load, EXCLUDE
 
 from flask_apispec.utils import Ref
 from flask_apispec.views import MethodResource

@@ -2,7 +2,7 @@ language: python
 cache: pip
 sudo: false
 env:
-- MARSHMALLOW_VERSION="==2.13.0"
+- MARSHMALLOW_VERSION="==3.0.0"
 - MARSHMALLOW_VERSION=""
 python:
 - '3.5'
