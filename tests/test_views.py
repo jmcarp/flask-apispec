@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 
 from flask import make_response

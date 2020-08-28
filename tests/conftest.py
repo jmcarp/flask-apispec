@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import flask
 
 import pytest
@@ -7,7 +5,7 @@ import webtest
 
 import marshmallow as ma
 
-class Bunch(object):
+class Bunch:
 
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -27,7 +25,7 @@ def client(app):
 
 @pytest.fixture
 def models():
-    class Band(object):
+    class Band:
         def __init__(self, name, genre):
             self.name = name
             self.genre = genre

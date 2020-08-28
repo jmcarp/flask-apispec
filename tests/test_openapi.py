@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
