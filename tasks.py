@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import webbrowser
@@ -30,7 +29,7 @@ def browse_docs(ctx):
     webbrowser.open_new_tab(path)
 
 def build_docs(ctx, browse):
-    ctx.run("sphinx-build %s %s" % (docs_dir, build_dir), echo=True)
+    ctx.run("sphinx-build {} {}".format(docs_dir, build_dir), echo=True)
     if browse:
         browse_docs(ctx)
 
@@ -54,7 +53,7 @@ def watch_docs(ctx, browse=False):
         print('Install it with:')
         print('    pip install sphinx-autobuild')
         sys.exit(1)
-    ctx.run('sphinx-autobuild {0} {1} {2} -z marshmallow'.format(
+    ctx.run('sphinx-autobuild {} {} {} -z marshmallow'.format(
         '--open-browser' if browse else '', docs_dir, build_dir), echo=True, pty=True)
 
 

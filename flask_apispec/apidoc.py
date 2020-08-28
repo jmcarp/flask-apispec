@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import copy
-
-import six
 
 import apispec
 from apispec.core import VALID_METHODS
@@ -18,7 +14,7 @@ APISPEC_VERSION_INFO = tuple(
     [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
 )
 
-class Converter(object):
+class Converter:
 
     def __init__(self, app, spec, document_options=True):
         self.app = app
@@ -54,7 +50,7 @@ class Converter(object):
             'path': rule_to_path(rule),
             'operations': {
                 method.lower(): self.get_operation(rule, view, parent=parent)
-                for method, view in six.iteritems(operations)
+                for method, view in operations.items()
                 if method.lower() in (set(valid_methods) - excluded_methods)
             },
         }
@@ -95,9 +91,9 @@ class Converter(object):
             else:
                 converter = openapi.fields2parameters
             options = copy.copy(args.get('kwargs', {}))
-            locations = options.pop('locations', None)
-            if locations:
-                options['default_in'] = locations[0]
+            location = options.pop('location', None)
+            if location:
+                options['default_in'] = location
             elif 'default_in' not in options:
                 options['default_in'] = 'body'
             extra_params += converter(schema, **options) if args else []

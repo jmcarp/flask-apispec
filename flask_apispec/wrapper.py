@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 from flask import Response
 
-try:
-    from collections.abc import Mapping
-except ImportError:  # Python 2
-    from collections import Mapping
+from collections.abc import Mapping
 
 import flask
 import marshmallow as ma
@@ -18,7 +14,7 @@ MARSHMALLOW_VERSION_INFO = tuple(
 )
 
 
-class Wrapper(object):
+class Wrapper:
     """Apply annotations to a view function.
 
     :param func: View function to wrap
@@ -45,7 +41,7 @@ class Wrapper(object):
         if annotation.apply is not False:
             for option in annotation.options:
                 schema = utils.resolve_schema(option['args'], request=flask.request)
-                parsed = parser.parse(schema, locations=option['kwargs']['locations'])
+                parsed = parser.parse(schema, location=option['kwargs']['location'])
                 if getattr(schema, 'many', False):
                     args += tuple(parsed)
                 elif isinstance(parsed, Mapping):

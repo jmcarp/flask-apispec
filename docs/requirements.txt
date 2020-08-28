@@ -2,7 +2,6 @@ sphinx
 sphinx-issues
 sphinx-rtd-theme
 
-six
 flask
 apispec
 webargs
