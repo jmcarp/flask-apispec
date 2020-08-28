@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.10.0 (2020-08-27)
+*******************
+
+Features:
+
+* Support webargs>=6 (:issue:`178`). Thanks :user:`mdantonio` for the PR.
+
+Other changes:
+
+* *Backwards-incompatible*: Drop Python 2 compatibility. Only Python>=3.5 is supported.
+* *Backwards-incompatible*: Drop marshmallow 2 compatibility. Only marshmallow>=3.0 is supported.
+
 0.9.0 (2020-05-27)
 ******************
 
