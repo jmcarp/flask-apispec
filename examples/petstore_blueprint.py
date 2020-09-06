@@ -14,6 +14,7 @@ blueprint = Blueprint(docs, name='pet', import_name=__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class Pet:
     def __init__(self, name, type):
         self.name = name
@@ -28,8 +29,8 @@ class PetSchema(ma.Schema):
 @blueprint.route('/pets/<pet_id>')
 @doc(params={'pet_id': {'description': 'pet id'}})
 @marshal_with(PetSchema)
-@use_kwargs({'breed': ma.fields.Str()})
-def get_pet(pet_id):
+@use_kwargs({'breed': ma.fields.Str()}, location='query')
+def get_pet(pet_id,breed):
     return Pet('calici', 'cat')
 
 
