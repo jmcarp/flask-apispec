@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import functools
 
-import six
 import marshmallow as ma
+
 
 def resolve_resource(resource, **kwargs):
     resource_class_args = kwargs.get('resource_class_args') or ()
@@ -12,6 +10,7 @@ def resolve_resource(resource, **kwargs):
         return resource(*resource_class_args, **resource_class_kwargs)
     return resource
 
+
 def resolve_schema(schema, request=None):
     if isinstance(schema, type) and issubclass(schema, ma.Schema):
         schema = schema()
@@ -19,7 +18,7 @@ def resolve_schema(schema, request=None):
         schema = schema(request)
     return schema
 
-class Ref(object):
+class Ref:
 
     def __init__(self, key):
         self.key = key
@@ -27,11 +26,12 @@ class Ref(object):
     def resolve(self, obj):
         return getattr(obj, self.key, None)
 
+
 def resolve_refs(obj, attr):
     if isinstance(attr, dict):
         return {
             key: resolve_refs(obj, value)
-            for key, value in six.iteritems(attr)
+            for key, value in attr.items()
         }
     if isinstance(attr, list):
         return [resolve_refs(obj, value) for value in attr]
@@ -39,7 +39,7 @@ def resolve_refs(obj, attr):
         return attr.resolve(obj)
     return attr
 
-class Annotation(object):
+class Annotation:
 
     def __init__(self, options=None, inherit=None, apply=None):
         self.options = options or []

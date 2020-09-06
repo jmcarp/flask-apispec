@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import datetime as dt
 import os
 import sys
@@ -29,7 +26,7 @@ issues_github_path = 'jmcarp/flask-apispec'
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'flask-apispec'
-copyright = 'Joshua Carp and contributors {0:%Y}'.format(dt.datetime.utcnow())
+copyright = 'Joshua Carp and contributors {:%Y}'.format(dt.datetime.utcnow())
 
 version = release = flask_apispec.__version__
 

@@ -1,6 +1,95 @@
 Changelog
 ---------
 
+0.10.0 (2020-08-27)
+*******************
+
+Features:
+
+* Support webargs>=6 (:issue:`178`). Thanks :user:`mdantonio` for the PR.
+
+Other changes:
+
+* *Backwards-incompatible*: Drop Python 2 compatibility. Only Python>=3.5 is supported.
+* *Backwards-incompatible*: Drop marshmallow 2 compatibility. Only marshmallow>=3.0 is supported.
+
+0.9.0 (2020-05-27)
+******************
+
+Features:
+
+* Add option to exclude OPTIONS requests (:issue:`111`).
+  Thanks :user:`Brcrwilliams` for the PR.
+
+0.8.8 (2020-03-29)
+******************
+
+Bug fixes:
+
+* Fix behavior when view returns ``(obj, status_code, headers)``
+  (regression in 0.8.7) (:issue:`181`).
+  Thanks :user:`decaz` for reporting and thanks :user:`c-kruse`
+  for the PR.
+
+0.8.7 (2020-03-10)
+******************
+
+Bug fixes:
+
+* Fix serialisation problem with return codes when used with flask-restful  (:issue:`98`, :issue:`93`).
+  Thanks :user:`AdamLeyshon` for the PR.
+
+0.8.6 (2020-03-01)
+******************
+
+Bug fixes:
+
+* Restrict webargs version to <6.0 (:issue:`176`).
+  Thanks :user:`c-kruse` for reporting and thanks :user:`saydamir`
+  for the PR.
+
+0.8.5 (2020-01-05)
+******************
+
+Bug fixes:
+
+* Fix setting ``default_in`` for compatibility with newer versions of apispec (:pr:`173`).
+  Thanks :user:`AbdealiJK` for the PR.
+
+0.8.4 (2019-12-04)
+******************
+
+Bug fixes:
+
+* Fix passing ``default_in`` argument when generating parameters (:issue:`165`).
+  Thanks :user:`d42` for reporting and thanks :user:`zzz4zzz` for the fix.
+
+0.8.3 (2019-09-17)
+******************
+
+Bug fixes:
+
+* Fix compatibility with apispec>=3.0.0 (:issue:`163`).
+  Thanks :user:`decaz`.
+
+0.8.2 (2019-09-16)
+******************
+
+Bug fixes:
+
+* Handle multiple locations when using use_kwargs multiple times on the same view (:issue:`78`).
+  Thanks :user:`norbert-sebok` for the PR and thanks :user:`shrsubra` for updating it.
+
+0.8.1 (2019-06-22)
+******************
+
+Bug fixes:
+
+* Fix support for ``@post_load`` methods that return a non-dictionary object
+  (:issue:`103`). Thanks :user:`erezatiya` for reporting and thanks :user:`elatomo`
+  for the PR.
+* Restrict marshmallow version based on Python version (:pr:`150`).
+
 0.8.0 (2019-02-13)
 ******************
 

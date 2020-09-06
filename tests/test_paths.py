@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask_apispec.paths import rule_to_path, rule_to_params
 
 def make_rule(app, path, **kwargs):

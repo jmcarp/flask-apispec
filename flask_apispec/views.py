@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import six
 import flask.views
 
 from flask_apispec.annotations import activate
+
 
 def inherit(child, parents):
     child.__apispec__ = child.__dict__.get('__apispec__', {})
@@ -15,17 +13,18 @@ def inherit(child, parents):
             if annotation not in child.__apispec__[key]
         )
 
+
 class ResourceMeta(type):
 
     def __new__(mcs, name, bases, attrs):
-        klass = super(ResourceMeta, mcs).__new__(mcs, name, bases, attrs)
+        klass = super().__new__(mcs, name, bases, attrs)
         mro = klass.mro()
         inherit(klass, mro[1:])
         methods = [
             each.lower() for each in
             getattr(klass, 'methods', None) or flask.views.http_method_funcs
         ]
-        for key, value in six.iteritems(attrs):
+        for key, value in attrs.items():
             if key.lower() in methods:
                 parents = [
                     getattr(parent, key) for parent in mro
@@ -38,10 +37,12 @@ class ResourceMeta(type):
                     value.__apispec__['ismethod'] = True
         return klass
 
+
 class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
     pass
 
-class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
+
+class MethodResource(flask.views.MethodView, metaclass=MethodResourceMeta):
     """Subclass of `MethodView` that uses the `ResourceMeta` metaclass. Behaves
     exactly like `MethodView` but inherits **flask-apispec** annotations.
     """

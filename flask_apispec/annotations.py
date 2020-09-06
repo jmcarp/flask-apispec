@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import functools
 
 from flask_apispec import utils
 from flask_apispec.wrapper import Wrapper
 
-def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
+
+def use_kwargs(args, location=None, inherit=None, apply=None, **kwargs):
     """Inject keyword arguments from the specified webargs arguments into the
     decorated view function.
 
@@ -22,11 +21,12 @@ def use_kwargs(args, locations=None, inherit=None, apply=None, **kwargs):
     :param args: Mapping of argument names to :class:`Field <marshmallow.fields.Field>`
         objects, :class:`Schema <marshmallow.Schema>`, or a callable which accepts a
         request and returns a :class:`Schema <marshmallow.Schema>`
-    :param locations: Default request locations to parse
+    :param location: Default request location to parse
     :param inherit: Inherit args from parent classes
     :param apply: Parse request with specified args
     """
-    kwargs.update({'locations': locations})
+
+    kwargs.update({'location': location})
 
     def wrapper(func):
         options = {
@@ -70,6 +70,7 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
         return activate(func)
     return wrapper
 
+
 def doc(inherit=None, **kwargs):
     """Annotate the decorated view function or class with the specified Swagger
     attributes.
@@ -89,6 +90,7 @@ def doc(inherit=None, **kwargs):
         return activate(func)
     return wrapper
 
+
 def wrap_with(wrapper_cls):
     """Use a custom `Wrapper` to apply annotations to the decorated function.
 
@@ -99,10 +101,12 @@ def wrap_with(wrapper_cls):
         return activate(func)
     return wrapper
 
+
 def annotate(func, key, options, **kwargs):
     annotation = utils.Annotation(options, **kwargs)
     func.__apispec__ = func.__dict__.get('__apispec__', {})
     func.__apispec__.setdefault(key, []).insert(0, annotation)
+
 
 def activate(func):
     if isinstance(func, type) or getattr(func, '__apispec__', {}).get('wrapped'):

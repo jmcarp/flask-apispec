@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask_apispec import utils
 
 class TestAnnotations:
