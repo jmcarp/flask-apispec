@@ -6,7 +6,7 @@ REQUIRES = [
     'flask>=0.10.1',
     'marshmallow>=3.0.0',
     'webargs>=6.0.0',
-    'apispec>=1.0.0',
+    'apispec>=1.0.0,<4.0.0',
 ]
 
 
