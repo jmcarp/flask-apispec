@@ -1,5 +1,4 @@
 import pytest
-from unittest import mock
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from marshmallow import fields, Schema
@@ -8,7 +7,7 @@ from flask import make_response
 from flask_apispec.paths import rule_to_params
 from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
-from flask_apispec.apidoc import APISPEC_VERSION_INFO, Converter, ViewConverter, ResourceConverter
+from flask_apispec.apidoc import ViewConverter, ResourceConverter
 
 @pytest.fixture()
 def marshmallow_plugin():
