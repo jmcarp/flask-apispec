@@ -1,4 +1,5 @@
 import copy
+import functools
 
 import apispec
 from apispec.core import VALID_METHODS
@@ -15,7 +16,6 @@ APISPEC_VERSION_INFO = tuple(
 )
 
 class Converter:
-
     def __init__(self, app, spec, document_options=True):
         self.app = app
         self.spec = spec
@@ -80,23 +80,19 @@ class Converter:
         extra_params = []
         for args in annotation.options:
             schema = args.get('args', {})
-            if is_instance_or_subclass(schema, Schema):
-                converter = openapi.schema2parameters
-            elif callable(schema):
-                schema = schema(request=None)
-                if is_instance_or_subclass(schema, Schema):
-                    converter = openapi.schema2parameters
+            openapi_converter = openapi.schema2parameters
+            if not is_instance_or_subclass(schema, Schema):
+                if callable(schema):
+                    schema = schema(request=None)
                 else:
-                    converter = openapi.fields2parameters
-            else:
-                converter = openapi.fields2parameters
+                    schema = Schema.from_dict(schema)
+                    openapi_converter = functools.partial(
+                        self._convert_dict_schema, openapi_converter)
+
             options = copy.copy(args.get('kwargs', {}))
-            location = options.pop('location', None)
-            if location:
-                options['default_in'] = location
-            elif 'default_in' not in options:
-                options['default_in'] = 'body'
-            extra_params += converter(schema, **options) if args else []
+            if not options.get('location'):
+                options['location'] = 'body'
+            extra_params += openapi_converter(schema, **options) if args else []
 
         rule_params = rule_to_params(rule, docs.get('params')) or []
 
@@ -105,6 +101,33 @@ class Converter:
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
         return merge_recursive(annotation.options)
+
+    def _convert_dict_schema(self, openapi_converter, schema, location, **options):
+        """When location is 'body' and OpenApi is 2, return one param for body fields.
+
+        Otherwise return fields exactly as converted by apispec."""
+        if self.spec.openapi_version.major < 3 and location == 'body':
+            params = openapi_converter(schema, location=None, **options)
+            body_parameter = {
+                "in": "body",
+                "name": "body",
+                "required": False,
+                "schema": {
+                    "type": "object",
+                    "properties": {},
+                },
+            }
+            for param in params:
+                name = param["name"]
+                body_parameter["schema"]["properties"].update({name: param})
+                if param.get("required", False):
+                    body_parameter["schema"].setdefault("required", []).append(name)
+                del param["name"]
+                del param["in"]
+                del param["required"]
+            return [body_parameter]
+
+        return openapi_converter(schema, location=location, **options)
 
 class ViewConverter(Converter):
 
