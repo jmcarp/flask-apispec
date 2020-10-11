@@ -72,10 +72,7 @@ class Converter:
         return None
 
     def get_parameters(self, rule, view, docs, parent=None):
-        if APISPEC_VERSION_INFO[0] < 3:
-            openapi = self.marshmallow_plugin.openapi
-        else:
-            openapi = self.marshmallow_plugin.converter
+        openapi = self.marshmallow_plugin.converter
         annotation = resolve_annotations(view, 'args', parent)
         extra_params = []
         for args in annotation.options:

@@ -25,10 +25,7 @@ def spec(marshmallow_plugin):
 
 @pytest.fixture()
 def openapi(marshmallow_plugin):
-    if APISPEC_VERSION_INFO[0] < 3:
-        return marshmallow_plugin.openapi
-    else:
-        return marshmallow_plugin.converter
+    return marshmallow_plugin.converter
 
 def ref_path(spec):
     if spec.openapi_version.version[0] < 3:
