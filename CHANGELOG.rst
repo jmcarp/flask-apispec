@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.10.1 (unreleased)
+*******************
+
+Bug fixes:
+
+* Pin to apispec<4.0.0 (:issue:`202`). Thanks :user:`catalanojuan`.
+
+This is the last release to support apispec<4.
+
 0.10.0 (2020-08-27)
 *******************
 
