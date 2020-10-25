@@ -6,7 +6,7 @@ REQUIRES = [
     'flask>=0.10.1',
     'marshmallow>=3.0.0',
     'webargs>=6.0.0',
-    'apispec>=1.0.0,<4.0.0',
+    'apispec>=4.0.0',
 ]
 
 
@@ -48,7 +48,7 @@ setup(
     license='MIT',
     zip_safe=False,
     keywords='flask marshmallow webargs apispec',
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     test_suite='tests',
     project_urls={
         'Bug Reports': 'https://github.com/jmcarp/flask-apispec/issues',
