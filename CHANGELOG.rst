@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.11.0 (unreleased)
+*******************
+
+Features:
+
+* Support apispec>=4.0.0 (:issue:`202`). Thanks :user:`kam193`.
+  *Backwards-incompatible*: apispec<4.0.0 is no longer supported.
+
 0.10.1 (2020-10-25)
 *******************
 
