@@ -1,37 +1,76 @@
-# -*- coding: utf-8 -*-
-
 import json
 
 from flask import make_response
-from marshmallow import fields, Schema, post_load
+from marshmallow import fields, Schema, post_load, EXCLUDE
 
 from flask_apispec.utils import Ref
 from flask_apispec.views import MethodResource
 from flask_apispec import doc, use_kwargs, marshal_with
 
+
+# All the following schemas are set with unknown = EXCLUDE
+# because part of a multiple schema input.
+# This way none of them will raise errors for unknown fields handled by others
+class NameSchema(Schema):
+    name = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class NameGenreSchema(Schema):
+    name = fields.Str()
+    genre = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class GenreSchema(Schema):
+    genre = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+class InstrumentSchema(Schema):
+    instrument = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
+
 class TestFunctionViews:
 
     def test_use_kwargs(self, app, client):
         @app.route('/')
-        @use_kwargs({'name': fields.Str()})
+        @use_kwargs({'name': fields.Str()}, location='querystring')
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie'})
         assert res.json == {'name': 'freddie'}
 
+    def test_use_kwargs_nolocation(self, app, client):
+        @app.route('/')
+        @use_kwargs({'name': fields.Str()})
+        def view(**kwargs):
+            return kwargs
+        res = client.get('/', {'name': 'freddie'})
+        # default location is 'json', i.e. no kwargs will be received here
+        assert res.json == {}
+
     def test_view_returning_tuple(self, app, client):
         @app.route('/all')
-        @use_kwargs({'name': fields.Str()})
+        @use_kwargs({'name': fields.Str()}, location='querystring')
         def all(**kwargs):
             return kwargs, 202, {'x-msg': 'test'}
 
         @app.route('/headers')
-        @use_kwargs({'name': fields.Str()})
+        @use_kwargs({'name': fields.Str()}, location='querystring')
         def view_headers(**kwargs):
             return kwargs, {'x-msg': 'test'}
 
         @app.route('/code')
-        @use_kwargs({'name': fields.Str()})
+        @use_kwargs({'name': fields.Str()}, location='querystring')
         def view_code(**kwargs):
             return kwargs, 202
 
@@ -55,7 +94,7 @@ class TestFunctionViews:
             name = fields.Str()
 
         @app.route('/')
-        @use_kwargs(ArgSchema)
+        @use_kwargs(ArgSchema, location='querystring')
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie'})
@@ -77,7 +116,7 @@ class TestFunctionViews:
                 return User(**data)
 
         @app.route('/', methods=('POST', ))
-        @use_kwargs(ArgSchema())
+        @use_kwargs(ArgSchema(), location='json_or_form')
         def view(user):
             assert isinstance(user, User)
             return {'name': user.name}
@@ -91,7 +130,7 @@ class TestFunctionViews:
             name = fields.Str()
 
         @app.route('/', methods=('POST',))
-        @use_kwargs(ArgSchema(many=True), locations=('json',))
+        @use_kwargs(ArgSchema(many=True), location='json')
         def view(*args):
             return list(args)
         data = [{'name': 'freddie'}, {'name': 'john'}]
@@ -100,8 +139,8 @@ class TestFunctionViews:
 
     def test_use_kwargs_multiple(self, app, client):
         @app.route('/')
-        @use_kwargs({'name': fields.Str()})
-        @use_kwargs({'instrument': fields.Str()})
+        @use_kwargs(NameSchema, location='querystring')
+        @use_kwargs(InstrumentSchema, location='querystring')
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie', 'instrument': 'vocals'})
@@ -118,7 +157,7 @@ class TestFunctionViews:
             return ArgSchema
 
         @app.route('/')
-        @use_kwargs(schema_factory)
+        @use_kwargs(schema_factory, location='querystring')
         def view(**kwargs):
             return kwargs
         res = client.get('/', {'name': 'freddie'})
@@ -143,7 +182,10 @@ class TestFunctionViews:
 
     def test_integration(self, app, client, models, schemas):
         @app.route('/')
-        @use_kwargs({'name': fields.Str(), 'genre': fields.Str()})
+        @use_kwargs(
+            {'name': fields.Str(), 'genre': fields.Str()},
+            location='querystring'
+        )
         @marshal_with(schemas.BandSchema)
         def view(**kwargs):
             return models.Band(**kwargs)
@@ -185,12 +227,12 @@ class TestClassViews:
 
     def test_kwargs_inheritance(self, app, client):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str()})
+            @use_kwargs(NameSchema, location='querystring')
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'genre': fields.Str()})
+            @use_kwargs(GenreSchema, location='querystring')
             def get(self, **kwargs):
                 return kwargs
 
@@ -200,13 +242,14 @@ class TestClassViews:
 
     def test_kwargs_inheritance_ref(self, app, client, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str()})
+            @use_kwargs(NameSchema, location='querystring')
             def get(self, **kwargs):
                 pass
 
         class ConcreteResource(BaseResource):
-            kwargs = {'genre': fields.Str()}
-            @use_kwargs(Ref('kwargs'))
+            kwargs = GenreSchema
+
+            @use_kwargs(Ref('kwargs'), location='querystring')
             @marshal_with(schemas.BandSchema)
             def get(self, **kwargs):
                 return kwargs
@@ -217,12 +260,12 @@ class TestClassViews:
 
     def test_kwargs_inheritance_false(self, app, client, models, schemas):
         class BaseResource(MethodResource):
-            @use_kwargs({'name': fields.Str(), 'genre': fields.Str()})
+            @use_kwargs(NameGenreSchema, location='querystring')
             def get(self):
                 pass
 
         class ConcreteResource(BaseResource):
-            @use_kwargs({'name': fields.Str()}, inherit=False)
+            @use_kwargs(NameSchema, inherit=False, location='querystring')
             def get(self, **kwargs):
                 return kwargs
 
@@ -232,7 +275,7 @@ class TestClassViews:
 
     def test_kwargs_apply_false(self, app, client):
         class ConcreteResource(MethodResource):
-            @use_kwargs({'genre': fields.Str()}, apply=False)
+            @use_kwargs(GenreSchema, apply=False)
             def get(self, **kwargs):
                 return kwargs
 

@@ -1,20 +1,20 @@
-# -*- coding: utf-8 -*-
-
-import six
 import marshmallow as ma
 
 from flask_apispec import ResourceMeta, Ref, doc, marshal_with, use_kwargs
+
 
 class Pet:
     def __init__(self, name, type):
         self.name = name
         self.type = type
 
+
 class PetSchema(ma.Schema):
     name = ma.fields.Str()
     type = ma.fields.Str()
 
-class PetResource(six.with_metaclass(ResourceMeta)):
+
+class PetResource(metaclass=ResourceMeta):
     @use_kwargs({
         'category': ma.fields.Str(),
         'name': ma.fields.Str(),
@@ -22,6 +22,7 @@ class PetResource(six.with_metaclass(ResourceMeta)):
     @marshal_with(PetSchema(), code=200)
     def get(self):
         return Pet('calici', 'cat')
+
 
 class CatResource(PetResource):
     @use_kwargs({'category': ma.fields.Int()})
@@ -31,7 +32,7 @@ class CatResource(PetResource):
 
 ###
 
-class CrudResource(six.with_metaclass(ResourceMeta)):
+class CrudResource(metaclass=ResourceMeta):
 
     schema = None
 
@@ -51,6 +52,7 @@ class CrudResource(six.with_metaclass(ResourceMeta)):
     @marshal_with(None, code=204)
     def delete(self, id):
         pass
+
 
 class PetResource(CrudResource):
     schema = PetSchema
@@ -77,7 +79,7 @@ docs.register(get_pet)
 class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
     pass
 
-class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
+class MethodResource(flask.views.MethodView, metaclass=MethodResourceMeta):
     methods = None
 
 @doc(

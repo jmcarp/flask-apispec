@@ -1,6 +1,39 @@
 Changelog
 ---------
 
+0.11.0 (2020-10-25)
+*******************
+
+Features:
+
+* Support apispec>=4.0.0 (:issue:`202`). Thanks :user:`kam193`.
+  *Backwards-incompatible*: apispec<4.0.0 is no longer supported.
+
+Other changes:
+
+* *Backwards-incompatible*: Drop Python 3.5 compatibility. Only Python>=3.6 is supported.
+
+0.10.1 (2020-10-25)
+*******************
+
+Bug fixes:
+
+* Pin to apispec<4.0.0 (:issue:`202`). Thanks :user:`catalanojuan`.
+
+This is the last release to support apispec<4.
+
+0.10.0 (2020-08-27)
+*******************
+
+Features:
+
+* Support webargs>=6 (:issue:`178`). Thanks :user:`mdantonio` for the PR.
+
+Other changes:
+
+* *Backwards-incompatible*: Drop Python 2 compatibility. Only Python>=3.5 is supported.
+* *Backwards-incompatible*: Drop marshmallow 2 compatibility. Only marshmallow>=3.0 is supported.
+
 0.9.0 (2020-05-27)
 ******************
 

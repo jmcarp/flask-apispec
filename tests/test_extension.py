@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 import base64
 from flask import Blueprint

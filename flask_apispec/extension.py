@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import flask
 import functools
 import types
@@ -26,7 +25,7 @@ def verify_password(username=None, password=None):
     return False
 
 
-class FlaskApiSpec(object):
+class FlaskApiSpec:
     """Flask-apispec extension.
 
     Usage:

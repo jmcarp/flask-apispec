@@ -2,12 +2,11 @@ language: python
 cache: pip
 sudo: false
 env:
-- MARSHMALLOW_VERSION="==2.13.0"
+- MARSHMALLOW_VERSION="==3.0.0"
 - MARSHMALLOW_VERSION=""
 python:
-- '2.7'
-- '3.5'
 - '3.6'
+- '3.8'
 before_install:
 - travis_retry pip install codecov
 install:
@@ -22,7 +21,7 @@ jobs:
   include:
   - stage: PyPI Release
     if: tag IS present
-    python: "3.6"
+    python: "3.8"
     env: []
     # Override install, and script to no-ops
     before_install: true
