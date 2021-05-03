@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 REQUIRES = [
     'flask>=0.10.1',
-    'Flask-HTTPAuth==4.1.0'
+    'Flask-HTTPAuth>=4.1.0'
     'marshmallow>=3.0.0',
     'webargs>=6.0.0',
     'apispec>=4.0.0',
