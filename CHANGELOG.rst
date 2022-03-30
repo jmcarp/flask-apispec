@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.11.1 (unreleased)
+*******************
+
+Bug fixes:
+
+* Fix Flask 2.x support (:issue:`229`). Thanks :user:`KyleJamesWalker` for the PR.
+
+
 0.11.0 (2020-10-25)
 *******************
 

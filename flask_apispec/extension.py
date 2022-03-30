@@ -103,6 +103,10 @@ class FlaskApiSpec:
             except ValueError:
                 blueprint_name = None
 
+            # Skip static rules
+            if name == 'static':
+                continue
+
             try:
                 self.register(rule, blueprint=blueprint_name)
             except TypeError:
