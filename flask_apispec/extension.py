@@ -103,7 +103,7 @@ class FlaskApiSpec:
                 continue
             
             try:
-                blueprint_name, _ = name.split('.')
+                blueprint_name, _ = name.rsplit('.', maxsplit=1)
             except ValueError:
                 blueprint_name = None
 
