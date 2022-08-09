@@ -25,7 +25,7 @@ Use the :func:`use_kwargs <flask_apispec.annotations.use_kwargs>` and :func:`mar
     def list_pets(**kwargs):
         return Pet.query.filter_by(**kwargs).all()
 
-Decorators can also be applied to view classes, e.g. Flask's :class:`MethodView <flask.views.MethodView>` or flask-restful's :class:`Resource <flask_restful.Resource>`. For correct inheritance behavior, view classes should use the `ResourceMeta` meta-class; for convenience, **flask-apispec** provides `MethodResource`, which inherits from `MethodView` and uses the `ResourceMeta` and `MethodViewType` meta-classes.
+Decorators can also be applied to view classes, e.g. Flask's :class:`MethodView <flask.views.MethodView>` or flask-restful's :class:`Resource <flask_restful.Resource>`. For correct inheritance behavior, view classes should use the `ResourceMeta` meta-class; for convenience, **flask-apispec** provides `MethodResource`, which inherits from `MethodView` and uses the `ResourceMeta` meta-class.
 
 .. code-block:: python
 

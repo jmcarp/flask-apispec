@@ -38,7 +38,7 @@ class ResourceMeta(type):
         return klass
 
 
-class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
+class MethodResourceMeta(ResourceMeta, type(flask.views.MethodView)):
     pass
 
 

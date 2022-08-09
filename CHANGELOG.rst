@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.11.2 (unreleased)
+*******************
+
+Bug fixes:
+
+* Fix Flask 2.2 support (:issue:`237`). 
+  Thanks :user:`woutdenolf` for the catch and patch.
+
 0.11.1 (2022-03-29)
 *******************
 
