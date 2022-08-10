@@ -62,3 +62,11 @@ def readme(ctx, browse=False):
     ctx.run("rst2html.py README.rst > README.html")
     if browse:
         webbrowser.open_new_tab('README.html')
+
+@task(clean, install)
+def build(ctx):
+    ctx.run('python3 -m build')
+
+@task(build)
+def release(ctx):
+    ctx.run("python3 -m twine upload dist/*")
