@@ -1,7 +1,15 @@
 Changelog
 ---------
 
-0.11.2 (2022-08-10)
+0.11.4 (2022-08-11)
+*******************
+
+Bug fixes:
+
+* Fix circular import (:issue:`239`).
+  Thanks :user:`synapticarbors` for reporting and thanks :user:`atugushev` for the PR.
+
+0.11.3 (2022-08-10)
 *******************
 
 Bug fixes:
