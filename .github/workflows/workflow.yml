@@ -1,0 +1,58 @@
+name: CI
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+      - name: Run flake8
+        uses: py-actions/flake8@v2
+
+  test:
+    runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          python-version: ["3.6", "3.7", "3.8", "3.9"]
+      steps:
+        - uses: actions/checkout@v3
+        - name: Set up Python ${{ matrix.python-version }}
+          uses: actions/setup-python@v3
+          with:
+            python-version: ${{ matrix.python-version }}
+        - name: Install dependencies
+          run: |
+            pip install -r dev-requirements.txt
+            pip install .
+        - name: Run tests
+          run: |
+            pytest --cov flask_apispec --cov-report xml
+        - name: Coverage report
+          uses: codecov/codecov-action@v2
+          with:
+            files: ./coverage.xml
+
+  build-n-publish:
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          pip install setuptools wheel invoke
+      - name: Build a binary wheel and a source tarball
+        run: |
+          invoke install
+          python setup.py sdist bdist_wheel
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
