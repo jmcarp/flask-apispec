@@ -43,7 +43,7 @@ jobs:
     needs: [test]
     steps:
       - uses: actions/checkout@master
-      - name: Set up Python 3.10
+      - name: Set up Python 3.9
         uses: actions/setup-python@v3
         with:
           python-version: "3.9"
