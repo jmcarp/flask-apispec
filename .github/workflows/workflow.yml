@@ -11,7 +11,8 @@ jobs:
         uses: actions/setup-python@v3
       - name: Run flake8
         uses: py-actions/flake8@v2
-        path: flask_apispec
+        with:
+          path: flask_apispec
 
   test:
     runs-on: ubuntu-latest
