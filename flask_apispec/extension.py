@@ -97,14 +97,14 @@ class FlaskApiSpec:
 
     def register_existing_resources(self):
         for name, rule in self.app.view_functions.items():
-            try:
-                blueprint_name, _ = name.split('.')
-            except ValueError:
-                blueprint_name = None
-
             # Skip static rules
             if name == 'static':
                 continue
+            
+            try:
+                blueprint_name, _ = name.rsplit('.', maxsplit=1)
+            except ValueError:
+                blueprint_name = None
 
             try:
                 self.register(rule, blueprint=blueprint_name)
