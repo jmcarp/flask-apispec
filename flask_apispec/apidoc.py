@@ -32,7 +32,7 @@ class Converter:
             )
 
     def convert(self, target, endpoint=None, blueprint=None, **kwargs):
-        endpoint = endpoint or target.__name__.lower()
+        endpoint = endpoint or target.__name__
         if blueprint:
             endpoint = '{}.{}'.format(blueprint, endpoint)
         rules = self.app.url_map._rules_by_endpoint[endpoint]
