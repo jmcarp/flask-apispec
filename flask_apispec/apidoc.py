@@ -97,7 +97,26 @@ class Converter:
 
     def get_responses(self, view, parent=None):
         annotation = resolve_annotations(view, 'schemas', parent)
-        return merge_recursive(annotation.options)
+        options = []
+        for option in annotation.options:
+            exploded = {}
+            for status_code, meta in option.items():
+                if self.spec.openapi_version.major < 3:
+                    meta.pop('content_type', None)
+                    exploded[status_code] = meta
+                else:
+                    content_type = meta['content_type'] or 'application/json'
+                    exploded[status_code] = {
+                        'content': {
+                            content_type: {
+                                'schema': meta['schema']
+                            }
+                        }
+                    }
+                    if meta['description']:
+                        exploded[status_code]['description'] = meta['description']
+            options.append(exploded)
+        return merge_recursive(options)
 
     def _convert_dict_schema(self, openapi_converter, schema, location, **options):
         """When location is 'body' and OpenApi is 2, return one param for body fields.
