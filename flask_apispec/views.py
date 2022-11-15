@@ -1,3 +1,4 @@
+form typing import Any, Callable
 import flask.views
 
 from flask_apispec.annotations import activate
@@ -47,3 +48,34 @@ class MethodResource(flask.views.MethodView, metaclass=MethodResourceMeta):
     exactly like `MethodView` but inherits **flask-apispec** annotations.
     """
     methods = None
+
+    @classmethod
+    def as_view(
+        cls, name: str, *class_args: Any, **class_kwargs: Any
+    ) -> Callable:
+        """Override as_view method with support __apispec__ from class.
+        
+        Example:
+            @doc(
+                tags=['pets'],
+                params={'pet_id': {'description': 'the pet name'}},
+            )
+            class CatResource(MethodResource):
+
+            @marshal_with(PetSchema)
+            def get(self, pet_id):
+                return Pet('calici', 'cat')
+
+            @marshal_with(PetSchema)
+            def put(self, pet_id):
+                return Pet('calici', 'cat')
+
+
+            cat_resource_view = CatResource.as_view('CatResource')
+
+            app.add_url_rule('/cat/<pet_id>', view_func=cat_resource_view)
+            docs.register(cat_resource_view, endpoint='CatResource')
+        """
+        view = super().as_view(name, *class_args, **class_kwargs)
+        view.__apispec__ = getattr(cls, "__apispec__", {})
+        return view
