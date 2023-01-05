@@ -6,8 +6,8 @@ import marshmallow as ma
 def resolve_resource(resource, **kwargs):
     resource_class_args = kwargs.get('resource_class_args') or ()
     resource_class_kwargs = kwargs.get('resource_class_kwargs') or {}
-    if isinstance(resource, type):
-        return resource(*resource_class_args, **resource_class_kwargs)
+    # if isinstance(resource, type):
+    #     return resource(*resource_class_args, **resource_class_kwargs)
     return resource
 
 

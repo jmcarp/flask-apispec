@@ -38,13 +38,21 @@ class FlaskApiSpec:
         OPTIONS requests in the specification
     """
 
-    def __init__(self, app=None, document_options=True):
+    def __init__(self,
+    static_folder='./static',
+    template_folder='./templates',
+    static_url_path='/flask-apispec/static',
+    app=None, 
+    document_options=True):
         self._deferred = []
         self.app = app
         self.view_converter = None
         self.resource_converter = None
         self.spec = None
         self.document_options = document_options
+        self.static_folder = static_folder
+        self.template_folder = template_folder
+        self.static_url_path = static_url_path
 
         if app:
             self.init_app(app)
@@ -74,9 +82,9 @@ class FlaskApiSpec:
         blueprint = flask.Blueprint(
             'flask-apispec',
             __name__,
-            static_folder='./static',
-            template_folder='./templates',
-            static_url_path='/flask-apispec/static',
+            static_folder=self.static_folder,
+            template_folder=self.template_folder,
+            static_url_path=self.static_url_path,
         )
 
         json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
