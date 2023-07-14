@@ -38,7 +38,7 @@ class ResourceMeta(type):
                     value.__apispec__['ismethod'] = True
         return klass
 
-class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
+class MethodResourceMeta(ResourceMeta, flask.views.MethodView):
     pass
 
 class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):

@@ -74,7 +74,7 @@ def get_pet(pet_id):
 
 docs.register(get_pet)
 
-class MethodResourceMeta(ResourceMeta, flask.views.MethodViewType):
+class MethodResourceMeta(ResourceMeta, flask.views.MethodView):
     pass
 
 class MethodResource(six.with_metaclass(MethodResourceMeta, flask.views.MethodView)):
