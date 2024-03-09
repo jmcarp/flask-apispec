@@ -48,7 +48,7 @@ setup(
     license='MIT',
     zip_safe=False,
     keywords='flask marshmallow webargs apispec',
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     test_suite='tests',
     project_urls={
         'Bug Reports': 'https://github.com/jmcarp/flask-apispec/issues',
