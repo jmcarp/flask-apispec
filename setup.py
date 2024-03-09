@@ -49,6 +49,7 @@ setup(
     zip_safe=False,
     keywords='flask marshmallow webargs apispec',
     python_requires=">=3.8",
+    dependencies=["packaging>=17.0"],
     test_suite='tests',
     project_urls={
         'Bug Reports': 'https://github.com/jmcarp/flask-apispec/issues',
