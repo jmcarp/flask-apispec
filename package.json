@@ -1,16 +1,16 @@
 {
   "name": "flask-apispec",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "dependencies": {
-    "swagger-ui-dist": "3.20.7"
+    "swagger-ui-dist": "5.17.14"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jmcarp/flask-apispec.git"
+    "url": "git+https://github.com/RandoriDev/flask-apispec.git"
   },
   "author": "Joshua Carp",
   "bugs": {
-    "url": "https://github.com/jmcarp/flask-apispec/issues"
+    "url": "https://github.com/RandoriDev/flask-apispec/issues"
   },
-  "homepage": "https://github.com/jmcarp/flask-apispec#readme"
+  "homepage": "https://github.com/RandoriDev/flask-apispec#readme"
 }
