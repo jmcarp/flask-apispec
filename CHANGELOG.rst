@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+1.0.0 (2024-09-26)
+*******************
+
+Initial Randori changes:
+
+* Updating `swagger-ui` to `5.17.14` to address security issue
+
 0.11.4 (2022-08-11)
 *******************
 
