@@ -51,14 +51,13 @@ class FlaskApiSpec:
 
     def init_app(self, app):
         self.app = app
-        self.spec = self.app.config.get('APISPEC_SPEC') or \
-                    make_apispec(self.app.config.get('APISPEC_TITLE', 'flask-apispec'),
-                                 self.app.config.get('APISPEC_VERSION', 'v1'),
-                                 self.app.config.get('APISPEC_OAS_VERSION', '2.0'))
+        self.spec = self.app.config.get("APISPEC_SPEC") or make_apispec(
+            self.app.config.get("APISPEC_TITLE", "flask-apispec"),
+            self.app.config.get("APISPEC_VERSION", "v1"),
+            self.app.config.get("APISPEC_OAS_VERSION", "2.0"),
+        )
         self.add_swagger_routes()
-        self.resource_converter = ResourceConverter(self.app,
-                                                    self.spec,
-                                                    self.document_options)
+        self.resource_converter = ResourceConverter(self.app, self.spec, self.document_options)
         self.view_converter = ViewConverter(self.app, self.spec, self.document_options)
 
         for deferred in self._deferred:
@@ -72,20 +71,20 @@ class FlaskApiSpec:
 
     def add_swagger_routes(self):
         blueprint = flask.Blueprint(
-            'flask-apispec',
+            "flask-apispec",
             __name__,
-            static_folder='./static',
-            template_folder='./templates',
-            static_url_path='/flask-apispec/static',
+            static_folder="./static",
+            template_folder="./templates",
+            static_url_path="/flask-apispec/static",
         )
 
-        json_url = self.app.config.get('APISPEC_SWAGGER_URL', '/swagger/')
+        json_url = self.app.config.get("APISPEC_SWAGGER_URL", "/swagger/")
         if json_url:
-            blueprint.add_url_rule(json_url, 'swagger-json', self.swagger_json)
+            blueprint.add_url_rule(json_url, "swagger-json", self.swagger_json)
 
-        ui_url = self.app.config.get('APISPEC_SWAGGER_UI_URL', '/swagger-ui/')
+        ui_url = self.app.config.get("APISPEC_SWAGGER_UI_URL", "/swagger-ui/")
         if ui_url:
-            blueprint.add_url_rule(ui_url, 'swagger-ui', self.swagger_ui)
+            blueprint.add_url_rule(ui_url, "swagger-ui", self.swagger_ui)
 
         self.app.register_blueprint(blueprint)
 
@@ -93,17 +92,17 @@ class FlaskApiSpec:
         return flask.jsonify(self.spec.to_dict())
 
     def swagger_ui(self):
-        return flask.render_template('swagger-ui.html')
+        return flask.render_template("swagger-ui.html")
 
     def register_existing_resources(self):
         for name, rule in self.app.view_functions.items():
             try:
-                blueprint_name, _ = name.split('.')
+                blueprint_name, _ = name.split(".")
             except ValueError:
                 blueprint_name = None
 
             # Skip static rules
-            if name == 'static':
+            if name == "static":
                 continue
 
             try:
@@ -111,8 +110,7 @@ class FlaskApiSpec:
             except TypeError:
                 pass
 
-    def register(self, target, endpoint=None, blueprint=None,
-                 resource_class_args=None, resource_class_kwargs=None):
+    def register(self, target, endpoint=None, blueprint=None, resource_class_args=None, resource_class_kwargs=None):
         """Register a view.
 
         :param target: view function or view class.
@@ -124,11 +122,9 @@ class FlaskApiSpec:
             the view class constructor.
         """
 
-        self._defer(self._register, target, endpoint, blueprint,
-                    resource_class_args, resource_class_kwargs)
+        self._defer(self._register, target, endpoint, blueprint, resource_class_args, resource_class_kwargs)
 
-    def _register(self, target, endpoint=None, blueprint=None,
-                  resource_class_args=None, resource_class_kwargs=None):
+    def _register(self, target, endpoint=None, blueprint=None, resource_class_args=None, resource_class_kwargs=None):
         """Register a view.
 
         :param target: view function or view class.
@@ -157,7 +153,7 @@ class FlaskApiSpec:
             self.spec.path(**path)
 
 
-def make_apispec(title='flask-apispec', version='v1', openapi_version='2.0'):
+def make_apispec(title="flask-apispec", version="v1", openapi_version="2.0"):
     return APISpec(
         title=title,
         version=version,

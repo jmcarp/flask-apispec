@@ -26,19 +26,20 @@ def use_kwargs(args, location=None, inherit=None, apply=None, **kwargs):
     :param apply: Parse request with specified args
     """
 
-    kwargs.update({'location': location})
+    kwargs.update({"location": location})
 
     def wrapper(func):
         options = {
-            'args': args,
-            'kwargs': kwargs,
+            "args": args,
+            "kwargs": kwargs,
         }
-        annotate(func, 'args', [options], inherit=inherit, apply=apply)
+        annotate(func, "args", [options], inherit=inherit, apply=apply)
         return activate(func)
+
     return wrapper
 
 
-def marshal_with(schema, code='default', description='', inherit=None, apply=None):
+def marshal_with(schema, code="default", description="", inherit=None, apply=None):
     """Marshal the return value of the decorated view function using the
     specified schema.
 
@@ -60,15 +61,17 @@ def marshal_with(schema, code='default', description='', inherit=None, apply=Non
     :param inherit: Inherit schemas from parent classes
     :param apply: Marshal response with specified schema
     """
+
     def wrapper(func):
         options = {
             code: {
-                'schema': schema or {},
-                'description': description,
+                "schema": schema or {},
+                "description": description,
             },
         }
-        annotate(func, 'schemas', [options], inherit=inherit, apply=apply)
+        annotate(func, "schemas", [options], inherit=inherit, apply=apply)
         return activate(func)
+
     return wrapper
 
 
@@ -86,9 +89,11 @@ def doc(inherit=None, **kwargs):
 
     :param inherit: Inherit Swagger documentation from parent classes
     """
+
     def wrapper(func):
-        annotate(func, 'docs', [kwargs], inherit=inherit)
+        annotate(func, "docs", [kwargs], inherit=inherit)
         return activate(func)
+
     return wrapper
 
 
@@ -97,29 +102,31 @@ def wrap_with(wrapper_cls):
 
     :param wrapper_cls: Custom `Wrapper` subclass
     """
+
     def wrapper(func):
-        annotate(func, 'wrapper', [{'wrapper': wrapper_cls}])
+        annotate(func, "wrapper", [{"wrapper": wrapper_cls}])
         return activate(func)
+
     return wrapper
 
 
 def annotate(func, key, options, **kwargs):
     annotation = utils.Annotation(options, **kwargs)
-    func.__apispec__ = func.__dict__.get('__apispec__', {})
+    func.__apispec__ = func.__dict__.get("__apispec__", {})
     func.__apispec__.setdefault(key, []).insert(0, annotation)
 
 
 def activate(func):
-    if isinstance(func, type) or getattr(func, '__apispec__', {}).get('wrapped'):
+    if isinstance(func, type) or getattr(func, "__apispec__", {}).get("wrapped"):
         return func
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        instance = args[0] if func.__apispec__.get('ismethod') else None
-        annotation = utils.resolve_annotations(func, 'wrapper', instance)
-        wrapper_cls = utils.merge_recursive(annotation.options).get('wrapper', Wrapper)
+        instance = args[0] if func.__apispec__.get("ismethod") else None
+        annotation = utils.resolve_annotations(func, "wrapper", instance)
+        wrapper_cls = utils.merge_recursive(annotation.options).get("wrapper", Wrapper)
         wrapper = wrapper_cls(func, instance)
         return wrapper(*args, **kwargs)
 
-    wrapped.__apispec__['wrapped'] = True
+    wrapped.__apispec__["wrapped"] = True
     return wrapped
