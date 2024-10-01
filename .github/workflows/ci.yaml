@@ -1,0 +1,63 @@
+######################################################################
+# © Copyright IBM Corp. 2023
+# Copyright © 2023 Randori https://randori.com - All Rights Reserved.
+######################################################################
+name: Build and publish
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+    - main
+
+jobs:
+  build-test-release:
+    name: Build test release
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+    steps:
+    - uses: RandoriDev/ci-actions/setup-ci@setup-ci-v0
+      with:
+        container_key: ${{ secrets.REGISTRY_CONTAINER_WRITE_KEY }}
+        node_cache_type: npm
+
+    - uses: RandoriDev/ci-actions/detect-version@detect-version-v0
+      id: version
+      with:
+        head-branch: main
+        check-branch: true
+        enforce-changelog: true
+
+    - name: Establish tag version
+      run: |-
+        VERSION=$(cat ./VERSION)
+        TAG_VERSION=$VERSION-$(echo ${{ github.sha }} | cut -c1-7)
+        echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Run Tests
+      run: make test
+
+    - name: Run Lint check
+      run: make lint-check
+
+    - name: Publish Commit version of Docker Image
+      run: VERSION=${COMMIT_VERSION} make publish
+
+    - name: Publish Release image
+      if: ${{ steps.version.outputs.on-head-branch == 'true' && steps.version.outputs.tagged == 'false' }}
+      run: make publish
+
+    - name: Release interactsh
+      if: ${{ steps.version.outputs.on-head-branch == 'true' && steps.version.outputs.tagged == 'false' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        generate_release_notes: true
+        tag_name: ${{ env.VERSION }}
+        target_commitish: ${{ github.sha }}
+        name: ${{ env.VERSION }}
+        files: |
+          bin/interactsh-*-${{ env.VERSION }}

@@ -1,0 +1,61 @@
+[tool.poetry]
+name = "flask-apispec"
+version = "1.0.0"
+description = "Randori fork of https://github.com/jmcarp/flask-apispec"
+authors = ["Randori Engineering <engineering@randori.com>"]
+
+# packages = [{ include = "randori", from = "src"}]
+
+include = [
+	{ path = "flask_apispec/static/**/*", format = ["sdist", "wheel"] }
+]
+
+[[tool.poetry.source]]
+name = "us-central1-pypi-source"
+url = "https://us-central1-python.pkg.dev/randori-inf/us-central1-pypi/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "pypi"
+priority = "supplemental"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = ">=0.10.1"
+apispec = ">=4.0.0"
+webargs = ">=6.0.0"
+marshmallow = ">=3.0.0"
+
+
+[tool.poetry.dev-dependencies]
+black = "^24.3.0"
+isort = "^5.12.0"
+ruff = "^0.0.285"
+pytest = "^7.4.0"
+coverage = "^7.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"
+
+# Coverage
+[tool.coverage.report]
+show_missing = false
+fail_under = 0
+
+# black configs
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 120
+profile = "black"
+known_firstparty="randori"
+import_heading_stdlib="Standard Library"
+import_heading_thirdparty="Third Party"
+import_heading_firstparty="Randori Packages"
+dedup_headings=true

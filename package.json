@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/RandoriDev/flask-apispec.git"
   },
-  "author": "Joshua Carp",
+  "author": "Randori Engineering",
   "bugs": {
     "url": "https://github.com/RandoriDev/flask-apispec/issues"
   },

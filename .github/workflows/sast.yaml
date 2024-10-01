@@ -1,0 +1,64 @@
+######################################################################
+# © Copyright IBM Corp. 2024
+######################################################################
+name: Run SAST
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SAST_APP_ID }}
+          private-key: ${{ secrets.SAST_PRIVATE_KEY }}
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Detect Version
+        uses: RandoriDev/ci-actions/detect-version@detect-version-v0
+        id: version
+        with:
+          check-branch: true
+          head-branch: main
+
+      - name: Run SAST
+        uses: RandoriDev/ci-actions/run-sast@run-sast-v0
+        with:
+          project_name: ${{ github.event.repository.name }}
+          contrast_api_key: ${{ secrets.CONTRAST_API_KEY }}
+          contrast_orgid: ${{ secrets.CONTRAST_ORGID }}
+          scan_name: ${{ github.event.repository.name }}-${{ env.VERSION }}
+          contrast_user: ${{ secrets.CONTRAST_USER }}
+          contrast_service_key: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          package_path: ${{ github.workspace }}
+          exclude_path: 'examples/**,vendor/**,**/*testing/**,**/*_test.go'
+          jfrog_token: ${{ secrets.CONTRAST_JFROG_TOKEN }}
+
+      - name: Setup Python & GCP Registry
+        uses: RandoriDev/ci-actions/setup-ci@setup-ci-v1
+        with:
+          checkout_repo: false
+          python_version: "3.9"
+          python_cache_type: ''
+          gcp_key: ${{ secrets.REGISTRY_CONTAINER_WRITE_KEY }}
+
+      - name: Sync SAST
+        uses: RandoriDev/ci-actions/sync-issues@sync-issues-v0
+        with:
+          service: Contrast
+          project_name: ${{ github.event.repository.name }}
+          contrast_api_key: ${{ secrets.CONTRAST_API_KEY }}
+          contrast_orgid: ${{ secrets.CONTRAST_ORGID }}
+          contrast_token: ${{ secrets.CONTRAST_TOKEN }}
+          github_token: ${{ steps.generate_token.outputs.token }}
