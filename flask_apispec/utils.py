@@ -99,3 +99,10 @@ def _merge_recursive(child, parent):
             for key in keys
         }
     return child if child is not None else parent
+
+
+def is_instance_or_subclass(val, class_):
+    try:
+        return issubclass(val, class_)
+    except TypeError:
+        return isinstance(val, class_)

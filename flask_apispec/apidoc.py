@@ -5,10 +5,11 @@ from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import MarshmallowPlugin
 
 from marshmallow import Schema
-from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
-from flask_apispec.utils import resolve_resource, resolve_annotations, merge_recursive
+from flask_apispec.utils import (
+    is_instance_or_subclass, resolve_resource, resolve_annotations, merge_recursive
+)
 
 
 class Converter:
