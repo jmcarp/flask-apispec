@@ -98,6 +98,11 @@ Quickstart
             plugins=[MarshmallowPlugin()],
         ),
         'APISPEC_SWAGGER_URL': '/swagger/',
+        'APISPEC_AUTH': {
+            'ENABLED': True,
+            'USERNAME': '<username>',
+            'PASSWORD': '<password>'
+        }
     })
     docs = FlaskApiSpec(app)
 
