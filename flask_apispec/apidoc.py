@@ -1,19 +1,16 @@
 import copy
 import functools
 
-import apispec
 from apispec.core import VALID_METHODS
 from apispec.ext.marshmallow import MarshmallowPlugin
 
 from marshmallow import Schema
-from marshmallow.utils import is_instance_or_subclass
 
 from flask_apispec.paths import rule_to_path, rule_to_params
-from flask_apispec.utils import resolve_resource, resolve_annotations, merge_recursive
-
-APISPEC_VERSION_INFO = tuple(
-    [int(part) for part in apispec.__version__.split('.') if part.isdigit()]
+from flask_apispec.utils import (
+    is_instance_or_subclass, resolve_resource, resolve_annotations, merge_recursive
 )
+
 
 class Converter:
     def __init__(self, app, spec, document_options=True):

@@ -1,17 +1,16 @@
 from flask import Response
 
+import importlib.metadata
 from collections.abc import Mapping
 
 import flask
-import marshmallow as ma
 import werkzeug
+from packaging.version import Version
 from webargs import flaskparser
 
 from flask_apispec import utils
 
-MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in ma.__version__.split('.') if part.isdigit()]
-)
+MARSHMALLOW_VERSION = Version(importlib.metadata.version("marshmallow"))
 
 
 class Wrapper:
@@ -60,7 +59,7 @@ class Wrapper:
         if schema and annotation.apply is not False:
             schema = utils.resolve_schema(schema['schema'], request=flask.request)
             dumped = schema.dump(result)
-            output = dumped.data if MARSHMALLOW_VERSION_INFO[0] < 3 else dumped
+            output = dumped.data if MARSHMALLOW_VERSION.major < 3 else dumped
         else:
             output = result
 
