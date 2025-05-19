@@ -32,8 +32,11 @@ class Converter:
         endpoint = endpoint or target.__name__.lower()
         if blueprint:
             endpoint = '{}.{}'.format(blueprint, endpoint)
-        rules = self.app.url_map._rules_by_endpoint[endpoint]
-        return [self.get_path(rule, target, **kwargs) for rule in rules]
+        try:
+            rules = self.app.url_map._rules_by_endpoint[endpoint]
+            return [self.get_path(rule, target, **kwargs) for rule in rules]
+        except KeyError:
+            pass
 
     def get_path(self, rule, target, **kwargs):
         operations = self.get_operations(rule, target)
