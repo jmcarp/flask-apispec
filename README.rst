@@ -95,6 +95,7 @@ Quickstart
         'APISPEC_SPEC': APISpec(
             title='pets',
             version='v1',
+            openapi_version='3.0.3',
             plugins=[MarshmallowPlugin()],
         ),
         'APISPEC_SWAGGER_URL': '/swagger/',
